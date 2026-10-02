@@ -3,58 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EstudoFlow Pro</title>
+    <title>EstudoFlow PRO</title>
     
-    <!-- Configurações para Web App / PWA -->
+    <!-- PWA & Mobile Capabilities -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
 
-    <!-- Ícone SVG para navegadores e Apple -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
+    <!-- Icons via SVG Data URI -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
 
-    <!-- Web App Manifest Embutido -->
-    <link rel="manifest" href='data:application/manifest+json,{"name":"EstudoFlow Pro","short_name":"EstudoFlow","start_url":".","display":"standalone","background_color":"#000000","theme_color":"#000000","icons":[{"src":"data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%232563eb\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/></svg>","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}]}'>
+    <!-- Standalone Web App Manifest Data URI -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"EstudoFlow PRO","short_name":"EstudoFlow","start_url":".","display":"standalone","background_color":"#000000","theme_color":"#000000","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"512\" height=\"512\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"%232563eb\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/></svg>","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}]}'>
 
+    <!-- Tailwind CSS & Lucide Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body { -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
 <body class="h-full flex flex-col font-sans antialiased bg-black text-slate-100 select-none">
 
-    <!-- Header / Navbar -->
+    <!-- App Header -->
     <header class="bg-black/90 backdrop-blur border-b border-zinc-800 sticky top-0 z-50 pt-2">
         <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-2">
-                <div class="p-2 bg-zinc-900 border border-zinc-700 rounded-xl text-blue-400">
+                <div class="p-2 bg-zinc-900 border border-zinc-800 rounded-xl text-blue-500 shadow-lg">
                     <i data-lucide="shield" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-black tracking-wide text-white">
-                        EstudoFlow <span class="text-blue-500">PRO</span>
+                    <h1 class="text-lg font-black tracking-wide text-white flex items-center gap-1.5">
+                        EstudoFlow <span class="text-blue-500 text-xs px-1.5 py-0.5 rounded bg-blue-950/80 border border-blue-800/50">PRO</span>
                     </h1>
                 </div>
             </div>
-            <button id="resetDataBtn" class="p-2 text-zinc-500 hover:text-red-400 transition" title="Limpar Dados">
+            <button id="resetDataBtn" class="p-2 text-zinc-500 hover:text-red-400 transition" title="Redefinir Dados">
                 <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
             </button>
         </div>
     </header>
 
-    <!-- App Main Container -->
+    <!-- Main Content Container -->
     <main class="flex-1 max-w-md w-full mx-auto p-4 pb-24 overflow-y-auto hide-scrollbar">
         
-        <!-- Tab 1: Cronograma & Metas -->
+        <!-- Tab 1: Cronograma & Disciplinas -->
         <section id="tab-schedule" class="space-y-4">
             <!-- Global Progress Banner -->
             <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-2 shadow-xl">
                 <div class="flex justify-between items-center text-sm">
-                    <span class="font-bold text-zinc-300">Progresso Geral do Cronograma</span>
+                    <span class="font-bold text-zinc-300">Progresso Geral</span>
                     <span id="globalPercent" class="font-black text-blue-500 text-base">0%</span>
                 </div>
                 <div class="w-full bg-zinc-900 h-3 rounded-full overflow-hidden border border-zinc-800">
@@ -66,46 +69,46 @@
                 </div>
             </div>
 
-            <!-- Header + Actions -->
+            <!-- Section Controls -->
             <div class="flex items-center justify-between gap-2">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1">
                     <i data-lucide="list-checks" class="w-4 h-4 text-blue-500"></i>
                     <span>Disciplinas</span>
                 </h2>
-                <div class="flex space-x-1">
-                    <button onclick="openPlannerModal()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition">
+                <div class="flex space-x-1.5">
+                    <button onclick="openPlannerModal()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition">
                         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                         <span>Gerar Plano</span>
                     </button>
-                    <button onclick="openSubjectModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg shadow-blue-600/20">
+                    <button onclick="openSubjectModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg shadow-blue-600/20">
                         <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                         <span>Add Matéria</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Plano de Estudos Semanal Distribuído -->
+            <!-- Weekly Automated Plan -->
             <div id="weeklyPlanContainer" class="hidden space-y-3 bg-zinc-950 border border-blue-900/30 rounded-2xl p-4">
                 <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
                     <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center space-x-1.5">
                         <i data-lucide="calendar-days" class="w-4 h-4"></i>
-                        <span>Meta de Estudos Semanal</span>
+                        <span>Meta Semanal por Pesos</span>
                     </h3>
                     <span id="weeklyHoursTotal" class="text-[10px] bg-blue-950 text-blue-300 px-2 py-0.5 rounded border border-blue-800/40 font-bold">0h/semana</span>
                 </div>
                 <div id="weeklyGrid" class="grid grid-cols-1 gap-2 text-xs"></div>
             </div>
 
-            <!-- Schedule List -->
+            <!-- Subjects & Topics Container -->
             <div id="scheduleContainer" class="space-y-3"></div>
         </section>
 
-        <!-- Tab 2: Pontos de Atenção & Erros -->
+        <!-- Tab 2: Pontos de Atenção (Erros) -->
         <section id="tab-errors" class="space-y-4 hidden">
             <div class="flex items-center justify-between">
-                <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-2">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-2">
                     <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i>
-                    <span>Pontos de Atenção (Erros)</span>
+                    <span>Pontos de Atenção & Caderno de Erros</span>
                 </h2>
                 <button onclick="openErrorModal()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg shadow-amber-600/20">
                     <i data-lucide="plus" class="w-4 h-4"></i>
@@ -120,11 +123,11 @@
         <section id="tab-timer" class="space-y-6 hidden">
             <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 text-center shadow-xl">
                 <div class="flex justify-center space-x-2 mb-6">
-                    <button onclick="setTimerMode('pomodoro')" id="mode-pomodoro" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white">Pomodoro (25m)</button>
-                    <button onclick="setTimerMode('short')" id="mode-short" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-900 text-zinc-400 border border-zinc-800">Pausa Curta (5m)</button>
+                    <button onclick="setTimerMode('pomodoro')" id="mode-pomodoro" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white transition">Pomodoro (25m)</button>
+                    <button onclick="setTimerMode('short')" id="mode-short" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-zinc-900 text-zinc-400 border border-zinc-800 transition">Pausa Curta (5m)</button>
                 </div>
 
-                <div class="relative w-48 h-48 mx-auto flex items-center justify-center my-4 border border-zinc-800 rounded-full bg-zinc-900/50">
+                <div class="relative w-48 h-48 mx-auto flex items-center justify-center my-4 border-2 border-zinc-800 rounded-full bg-zinc-900/40 shadow-inner">
                     <div class="text-5xl font-black tracking-wider text-white font-mono" id="timer-display">25:00</div>
                 </div>
 
@@ -142,20 +145,20 @@
 
     </main>
 
-    <!-- Modal: Gerador de Cronograma Inteligente -->
+    <!-- Modal: Gerador Inteligente de Cronograma -->
     <div id="plannerModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto hide-scrollbar">
             <h3 class="text-base font-bold text-white flex items-center space-x-2">
                 <i data-lucide="sliders" class="w-5 h-5 text-blue-500"></i>
-                <span>Gerar Cronograma por Peso</span>
+                <span>Calcular Cronograma por Peso</span>
             </h3>
 
             <p class="text-xs text-zinc-400 leading-relaxed">
-                Informe as horas disponíveis por dia da semana. O sistema distribuirá a carga horária de acordo com o peso de cada matéria.
+                Informe as horas disponíveis em cada dia. As horas de estudo de cada disciplina serão calculadas com base nos seus pesos (1 a 5).
             </p>
 
             <div class="space-y-2 pt-2 border-t border-zinc-800">
-                <label class="block text-xs font-bold text-zinc-300">Horas Disponíveis / Dia (em horas):</label>
+                <label class="block text-xs font-bold text-zinc-300">Disponibilidade Diária (Horas):</label>
                 <div class="grid grid-cols-2 gap-2 text-xs">
                     <div><span class="text-zinc-500">Segunda</span><input type="number" min="0" id="hours-seg" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500"></div>
                     <div><span class="text-zinc-500">Terça</span><input type="number" min="0" id="hours-ter" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500"></div>
@@ -177,7 +180,7 @@
     <!-- Modal: Adicionar/Editar Matéria -->
     <div id="subjectModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
-            <h3 id="subjectModalTitle" class="text-base font-bold text-white">Adicionar Matéria ao Cronograma</h3>
+            <h3 id="subjectModalTitle" class="text-base font-bold text-white">Adicionar Matéria</h3>
             <input type="hidden" id="editSubjectId">
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Nome da Matéria</label>
@@ -192,7 +195,7 @@
                 <input type="number" id="modalSubjectTargetHours" placeholder="Ex: 10" min="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
             </div>
             <div>
-                <label class="block text-xs text-zinc-400 mb-1">Assuntos / Tópicos (um por linha)</label>
+                <label class="block text-xs text-zinc-400 mb-1">Tópicos de Estudo (um por linha)</label>
                 <textarea id="modalSubjectTopics" rows="3" placeholder="Ex: Álgebra&#10;Geometria" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
             </div>
             <div class="flex space-x-2 pt-2">
@@ -215,8 +218,8 @@
                 <input type="text" id="modalErrorQuestion" placeholder="Ex: Fórmulas de Geometria Plana" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
             </div>
             <div>
-                <label class="block text-xs text-zinc-400 mb-1">Causa do Erro / Ponto de Atenção</label>
-                <textarea id="modalErrorReason" rows="3" placeholder="Ex: Confundi a fórmula." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
+                <label class="block text-xs text-zinc-400 mb-1">Causa do Erro / Observação</label>
+                <textarea id="modalErrorReason" rows="3" placeholder="Ex: Confundi a fórmula de área." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
             </div>
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeErrorModal()" class="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800 transition">Cancelar</button>
@@ -243,21 +246,22 @@
         </div>
     </nav>
 
-    <!-- Registration of Service Worker dynamically for PWA installation -->
+    <!-- Blob Service Worker Registration -->
     <script>
       if ('serviceWorker' in navigator) {
         const swCode = `
           self.addEventListener('install', e => self.skipWaiting());
+          self.addEventListener('activate', e => self.clients.claim());
           self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
         `;
         const blob = new Blob([swCode], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(err => console.log('SW error:', err));
+        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.error);
       }
     </script>
 
-    <!-- Main Logic Script -->
+    <!-- Application Logic Script -->
     <script>
-        let state = JSON.parse(localStorage.getItem('estudoflow_schedule_v3')) || {
+        let state = JSON.parse(localStorage.getItem('estudoflow_pro_v1')) || {
             weeklyHours: { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 },
             weeklySchedule: [],
             subjects: [
@@ -291,7 +295,7 @@
         let timer = { instance: null, secondsLeft: 25 * 60, duration: 25 * 60, isRunning: false };
 
         function saveData() {
-            localStorage.setItem('estudoflow_schedule_v3', JSON.stringify(state));
+            localStorage.setItem('estudoflow_pro_v1', JSON.stringify(state));
             render();
         }
 
@@ -363,7 +367,7 @@
                                     <span class="text-xs font-semibold ${topic.completed ? 'line-through text-zinc-600' : 'text-zinc-200'}">${topic.title}</span>
                                 </label>
                                 <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${badgeColor}">
-                                    ${total > 0 ? `${percent}% aproveitamento` : 'Sem questões'}
+                                    ${total > 0 ? `${percent}% acertos` : 'Sem questões'}
                                 </span>
                             </div>
                             <div class="flex items-center justify-between pt-1 border-t border-zinc-900 text-[11px] text-zinc-500">
@@ -474,7 +478,7 @@
 
         function generateAutoSchedule() {
             if (state.subjects.length === 0) {
-                alert("Adicione matérias primeiro!");
+                alert("Adicione disciplinas primeiro!");
                 closePlannerModal();
                 return;
             }
@@ -571,7 +575,7 @@
                 document.getElementById('modalSubjectTargetHours').value = subject.targetHours;
                 document.getElementById('modalSubjectTopics').value = subject.topics.map(t => t.title).join('\n');
             } else {
-                document.getElementById('subjectModalTitle').innerText = 'Adicionar Matéria ao Cronograma';
+                document.getElementById('subjectModalTitle').innerText = 'Adicionar Matéria';
                 document.getElementById('modalSubjectName').value = '';
                 document.getElementById('modalSubjectWeight').value = 1;
                 document.getElementById('modalSubjectTargetHours').value = '';
@@ -629,7 +633,7 @@
             state.errors.forEach(err => {
                 const subject = state.subjects.find(s => s.id === err.subjectId);
                 const card = document.createElement('div');
-                card.className = "bg-zinc-950 border border-amber-500/20 rounded-2xl p-4 space-y-2 relative";
+                card.className = "bg-zinc-950 border border-amber-500/20 rounded-2xl p-4 space-y-2 relative shadow-md";
                 card.innerHTML = `
                     <div class="flex justify-between items-start pr-6">
                         <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">${subject ? subject.name : 'Geral'}</span>
@@ -637,7 +641,7 @@
                     </div>
                     <p class="text-sm font-semibold text-white">${err.question}</p>
                     <p class="text-xs text-zinc-400 bg-black p-2.5 rounded-xl border border-zinc-800">${err.reason}</p>
-                    <button onclick="deleteError('${err.id}')" class="absolute top-4 right-4 text-zinc-600 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                    <button onclick="deleteError('${err.id}')" class="absolute top-4 right-4 text-zinc-600 hover:text-red-400 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
                 container.appendChild(card);
             });
         }
@@ -672,6 +676,17 @@
             timer.isRunning = false;
             timer.duration = mode === 'pomodoro' ? 25 * 60 : 5 * 60;
             timer.secondsLeft = timer.duration;
+            
+            const btnP = document.getElementById('mode-pomodoro');
+            const btnS = document.getElementById('mode-short');
+            if(mode === 'pomodoro') {
+                btnP.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white transition";
+                btnS.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-zinc-900 text-zinc-400 border border-zinc-800 transition";
+            } else {
+                btnS.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white transition";
+                btnP.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-zinc-900 text-zinc-400 border border-zinc-800 transition";
+            }
+
             document.getElementById('playIcon').setAttribute('data-lucide', 'play');
             document.getElementById('startBtnText').innerText = 'Iniciar';
             updateTimerDisplay();
@@ -721,7 +736,7 @@
 
         document.getElementById('resetDataBtn').addEventListener('click', () => {
             if (confirm("Deseja redefinir todo o seu cronograma?")) {
-                localStorage.removeItem('estudoflow_schedule_v3');
+                localStorage.removeItem('estudoflow_pro_v1');
                 state = { weeklyHours: {}, weeklySchedule: [], subjects: [], errors: [] };
                 saveData();
             }
@@ -731,4 +746,4 @@
         updateTimerDisplay();
     </script>
 </body>
-</html>
+    </html>
