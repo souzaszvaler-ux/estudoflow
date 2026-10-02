@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EstudoFlow Pro</title>
+    <title>EstudoFlow Pro - Ultra Dark</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -52,16 +52,36 @@
                 </div>
             </div>
 
-            <!-- Header + Add Button -->
-            <div class="flex items-center justify-between">
-                <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-2">
+            <!-- Header + Actions -->
+            <div class="flex items-center justify-between gap-2">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1">
                     <i data-lucide="list-checks" class="w-4 h-4 text-blue-500"></i>
-                    <span>Plano de Estudos</span>
+                    <span>Disciplinas</span>
                 </h2>
-                <button onclick="openSubjectModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg shadow-blue-600/20">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    <span>Adicionar Matéria</span>
-                </button>
+                <div class="flex space-x-1">
+                    <button onclick="openPlannerModal()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        <span>Gerar Plano</span>
+                    </button>
+                    <button onclick="openSubjectModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg shadow-blue-600/20">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        <span>Add Matéria</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Plano de Estudos Semanal Distribuído -->
+            <div id="weeklyPlanContainer" class="hidden space-y-3 bg-zinc-950 border border-blue-900/30 rounded-2xl p-4">
+                <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+                    <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center space-x-1.5">
+                        <i data-lucide="calendar-days" class="w-4 h-4"></i>
+                        <span>Meta de Estudos Semanal</span>
+                    </h3>
+                    <span id="weeklyHoursTotal" class="text-[10px] bg-blue-950 text-blue-300 px-2 py-0.5 rounded border border-blue-800/40 font-bold">0h/semana</span>
+                </div>
+                <div id="weeklyGrid" class="grid grid-cols-1 gap-2 text-xs">
+                    <!-- Injetado via JS -->
+                </div>
             </div>
 
             <!-- Schedule List -->
@@ -114,6 +134,60 @@
 
     </main>
 
+    <!-- Modal: Gerador de Cronograma Inteligente por Horas e Pesos -->
+    <div id="plannerModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto hide-scrollbar">
+            <h3 class="text-base font-bold text-white flex items-center space-x-2">
+                <i data-lucide="sliders" class="w-5 h-5 text-blue-500"></i>
+                <span>Gerar Cronograma por Peso</span>
+            </h3>
+
+            <p class="text-xs text-zinc-400 leading-relaxed">
+                Informe as horas disponíveis por dia da semana. O sistema distribuirá automaticamente a carga horária de acordo com o peso de cada matéria.
+            </p>
+
+            <!-- Horas por Dia -->
+            <div class="space-y-2 pt-2 border-t border-zinc-800">
+                <label class="block text-xs font-bold text-zinc-300">Horas Disponíveis / Dia (em horas):</label>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                        <span class="text-zinc-500">Segunda</span>
+                        <input type="number" min="0" id="hours-seg" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <span class="text-zinc-500">Terça</span>
+                        <input type="number" min="0" id="hours-ter" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <span class="text-zinc-500">Quarta</span>
+                        <input type="number" min="0" id="hours-qua" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <span class="text-zinc-500">Quinta</span>
+                        <input type="number" min="0" id="hours-qui" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <span class="text-zinc-500">Sexta</span>
+                        <input type="number" min="0" id="hours-sex" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <span class="text-zinc-500">Sábado</span>
+                        <input type="number" min="0" id="hours-sab" value="4" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="col-span-2">
+                        <span class="text-zinc-500">Domingo</span>
+                        <input type="number" min="0" id="hours-dom" value="2" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closePlannerModal()" class="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800 transition">Cancelar</button>
+                <button onclick="generateAutoSchedule()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Calcular e Distribuir</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Adicionar/Editar Matéria -->
     <div id="subjectModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
@@ -126,7 +200,12 @@
             </div>
 
             <div>
-                <label class="block text-xs text-zinc-400 mb-1">Meta de Horas de Estudo</label>
+                <label class="block text-xs text-zinc-400 mb-1">Peso da Matéria na Prova (1 a 5)</label>
+                <input type="number" id="modalSubjectWeight" placeholder="Ex: 3" min="1" max="5" value="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Meta de Horas Total (Calculada Auto ou Manual)</label>
                 <input type="number" id="modalSubjectTargetHours" placeholder="Ex: 10" min="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
             </div>
 
@@ -191,18 +270,32 @@
 
     <!-- App Script -->
     <script>
-        // State
-        let state = JSON.parse(localStorage.getItem('estudoflow_schedule_v2')) || {
+        // State Storage
+        let state = JSON.parse(localStorage.getItem('estudoflow_schedule_v3')) || {
+            weeklyHours: { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 },
+            weeklySchedule: [],
             subjects: [
                 {
                     id: '1',
                     name: 'Matemática',
-                    targetHours: 10,
+                    weight: 3,
+                    targetHours: 12,
                     studiedHours: 4,
                     topics: [
                         { id: 't1', title: 'Álgebra Básica', correct: 9, total: 10, completed: true },
                         { id: 't2', title: 'Equações do 2º Grau', correct: 6, total: 10, completed: false },
                         { id: 't3', title: 'Geometria Plana', correct: 0, total: 0, completed: false }
+                    ]
+                },
+                {
+                    id: '2',
+                    name: 'Língua Portuguesa',
+                    weight: 5,
+                    targetHours: 20,
+                    studiedHours: 5,
+                    topics: [
+                        { id: 't1', title: 'Interpretação de Texto', correct: 8, total: 10, completed: true },
+                        { id: 't2', title: 'Sintaxe da Oração', correct: 0, total: 0, completed: false }
                     ]
                 }
             ],
@@ -217,12 +310,13 @@
         };
 
         function saveData() {
-            localStorage.setItem('estudoflow_schedule_v2', JSON.stringify(state));
+            localStorage.setItem('estudoflow_schedule_v3', JSON.stringify(state));
             render();
         }
 
         function render() {
             renderSchedule();
+            renderWeeklyGrid();
             renderErrors();
             lucide.createIcons();
         }
@@ -242,7 +336,7 @@
             activeNav.classList.remove('text-zinc-500');
         }
 
-        // Schedule Rendering & Logic
+        // Schedule Rendering
         function renderSchedule() {
             const container = document.getElementById('scheduleContainer');
             container.innerHTML = '';
@@ -255,7 +349,7 @@
                 container.innerHTML = `
                     <div class="text-center py-8 text-zinc-600 space-y-2">
                         <i data-lucide="folder-plus" class="w-10 h-10 mx-auto stroke-1"></i>
-                        <p class="text-sm">Nenhuma matéria no cronograma.<br>Clique em "Adicionar Matéria" para começar!</p>
+                        <p class="text-sm">Nenhuma matéria no cronograma.<br>Clique em "Add Matéria" ou "Gerar Plano" para começar!</p>
                     </div>
                 `;
             }
@@ -331,7 +425,10 @@
                 card.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div>
-                            <h3 class="text-base font-bold text-white">${subject.name}</h3>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="text-base font-bold text-white">${subject.name}</h3>
+                                <span class="text-[10px] font-bold px-1.5 py-0.5 bg-blue-950/60 border border-blue-800/40 text-blue-400 rounded">Peso ${subject.weight || 1}</span>
+                            </div>
                             <p class="text-xs text-zinc-400">Meta: ${subject.studiedHours || 0}h / ${subject.targetHours}h estudadas</p>
                         </div>
                         <div class="flex items-center space-x-1">
@@ -373,6 +470,135 @@
             document.getElementById('globalProgressBar').style.width = `${globalPercent}%`;
             document.getElementById('globalCompletedText').innerText = `${completedTopics} / ${totalTopics} tópicos concluídos`;
             document.getElementById('globalHoursText').innerText = `${totalHours}h estudadas`;
+        }
+
+        function renderWeeklyGrid() {
+            const planContainer = document.getElementById('weeklyPlanContainer');
+            const grid = document.getElementById('weeklyGrid');
+            grid.innerHTML = '';
+
+            if (!state.weeklySchedule || state.weeklySchedule.length === 0) {
+                planContainer.classList.add('hidden');
+                return;
+            }
+
+            planContainer.classList.remove('hidden');
+
+            let totalWeekHours = 0;
+            const dayNames = { seg: 'Segunda', ter: 'Terça', qua: 'Quarta', qui: 'Quinta', sex: 'Sexta', sab: 'Sábado', dom: 'Domingo' };
+
+            state.weeklySchedule.forEach(day => {
+                totalWeekHours += day.hours;
+                if (day.hours > 0) {
+                    const subjectsText = day.allocated.map(a => `${a.name} (${a.hours}h)`).join(', ') || 'Livre / Revisão';
+                    grid.innerHTML += `
+                        <div class="flex justify-between items-center p-2 rounded-xl bg-black border border-zinc-800">
+                            <span class="font-bold text-zinc-300 w-20">${dayNames[day.day] || day.day}:</span>
+                            <span class="text-zinc-400 text-right flex-1 truncate px-2">${subjectsText}</span>
+                            <span class="text-[10px] text-blue-400 font-bold bg-blue-950/40 px-1.5 py-0.5 rounded border border-blue-900/30">${day.hours}h</span>
+                        </div>
+                    `;
+                }
+            });
+
+            document.getElementById('weeklyHoursTotal').innerText = `${totalWeekHours}h/semana`;
+        }
+
+        // Logic Auto Planner
+        function openPlannerModal() {
+            if (state.weeklyHours) {
+                document.getElementById('hours-seg').value = state.weeklyHours.seg || 0;
+                document.getElementById('hours-ter').value = state.weeklyHours.ter || 0;
+                document.getElementById('hours-qua').value = state.weeklyHours.qua || 0;
+                document.getElementById('hours-qui').value = state.weeklyHours.qui || 0;
+                document.getElementById('hours-sex').value = state.weeklyHours.sex || 0;
+                document.getElementById('hours-sab').value = state.weeklyHours.sab || 0;
+                document.getElementById('hours-dom').value = state.weeklyHours.dom || 0;
+            }
+            document.getElementById('plannerModal').classList.remove('hidden');
+        }
+
+        function closePlannerModal() {
+            document.getElementById('plannerModal').classList.add('hidden');
+        }
+
+        function generateAutoSchedule() {
+            if (state.subjects.length === 0) {
+                alert("Adicione pelo menos uma matéria antes de gerar o plano semanal!");
+                closePlannerModal();
+                return;
+            }
+
+            const weeklyHours = {
+                seg: parseInt(document.getElementById('hours-seg').value) || 0,
+                ter: parseInt(document.getElementById('hours-ter').value) || 0,
+                qua: parseInt(document.getElementById('hours-qua').value) || 0,
+                qui: parseInt(document.getElementById('hours-qui').value) || 0,
+                sex: parseInt(document.getElementById('hours-sex').value) || 0,
+                sab: parseInt(document.getElementById('hours-sab').value) || 0,
+                dom: parseInt(document.getElementById('hours-dom').value) || 0
+            };
+
+            state.weeklyHours = weeklyHours;
+
+            const totalWeeklyAvailable = Object.values(weeklyHours).reduce((a, b) => a + b, 0);
+            const totalWeight = state.subjects.reduce((a, b) => a + (parseInt(b.weight) || 1), 0);
+
+            // Recalcular metas de horas por matéria baseadas no peso
+            state.subjects.forEach(sub => {
+                const subWeight = parseInt(sub.weight) || 1;
+                const calculatedHours = Math.max(1, Math.round((subWeight / totalWeight) * totalWeeklyAvailable));
+                sub.targetHours = calculatedHours;
+            });
+
+            // Distribuir as matérias pelos dias da semana
+            const days = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom'];
+            let subjectPool = [];
+
+            // Criar a fila proporcional de estudo
+            state.subjects.forEach(sub => {
+                for (let i = 0; i < sub.targetHours; i++) {
+                    subjectPool.push({ id: sub.id, name: sub.name });
+                }
+            });
+
+            let poolIndex = 0;
+            state.weeklySchedule = days.map(dayKey => {
+                const dayHours = weeklyHours[dayKey];
+                let allocated = [];
+
+                if (dayHours > 0 && subjectPool.length > 0) {
+                    let hoursLeft = dayHours;
+                    let mapAlloc = {};
+
+                    while (hoursLeft > 0 && poolIndex < subjectPool.length) {
+                        const item = subjectPool[poolIndex];
+                        mapAlloc[item.name] = (mapAlloc[item.name] || 0) + 1;
+                        hoursLeft--;
+                        poolIndex++;
+                    }
+
+                    // Se a fila acabou, recircular para preencher os dias restantes
+                    if (poolIndex >= subjectPool.length && hoursLeft > 0) {
+                        poolIndex = 0;
+                        while (hoursLeft > 0 && subjectPool.length > 0) {
+                            const item = subjectPool[poolIndex];
+                            mapAlloc[item.name] = (mapAlloc[item.name] || 0) + 1;
+                            hoursLeft--;
+                            poolIndex = (poolIndex + 1) % subjectPool.length;
+                        }
+                    }
+
+                    for (let name in mapAlloc) {
+                        allocated.push({ name, hours: mapAlloc[name] });
+                    }
+                }
+
+                return { day: dayKey, hours: dayHours, allocated };
+            });
+
+            closePlannerModal();
+            saveData();
         }
 
         function updateTopicScore(subjectId, topicId, field, val) {
@@ -420,11 +646,13 @@
                 const subject = state.subjects.find(s => s.id === subjectId);
                 document.getElementById('subjectModalTitle').innerText = 'Editar Matéria';
                 document.getElementById('modalSubjectName').value = subject.name;
+                document.getElementById('modalSubjectWeight').value = subject.weight || 1;
                 document.getElementById('modalSubjectTargetHours').value = subject.targetHours;
                 document.getElementById('modalSubjectTopics').value = subject.topics.map(t => t.title).join('\n');
             } else {
                 document.getElementById('subjectModalTitle').innerText = 'Adicionar Matéria ao Cronograma';
                 document.getElementById('modalSubjectName').value = '';
+                document.getElementById('modalSubjectWeight').value = 1;
                 document.getElementById('modalSubjectTargetHours').value = '';
                 document.getElementById('modalSubjectTopics').value = '';
             }
@@ -439,6 +667,7 @@
         function saveSubject() {
             const id = document.getElementById('editSubjectId').value;
             const name = document.getElementById('modalSubjectName').value.trim();
+            const weight = parseInt(document.getElementById('modalSubjectWeight').value) || 1;
             const targetHours = parseInt(document.getElementById('modalSubjectTargetHours').value) || 1;
             const rawTopics = document.getElementById('modalSubjectTopics').value.trim().split('\n').filter(t => t.trim() !== '');
 
@@ -451,6 +680,7 @@
                 const subject = state.subjects.find(s => s.id === id);
                 if (subject) {
                     subject.name = name;
+                    subject.weight = weight;
                     subject.targetHours = targetHours;
                     const existingTopicsMap = new Map(subject.topics.map(t => [t.title, t]));
                     subject.topics = rawTopics.map((title, idx) => {
@@ -468,6 +698,7 @@
                 const newSubject = {
                     id: Date.now().toString(),
                     name,
+                    weight,
                     targetHours,
                     studiedHours: 0,
                     topics: rawTopics.map((title, idx) => ({
@@ -627,16 +858,16 @@
             lucide.createIcons();
         }
 
-        // Reset
+        // Reset Total
         document.getElementById('resetDataBtn').addEventListener('click', () => {
-            if (confirm("Deseja mesmo redefinir todo o seu cronograma?")) {
-                localStorage.removeItem('estudoflow_schedule_v2');
-                state = { subjects: [], errors: [] };
+            if (confirm("Deseja mesmo redefinir todo o seu cronograma e métricas?")) {
+                localStorage.removeItem('estudoflow_schedule_v3');
+                state = { weeklyHours: {}, weeklySchedule: [], subjects: [], errors: [] };
                 saveData();
             }
         });
 
-        // Init
+        // Init App
         render();
         updateTimerDisplay();
     </script>
