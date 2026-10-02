@@ -36,10 +36,6 @@
                 </div>
             </div>
             <div class="flex items-center space-x-1.5">
-                <button id="pwaInstallBtn" class="hidden px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold items-center space-x-1 shadow-lg transition">
-                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                    <span>Baixar App</span>
-                </button>
                 <button onclick="finishWeek()" class="px-2.5 py-1.5 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 border border-emerald-800/50 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg">
                     <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
                     <span>Fechar Semana</span>
@@ -114,17 +110,6 @@
                 </div>
             </div>
 
-            <div id="weeklyPlanContainer" class="hidden space-y-3 bg-zinc-950 border border-blue-900/30 rounded-2xl p-4">
-                <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
-                    <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center space-x-1.5">
-                        <i data-lucide="calendar-days" class="w-4 h-4"></i>
-                        <span>Meta de Estudos Semanal</span>
-                    </h3>
-                    <span id="weeklyHoursTotal" class="text-[10px] bg-blue-950 text-blue-300 px-2 py-0.5 rounded border border-blue-800/40 font-bold">0h/semana</span>
-                </div>
-                <div id="weeklyGrid" class="grid grid-cols-1 gap-2 text-xs"></div>
-            </div>
-
             <!-- Lista de Disciplinas -->
             <div id="scheduleContainer" class="space-y-3"></div>
         </section>
@@ -188,7 +173,7 @@
         </div>
     </div>
 
-    <!-- Modal: Importar Edital (PDF ou Texto) -->
+    <!-- Modal: Importar Edital Instantâneo (Sem dependência de API) -->
     <div id="importModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
@@ -196,54 +181,20 @@
                 <span>Importar Edital Verticalizado</span>
             </h3>
 
-            <!-- Opções de Aba -->
-            <div class="flex border-b border-zinc-800 text-xs font-bold">
-                <button id="tabPdfBtn" onclick="switchImportTab('pdf')" class="flex-1 py-2 text-blue-400 border-b-2 border-blue-500">Enviar PDF</button>
-                <button id="tabTextBtn" onclick="switchImportTab('text')" class="flex-1 py-2 text-zinc-500">Colar Texto</button>
-            </div>
-
-            <!-- Modo PDF -->
-            <div id="importPdfContainer" class="space-y-3">
-                <p class="text-xs text-zinc-400">Selecione o ficheiro PDF do edital no seu telemóvel:</p>
-                <input type="file" id="pdfFileInput" accept="application/pdf" class="w-full text-xs text-zinc-300 bg-black border border-zinc-800 rounded-xl p-2.5 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white">
-            </div>
-
-            <!-- Modo Texto -->
-            <div id="importTextContainer" class="space-y-3 hidden">
-                <p class="text-xs text-zinc-400">Cole abaixo o texto do edital verticalizado:</p>
-                <textarea id="editalText" rows="6" placeholder="Exemplo:
+            <p class="text-xs text-zinc-400">Cole o texto do seu edital abaixo. Separe as disciplinas em maiúsculas ou títulos principais:</p>
+            
+            <textarea id="editalText" rows="8" placeholder="Exemplo:
 PORTUGUÊS
 1. Compreensão de texto
-2. Sintaxe" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none"></textarea>
-            </div>
+2. Sintaxe
+
+DIREITO CONSTITUCIONAL
+1. Direitos fundamentais
+2. Organização do Estado" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none"></textarea>
 
             <div class="flex space-x-2 pt-2">
                 <button onclick="fecharModalImportacao()" class="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800 transition">Cancelar</button>
-                <button onclick="processarEditalComIA()" id="btnProcessar" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Processar e Adicionar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Gerar Plano por Peso -->
-    <div id="plannerModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
-            <h3 class="text-base font-bold text-white flex items-center space-x-2">
-                <i data-lucide="sliders" class="w-5 h-5 text-blue-500"></i>
-                <span>Gerar Cronograma por Peso</span>
-            </h3>
-            <p class="text-xs text-zinc-400">Informe as horas disponíveis por dia da semana:</p>
-            <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-zinc-800">
-                <div><span class="text-zinc-500">Segunda</span><input type="number" min="0" id="hours-seg" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white"></div>
-                <div><span class="text-zinc-500">Terça</span><input type="number" min="0" id="hours-ter" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white"></div>
-                <div><span class="text-zinc-500">Quarta</span><input type="number" min="0" id="hours-qua" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white"></div>
-                <div><span class="text-zinc-500">Quinta</span><input type="number" min="0" id="hours-qui" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white"></div>
-                <div><span class="text-zinc-500">Sexta</span><input type="number" min="0" id="hours-sex" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white"></div>
-                <div><span class="text-zinc-500">Sábado</span><input type="number" min="0" id="hours-sab" value="4" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white"></div>
-                <div class="col-span-2"><span class="text-zinc-500">Domingo</span><input type="number" min="0" id="hours-dom" value="2" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white"></div>
-            </div>
-            <div class="flex space-x-2 pt-2">
-                <button onclick="closePlannerModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button onclick="generateAutoSchedule()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Calcular</button>
+                <button onclick="processarEditalLocal()" id="btnProcessar" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Adicionar ao Cronograma</button>
             </div>
         </div>
     </div>
@@ -276,29 +227,6 @@ PORTUGUÊS
         </div>
     </div>
 
-    <!-- Modal: Adicionar Erro -->
-    <div id="errorModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
-            <h3 class="text-base font-bold text-white">Registrar Ponto de Atenção</h3>
-            <div>
-                <label class="block text-xs text-zinc-400 mb-1">Matéria</label>
-                <select id="modalErrorSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white"></select>
-            </div>
-            <div>
-                <label class="block text-xs text-zinc-400 mb-1">Questão / Assunto com Erro</label>
-                <input type="text" id="modalErrorQuestion" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
-            </div>
-            <div>
-                <label class="block text-xs text-zinc-400 mb-1">Causa do Erro</label>
-                <textarea id="modalErrorReason" rows="3" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white"></textarea>
-            </div>
-            <div class="flex space-x-2 pt-2">
-                <button onclick="closeErrorModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button onclick="saveErrorRecord()" class="flex-1 bg-amber-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Bottom Navigation Bar -->
     <nav class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur border-t border-zinc-800 z-50 pb-2">
         <div class="max-w-md mx-auto grid grid-cols-4 px-2 py-2 text-center text-[11px]">
@@ -322,7 +250,6 @@ PORTUGUÊS
     </nav>
 
     <script>
-        let currentImportTab = 'pdf';
         let state = JSON.parse(localStorage.getItem('estudoflow_schedule_v4')) || {
             weeklyHours: { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 },
             weeklySchedule: [],
@@ -355,121 +282,48 @@ PORTUGUÊS
         function fecharModalImportacao() {
             document.getElementById('importModal').classList.add('hidden');
             document.getElementById('editalText').value = '';
-            document.getElementById('pdfFileInput').value = '';
         }
 
-        function switchImportTab(mode) {
-            currentImportTab = mode;
-            if (mode === 'pdf') {
-                document.getElementById('importPdfContainer').classList.remove('hidden');
-                document.getElementById('importTextContainer').classList.add('hidden');
-                document.getElementById('tabPdfBtn').className = 'flex-1 py-2 text-blue-400 border-b-2 border-blue-500';
-                document.getElementById('tabTextBtn').className = 'flex-1 py-2 text-zinc-500';
-            } else {
-                document.getElementById('importTextContainer').classList.remove('hidden');
-                document.getElementById('importPdfContainer').classList.add('hidden');
-                document.getElementById('tabTextBtn').className = 'flex-1 py-2 text-blue-400 border-b-2 border-blue-500';
-                document.getElementById('tabPdfBtn').className = 'flex-1 py-2 text-zinc-500';
-            }
-        }
-
-        async function processarEditalComIA() {
-            const btn = document.getElementById('btnProcessar');
-
-            let apiKey = localStorage.getItem('estudoflow_gemini_key');
-            if (!apiKey) {
-                apiKey = prompt("Insira a sua chave API do Google AI Studio:");
-                if (!apiKey) return;
-                localStorage.setItem('estudoflow_gemini_key', apiKey.trim());
+        function processarEditalLocal() {
+            const rawText = document.getElementById('editalText').value.trim();
+            if (!rawText) {
+                showAlert("Por favor, cole o conteúdo do edital verticalizado.");
+                return;
             }
 
-            btn.innerText = "Processando...";
-            btn.disabled = true;
+            const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            let currentSubject = null;
+            let addedCount = 0;
 
-            try {
-                let contentsData = [];
+            lines.forEach((line) => {
+                const isHeading = line === line.toUpperCase() && !/^\d+[\.\)]/.test(line) && line.length < 50;
 
-                if (currentImportTab === 'pdf') {
-                    const fileInput = document.getElementById('pdfFileInput');
-                    if (!fileInput.files || fileInput.files.length === 0) {
-                        showAlert("Por favor, selecione um ficheiro PDF.");
-                        btn.innerText = "Processar e Adicionar";
-                        btn.disabled = false;
-                        return;
-                    }
-
-                    const file = fileInput.files[0];
-                    const base64Data = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = () => resolve(reader.result.split(',')[1]);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(file);
-                    });
-
-                    contentsData = [{
-                        parts: [
-                            { inline_data: { mime_type: "application/pdf", data: base64Data } },
-                            { text: "Extraia todas as disciplinas e tópicos de estudo deste edital. Retorne APENAS um objeto JSON válido no formato: {\"disciplinas\":[{\"nome\":\"Matéria\",\"peso\":1,\"targetHours\":10,\"topicos\":[\"Tópico 1\"]}]}" }
-                        ]
-                    }];
-                } else {
-                    const editalTexto = document.getElementById('editalText').value.trim();
-                    if (!editalTexto) {
-                        showAlert("Por favor, cole o texto do edital.");
-                        btn.innerText = "Processar e Adicionar";
-                        btn.disabled = false;
-                        return;
-                    }
-
-                    contentsData = [{
-                        parts: [{
-                            text: `Extraia todas as disciplinas e tópicos deste edital. Retorne APENAS um objeto JSON válido no formato: {\"disciplinas\":[{\"nome\":\"Matéria\",\"peso\":1,\"targetHours\":10,\"topicos\":[\"Tópico 1\"]}]}\n\nTexto:\n${editalTexto}`
-                        }]
-                    }];
-                }
-
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ contents: contentsData })
-                });
-
-                const data = await response.json();
-                if (data.error) throw new Error(data.error.message || "Erro na API");
-
-                let respostaTexto = data.candidates[0].content.parts[0].text;
-                respostaTexto = respostaTexto.replace(/```json/g, '').replace(/```/g, '').trim();
-
-                const editalProcessado = JSON.parse(respostaTexto);
-
-                editalProcessado.disciplinas.forEach((d, idx) => {
-                    state.subjects.push({
-                        id: Date.now().toString() + idx,
-                        name: d.nome,
-                        weight: d.peso || 1,
-                        targetHours: d.targetHours || 10,
+                if (isHeading || !currentSubject) {
+                    const subjectName = line.replace(/^\d+[\.\)]\s*/, '');
+                    currentSubject = {
+                        id: Date.now().toString() + Math.random().toString(36).substr(2, 4),
+                        name: subjectName,
+                        weight: 1,
+                        targetHours: 10,
                         studiedHours: 0,
-                        topics: (d.topicos || []).map((t, tIdx) => ({
-                            id: 't_' + Date.now() + '_' + tIdx,
-                            title: t,
-                            correct: 0,
-                            total: 0,
-                            completed: false
-                        }))
+                        topics: []
+                    };
+                    state.subjects.push(currentSubject);
+                    addedCount++;
+                } else {
+                    currentSubject.topics.push({
+                        id: 't_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                        title: line,
+                        correct: 0,
+                        total: 0,
+                        completed: false
                     });
-                });
+                }
+            });
 
-                saveData();
-                fecharModalImportacao();
-                showAlert("Edital importado com sucesso!");
-
-            } catch (erro) {
-                console.error(erro);
-                showAlert("Erro ao processar o edital. Verifique a chave API e tente novamente.");
-            } finally {
-                btn.innerText = "Processar e Adicionar";
-                btn.disabled = false;
-            }
+            saveData();
+            fecharModalImportacao();
+            showAlert(`Edital importado com sucesso! (${addedCount} matérias adicionadas)`);
         }
 
         function render() {
