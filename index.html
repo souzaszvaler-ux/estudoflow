@@ -1,1 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt-PT" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EstudoFlow Pro - Cronograma</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased bg-slate-900 text-slate-100">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700/50 sticky top-0 z-50">
+        <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="p-2 bg-blue-600 rounded-xl text-white">
+                    <i data-lucide="calendar" class="w-6 h-6"></i>
+                </div>
+                <h1 class="text-lg font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                    EstudoFlow Pro
+                </h1>
+            </div>
+            <button id="resetDataBtn" class="p-2 text-slate-400 hover:text-red-400 transition" title="Limpar Dados">
+                <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- App Main Container -->
+    <main class="flex-1 max-w-md w-full mx-auto p-4 pb-24 overflow-y-auto hide-scrollbar">
+        
+        <!-- Tab 1: Cronograma & Metas -->
+        <section id="tab-schedule" class="space-y-4">
+            <!-- Global Progress Banner -->
+            <div class="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-500/30 rounded-2xl p-4 space-y-2 shadow-lg">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="font-bold text-slate-200">Progresso Geral do Cronograma</span>
+                    <span id="globalPercent" class="font-black text-blue-400">0%</span>
+                </div>
+                <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-slate-700">
+                    <div id="globalProgressBar" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-400 pt-1">
+                    <span id="globalCompletedText">0 / 0 metas concluídas</span>
+                    <span id="globalHoursText">0h estudadas</span>
+                </div>
+            </div>
+
+            <!-- Header + Add Button -->
+            <div class="flex items-center justify-between">
+                <h2 class="text-base font-bold text-slate-200 flex items-center space-x-2">
+                    <i data-lucide="list-checks" class="w-5 h-5 text-blue-400"></i>
+                    <span>Plano de Estudos</span>
+                </h2>
+                <button onclick="openSubjectModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1 transition shadow-lg shadow-blue-600/30">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Adicionar Matéria</span>
+                </button>
+            </div>
+
+            <!-- Schedule List -->
+            <div id="scheduleContainer" class="space-y-3">
+                <!-- Injetado via JS -->
+            </div>
+        </section>
+
+        <!-- Tab 2: Pontos de Atenção & Erros -->
+        <section id="tab-errors" class="space-y-4 hidden">
+            <div class="flex items-center justify-between">
+                <h2 class="text-base font-bold text-slate-200 flex items-center space-x-2">
+                    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400"></i>
+                    <span>Pontos de Atenção (Erros)</span>
+                </h2>
+                <button onclick="openErrorModal()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1 transition shadow-lg shadow-amber-600/30">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Novo Registo</span>
+                </button>
+            </div>
+
+            <div id="errorsContainer" class="space-y-3">
+                <!-- Injetado via JS -->
+            </div>
+        </section>
+
+        <!-- Tab 3: Temporizador Pomodoro -->
+        <section id="tab-timer" class="space-y-6 hidden">
+            <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 text-center shadow-xl">
+                <div class="flex justify-center space-x-2 mb-6">
+                    <button onclick="setTimerMode('pomodoro')" id="mode-pomodoro" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white">Pomodoro</button>
+                    <button onclick="setTimerMode('short')" id="mode-short" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-700 text-slate-300">Pausa Curta</button>
+                </div>
+
+                <div class="relative w-48 h-48 mx-auto flex items-center justify-center my-4">
+                    <div class="text-5xl font-black tracking-wider text-slate-100" id="timer-display">25:00</div>
+                </div>
+
+                <div class="flex justify-center space-x-4 mt-6">
+                    <button id="startTimerBtn" onclick="toggleTimer()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold flex items-center justify-center space-x-2 transition shadow-lg shadow-blue-600/30">
+                        <i data-lucide="play" id="playIcon" class="w-5 h-5"></i>
+                        <span id="startBtnText">Iniciar</span>
+                    </button>
+                    <button onclick="resetTimer()" class="p-3 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl transition">
+                        <i data-lucide="square" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal: Adicionar/Editar Matéria -->
+    <div id="subjectModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+            <h3 id="subjectModalTitle" class="text-base font-bold text-slate-100">Adicionar Matéria ao Cronograma</h3>
+            
+            <input type="hidden" id="editSubjectId">
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Nome da Matéria</label>
+                <input type="text" id="modalSubjectName" placeholder="Ex: Matemática, Direito..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Meta de Horas de Estudo</label>
+                <input type="number" id="modalSubjectTargetHours" placeholder="Ex: 10" min="1" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Assuntos / Tópicos (um por linha)</label>
+                <textarea id="modalSubjectTopics" rows="3" placeholder="Ex: Álgebra&#10;Geometria&#10;Trigonometria" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500"></textarea>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeSubjectModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 rounded-xl text-sm font-semibold transition">Cancelar</button>
+                <button onclick="saveSubject()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar Registo de Erro -->
+    <div id="errorModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-slate-100">Registar Ponto de Atenção</h3>
+            
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Matéria</label>
+                <select id="modalErrorSubjectSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500">
+                    <!-- Opções via JS -->
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Questão / Assunto com Erro</label>
+                <input type="text" id="modalErrorQuestion" placeholder="Ex: Fórmulas de Geometria Plana" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Causa do Erro / Ponto de Atenção</label>
+                <textarea id="modalErrorReason" rows="3" placeholder="Ex: Confundi a fórmula da área do trapézio. Rever conceito antes da prova." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500"></textarea>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeErrorModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 rounded-xl text-sm font-semibold transition">Cancelar</button>
+                <button onclick="saveErrorRecord()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Guardar Ponto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-800/90 backdrop-blur border-t border-slate-700/50 z-50">
+        <div class="max-w-md mx-auto grid grid-cols-3 px-2 py-2 text-center text-xs">
+            <button onclick="switchTab('schedule')" id="nav-schedule" class="flex flex-col items-center py-1.5 text-blue-500 font-semibold">
+                <i data-lucide="calendar" class="w-5 h-5 mb-1"></i>
+                <span>Cronograma</span>
+            </button>
+            <button onclick="switchTab('errors')" id="nav-errors" class="flex flex-col items-center py-1.5 text-slate-400">
+                <i data-lucide="alert-triangle" class="w-5 h-5 mb-1"></i>
+                <span>Erros & Atenção</span>
+            </button>
+            <button onclick="switchTab('timer')" id="nav-timer" class="flex flex-col items-center py-1.5 text-slate-400">
+                <i data-lucide="timer" class="w-5 h-5 mb-1"></i>
+                <span>Timer</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- App Script -->
+    <script>
+        // State
+        let state = JSON.parse(localStorage.getItem('estudoflow_schedule_data')) || {
+            subjects: [
+                {
+                    id: '1',
+                    name: 'Matemática',
+                    targetHours: 10,
+                    studiedHours: 4,
+                    topics: [
+                        { id: 't1', title: 'Álgebra Básica', completed: true },
+                        { id: 't2', title: 'Equações do 2º Grau', completed: false },
+                        { id: 't3', title: 'Geometria Plana', completed: false }
+                    ]
+                }
+            ],
+            errors: []
+        };
+
+        let timer = {
+            instance: null,
+            secondsLeft: 25 * 60,
+            duration: 25 * 60,
+            isRunning: false
+        };
+
+        function saveData() {
+            localStorage.setItem('estudoflow_schedule_data', JSON.stringify(state));
+            render();
+        }
+
+        function render() {
+            renderSchedule();
+            renderErrors();
+            lucide.createIcons();
+        }
+
+        // Navigation
+        function switchTab(tabId) {
+            ['schedule', 'errors', 'timer'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${t}`);
+                navBtn.classList.remove('text-blue-500', 'font-semibold');
+                navBtn.classList.add('text-slate-400');
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            activeNav.classList.add('text-blue-500', 'font-semibold');
+            activeNav.classList.remove('text-slate-400');
+        }
+
+        // Schedule Rendering & Logic
+        function renderSchedule() {
+            const container = document.getElementById('scheduleContainer');
+            container.innerHTML = '';
+
+            let totalTopics = 0;
+            let completedTopics = 0;
+            let totalHours = 0;
+
+            if (state.subjects.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-slate-500 space-y-2">
+                        <i data-lucide="folder-plus" class="w-10 h-10 mx-auto stroke-1"></i>
+                        <p class="text-sm">Nenhuma matéria no cronograma.<br>Clique em "Adicionar Matéria" para começar!</p>
+                    </div>
+                `;
+            }
+
+            state.subjects.forEach(subject => {
+                const subCompletedTopics = subject.topics.filter(t => t.completed).length;
+                const subTotalTopics = subject.topics.length;
+
+                totalTopics += subTotalTopics;
+                completedTopics += subCompletedTopics;
+                totalHours += subject.studiedHours || 0;
+
+                const progressPercent = subTotalTopics > 0 ? Math.round((subCompletedTopics / subTotalTopics) * 100) : 0;
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-800/50 border border-slate-700/50 rounded-2xl p-4 space-y-3 shadow-md";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-100">${subject.name}</h3>
+                            <p class="text-xs text-slate-400">Meta: ${subject.studiedHours || 0}h / ${subject.targetHours}h estudadas</p>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button onclick="addStudiedHour('${subject.id}')" class="p-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 rounded-lg text-xs font-semibold flex items-center space-x-1 transition" title="+1 Hora">
+                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                <span>+1h</span>
+                            </button>
+                            <button onclick="openSubjectModal('${subject.id}')" class="p-1.5 text-slate-400 hover:text-slate-200 transition">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteSubject('${subject.id}')" class="p-1.5 text-slate-400 hover:text-red-400 transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Progresso da Matéria -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span>Progresso dos Tópicos</span>
+                            <span class="font-bold text-slate-200">${progressPercent}%</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                            <div class="bg-blue-500 h-full transition-all duration-300" style="width: ${progressPercent}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Tópicos -->
+                    <div class="space-y-1.5 pt-1">
+                        ${subject.topics.map(topic => `
+                            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
+                                <label class="flex items-center space-x-2 cursor-pointer flex-1">
+                                    <input type="checkbox" ${topic.completed ? 'checked' : ''} onchange="toggleTopic('${subject.id}', '${topic.id}')" class="rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-0 w-4 h-4">
+                                    <span class="${topic.completed ? 'line-through text-slate-500' : 'text-slate-200'}">${topic.title}</span>
+                                </label>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Update Global Stats
+            const globalPercent = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
+            document.getElementById('globalPercent').innerText = `${globalPercent}%`;
+            document.getElementById('globalProgressBar').style.width = `${globalPercent}%`;
+            document.getElementById('globalCompletedText').innerText = `${completedTopics} / ${totalTopics} tópicos concluídos`;
+            document.getElementById('globalHoursText').innerText = `${totalHours}h estudadas`;
+        }
+
+        function toggleTopic(subjectId, topicId) {
+            const subject = state.subjects.find(s => s.id === subjectId);
+            if (subject) {
+                const topic = subject.topics.find(t => t.id === topicId);
+                if (topic) {
+                    topic.completed = !topic.completed;
+                    saveData();
+                }
+            }
+        }
+
+        function addStudiedHour(subjectId) {
+            const subject = state.subjects.find(s => s.id === subjectId);
+            if (subject) {
+                subject.studiedHours = (subject.studiedHours || 0) + 1;
+                saveData();
+            }
+        }
+
+        // Modals: Subject
+        function openSubjectModal(subjectId = null) {
+            const modal = document.getElementById('subjectModal');
+            document.getElementById('editSubjectId').value = subjectId || '';
+
+            if (subjectId) {
+                const subject = state.subjects.find(s => s.id === subjectId);
+                document.getElementById('subjectModalTitle').innerText = 'Editar Matéria';
+                document.getElementById('modalSubjectName').value = subject.name;
+                document.getElementById('modalSubjectTargetHours').value = subject.targetHours;
+                document.getElementById('modalSubjectTopics').value = subject.topics.map(t => t.title).join('\n');
+            } else {
+                document.getElementById('subjectModalTitle').innerText = 'Adicionar Matéria ao Cronograma';
+                document.getElementById('modalSubjectName').value = '';
+                document.getElementById('modalSubjectTargetHours').value = '';
+                document.getElementById('modalSubjectTopics').value = '';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeSubjectModal() {
+            document.getElementById('subjectModal').classList.add('hidden');
+        }
+
+        function saveSubject() {
+            const id = document.getElementById('editSubjectId').value;
+            const name = document.getElementById('modalSubjectName').value.trim();
+            const targetHours = parseInt(document.getElementById('modalSubjectTargetHours').value) || 1;
+            const rawTopics = document.getElementById('modalSubjectTopics').value.trim().split('\n').filter(t => t.trim() !== '');
+
+            if (!name) {
+                alert("Por favor, informe o nome da matéria.");
+                return;
+            }
+
+            if (id) {
+                // Editar
+                const subject = state.subjects.find(s => s.id === id);
+                if (subject) {
+                    subject.name = name;
+                    subject.targetHours = targetHours;
+                    // Preservar tópicos concluídos existentes
+                    const existingTopicsMap = new Map(subject.topics.map(t => [t.title, t.completed]));
+                    subject.topics = rawTopics.map((title, idx) => ({
+                        id: `t_${Date.now()}_${idx}`,
+                        title: title.trim(),
+                        completed: existingTopicsMap.get(title.trim()) || false
+                    }));
+                }
+            } else {
+                // Criar Novo
+                const newSubject = {
+                    id: Date.now().toString(),
+                    name,
+                    targetHours,
+                    studiedHours: 0,
+                    topics: rawTopics.map((title, idx) => ({
+                        id: `t_${Date.now()}_${idx}`,
+                        title: title.trim(),
+                        completed: false
+                    }))
+                };
+                state.subjects.push(newSubject);
+            }
+
+            closeSubjectModal();
+            saveData();
+        }
+
+        function deleteSubject(id) {
+            if (confirm("Deseja mesmo remover esta matéria e todo o seu progresso?")) {
+                state.subjects = state.subjects.filter(s => s.id !== id);
+                saveData();
+            }
+        }
+
+        // Errors Logic
+        function renderErrors() {
+            const container = document.getElementById('errorsContainer');
+            container.innerHTML = '';
+
+            if (state.errors.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-slate-500 space-y-2">
+                        <i data-lucide="check-circle-2" class="w-10 h-10 mx-auto stroke-1 text-emerald-500/50"></i>
+                        <p class="text-sm">Nenhum ponto de atenção registado.<br>Bom trabalho nos seus estudos!</p>
+                    </div>
+                `;
+            }
+
+            state.errors.forEach(err => {
+                const subject = state.subjects.find(s => s.id === err.subjectId);
+                const subjectName = subject ? subject.name : 'Geral';
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-800/40 border border-amber-500/20 rounded-2xl p-4 space-y-2 relative";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start pr-6">
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">${subjectName}</span>
+                        <span class="text-xs text-slate-500">${err.date}</span>
+                    </div>
+                    <p class="text-sm font-semibold text-slate-100">${err.question}</p>
+                    <p class="text-xs text-slate-300 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 leading-relaxed">${err.reason}</p>
+                    <button onclick="deleteError('${err.id}')" class="absolute top-4 right-4 text-slate-500 hover:text-red-400 transition">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openErrorModal() {
+            const select = document.getElementById('modalErrorSubjectSelect');
+            select.innerHTML = '';
+            
+            state.subjects.forEach(s => {
+                select.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+            });
+
+            document.getElementById('modalErrorQuestion').value = '';
+            document.getElementById('modalErrorReason').value = '';
+            document.getElementById('errorModal').classList.remove('hidden');
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.add('hidden');
+        }
+
+        function saveErrorRecord() {
+            const subjectId = document.getElementById('modalErrorSubjectSelect').value;
+            const question = document.getElementById('modalErrorQuestion').value.trim();
+            const reason = document.getElementById('modalErrorReason').value.trim();
+
+            if (!question || !reason) {
+                alert("Por favor, preencha o assunto e o ponto de atenção.");
+                return;
+            }
+
+            const errorRecord = {
+                id: Date.now().toString(),
+                subjectId,
+                question,
+                reason,
+                date: new Date().toLocaleDateString('pt-PT')
+            };
+
+            state.errors.unshift(errorRecord);
+            closeErrorModal();
+            saveData();
+        }
+
+        function deleteError(id) {
+            state.errors = state.errors.filter(e => e.id !== id);
+            saveData();
+        }
+
+        // Timer
+        function setTimerMode(mode) {
+            clearInterval(timer.instance);
+            timer.isRunning = false;
+            timer.duration = mode === 'pomodoro' ? 25 * 60 : 5 * 60;
+            timer.secondsLeft = timer.duration;
+            document.getElementById('playIcon').setAttribute('data-lucide', 'play');
+            document.getElementById('startBtnText').innerText = 'Iniciar';
+            updateTimerDisplay();
+            lucide.createIcons();
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timer.secondsLeft / 60);
+            const secs = timer.secondsLeft % 60;
+            document.getElementById('timer-display').innerText = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function toggleTimer() {
+            if (timer.isRunning) {
+                clearInterval(timer.instance);
+                timer.isRunning = false;
+                document.getElementById('playIcon').setAttribute('data-lucide', 'play');
+                document.getElementById('startBtnText').innerText = 'Continuar';
+            } else {
+                timer.isRunning = true;
+                document.getElementById('playIcon').setAttribute('data-lucide', 'pause');
+                document.getElementById('startBtnText').innerText = 'Pausar';
+
+                timer.instance = setInterval(() => {
+                    if (timer.secondsLeft > 0) {
+                        timer.secondsLeft--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timer.instance);
+                        timer.isRunning = false;
+                        alert("Sessão concluída!");
+                        resetTimer();
+                    }
+                }, 1000);
+            }
+            lucide.createIcons();
+        }
+
+        function resetTimer() {
+            clearInterval(timer.instance);
+            timer.isRunning = false;
+            timer.secondsLeft = timer.duration;
+            document.getElementById('playIcon').setAttribute('data-lucide', 'play');
+            document.getElementById('startBtnText').innerText = 'Iniciar';
+            updateTimerDisplay();
+            lucide.createIcons();
+        }
+
+        // Reset
+        document.getElementById('resetDataBtn').addEventListener('click', () => {
+            if (confirm("Deseja mesmo redefinir todo o seu cronograma?")) {
+                localStorage.removeItem('estudoflow_schedule_data');
+                state = { subjects: [], errors: [] };
+                saveData();
+            }
+        });
+
+        // Init
+        render();
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
 
