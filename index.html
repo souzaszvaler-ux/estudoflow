@@ -11,12 +11,12 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
 
-    <!-- Ícones SVG -->
+    <!-- Link para o Manifest real -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Ícone da Aplicação -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
-
-    <!-- Web App Manifest Embutido (Garante suporte a Instalação no Chrome/Android) -->
-    <link rel="manifest" href='data:application/manifest+json;utf8,{"name":"EstudoFlow Pro","short_name":"EstudoFlow","start_url":".","display":"standalone","background_color":"#000000","theme_color":"#000000","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%232563eb\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/></svg>","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}]}'>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -40,8 +40,13 @@
                     </h1>
                 </div>
             </div>
-            <div class="flex items-center space-x-2">
-                <button onclick="finishWeek()" class="px-2.5 py-1.5 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 border border-emerald-800/50 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg shadow-emerald-900/20" title="Finalizar Semana Atual">
+            <div class="flex items-center space-x-1.5">
+                <!-- Botão de Instalar App (apenas se compatível) -->
+                <button id="pwaInstallBtn" class="hidden px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold items-center space-x-1 shadow-lg transition">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    <span>Baixar App</span>
+                </button>
+                <button onclick="finishWeek()" class="px-2.5 py-1.5 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 border border-emerald-800/50 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg" title="Finalizar Semana">
                     <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
                     <span>Fechar Semana</span>
                 </button>
@@ -195,13 +200,13 @@
             <div class="space-y-2 pt-2 border-t border-zinc-800">
                 <label class="block text-xs font-bold text-zinc-300">Horas Disponíveis / Dia (em horas):</label>
                 <div class="grid grid-cols-2 gap-2 text-xs">
-                    <div><span class="text-zinc-500">Segunda</span><input type="number" min="0" id="hours-seg" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500"></div>
-                    <div><span class="text-zinc-500">Terça</span><input type="number" min="0" id="hours-ter" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500"></div>
-                    <div><span class="text-zinc-500">Quarta</span><input type="number" min="0" id="hours-qua" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500"></div>
-                    <div><span class="text-zinc-500">Quinta</span><input type="number" min="0" id="hours-qui" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500"></div>
-                    <div><span class="text-zinc-500">Sexta</span><input type="number" min="0" id="hours-sex" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500"></div>
-                    <div><span class="text-zinc-500">Sábado</span><input type="number" min="0" id="hours-sab" value="4" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500"></div>
-                    <div class="col-span-2"><span class="text-zinc-500">Domingo</span><input type="number" min="0" id="hours-dom" value="2" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none focus:border-blue-500"></div>
+                    <div><span class="text-zinc-500">Segunda</span><input type="number" min="0" id="hours-seg" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none"></div>
+                    <div><span class="text-zinc-500">Terça</span><input type="number" min="0" id="hours-ter" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none"></div>
+                    <div><span class="text-zinc-500">Quarta</span><input type="number" min="0" id="hours-qua" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none"></div>
+                    <div><span class="text-zinc-500">Quinta</span><input type="number" min="0" id="hours-qui" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none"></div>
+                    <div><span class="text-zinc-500">Sexta</span><input type="number" min="0" id="hours-sex" value="3" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none"></div>
+                    <div><span class="text-zinc-500">Sábado</span><input type="number" min="0" id="hours-sab" value="4" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none"></div>
+                    <div class="col-span-2"><span class="text-zinc-500">Domingo</span><input type="number" min="0" id="hours-dom" value="2" class="w-full bg-black border border-zinc-800 rounded-lg px-2 py-1 text-white focus:outline-none"></div>
                 </div>
             </div>
 
@@ -215,23 +220,23 @@
     <!-- Modal: Adicionar/Editar Matéria -->
     <div id="subjectModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
-            <h3 id="subjectModalTitle" class="text-base font-bold text-white">Adicionar Matéria ao Cronograma</h3>
+            <h3 id="subjectModalTitle" class="text-base font-bold text-white">Adicionar Matéria</h3>
             <input type="hidden" id="editSubjectId">
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Nome da Matéria</label>
-                <input type="text" id="modalSubjectName" placeholder="Ex: Matemática, Direito..." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                <input type="text" id="modalSubjectName" placeholder="Ex: Matemática, Direito..." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
             </div>
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Peso da Matéria na Prova (1 a 5)</label>
-                <input type="number" id="modalSubjectWeight" placeholder="Ex: 3" min="1" max="5" value="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                <input type="number" id="modalSubjectWeight" min="1" max="5" value="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
             </div>
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Meta de Horas Total</label>
-                <input type="number" id="modalSubjectTargetHours" placeholder="Ex: 10" min="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                <input type="number" id="modalSubjectTargetHours" min="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
             </div>
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Assuntos / Tópicos (um por linha)</label>
-                <textarea id="modalSubjectTopics" rows="3" placeholder="Ex: Álgebra&#10;Geometria" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
+                <textarea id="modalSubjectTopics" rows="3" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none"></textarea>
             </div>
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeSubjectModal()" class="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800 transition">Cancelar</button>
@@ -246,15 +251,15 @@
             <h3 class="text-base font-bold text-white">Registrar Ponto de Atenção</h3>
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Matéria</label>
-                <select id="modalErrorSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></select>
+                <select id="modalErrorSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none"></select>
             </div>
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Questão / Assunto com Erro</label>
-                <input type="text" id="modalErrorQuestion" placeholder="Ex: Fórmulas de Geometria Plana" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                <input type="text" id="modalErrorQuestion" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
             </div>
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Causa do Erro / Ponto de Atenção</label>
-                <textarea id="modalErrorReason" rows="3" placeholder="Ex: Confundi a fórmula." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
+                <textarea id="modalErrorReason" rows="3" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none"></textarea>
             </div>
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeErrorModal()" class="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800 transition">Cancelar</button>
@@ -285,19 +290,42 @@
         </div>
     </nav>
 
-    <!-- Registration of Service Worker dynamically for PWA installation -->
+    <!-- Registo do Service Worker Físico e Instalação PWA -->
     <script>
+      let deferredPrompt;
+      const installBtn = document.getElementById('pwaInstallBtn');
+
       if ('serviceWorker' in navigator) {
-        const swCode = `
-          self.addEventListener('install', e => self.skipWaiting());
-          self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
-        `;
-        const blob = new Blob([swCode], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(err => console.log('SW error:', err));
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker Registado com sucesso!', reg))
+          .catch(err => console.log('Erro ao registar SW:', err));
+      }
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if(installBtn) {
+            installBtn.classList.remove('hidden');
+            installBtn.classList.add('flex');
+        }
+      });
+
+      if(installBtn) {
+        installBtn.addEventListener('click', () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choice) => {
+                    if (choice.outcome === 'accepted') {
+                        installBtn.classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        });
       }
     </script>
 
-    <!-- Main Logic Script -->
+    <!-- Script com Lógica da Aplicação -->
     <script>
         let state = JSON.parse(localStorage.getItem('estudoflow_schedule_v4')) || {
             weeklyHours: { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 },
@@ -307,11 +335,7 @@
             historicalTotalCorrect: 15,
             subjects: [
                 {
-                    id: '1',
-                    name: 'Matemática',
-                    weight: 3,
-                    targetHours: 12,
-                    studiedHours: 4,
+                    id: '1', name: 'Matemática', weight: 3, targetHours: 12, studiedHours: 4,
                     topics: [
                         { id: 't1', title: 'Álgebra Básica', correct: 9, total: 10, completed: true },
                         { id: 't2', title: 'Equações do 2º Grau', correct: 6, total: 10, completed: false },
@@ -319,19 +343,14 @@
                     ]
                 },
                 {
-                    id: '2',
-                    name: 'Língua Portuguesa',
-                    weight: 5,
-                    targetHours: 20,
-                    studiedHours: 5,
+                    id: '2', name: 'Língua Portuguesa', weight: 5, targetHours: 20, studiedHours: 5,
                     topics: [
                         { id: 't1', title: 'Interpretação de Texto', correct: 8, total: 10, completed: true },
                         { id: 't2', title: 'Sintaxe da Oração', correct: 0, total: 0, completed: false }
                     ]
                 }
             ],
-            errors: [],
-            history: []
+            errors: [], history: []
         };
 
         let timer = { instance: null, secondsLeft: 25 * 60, duration: 25 * 60, isRunning: false };
@@ -370,10 +389,7 @@
         }
 
         function renderGlobalStats() {
-            let currentWeeklyHours = 0;
-            let currentQuestions = 0;
-            let currentCorrect = 0;
-
+            let currentWeeklyHours = 0, currentQuestions = 0, currentCorrect = 0;
             state.subjects.forEach(s => {
                 currentWeeklyHours += s.studiedHours || 0;
                 s.topics.forEach(t => {
@@ -399,11 +415,7 @@
             let totalTopics = 0, completedTopics = 0, totalHours = 0;
 
             if (state.subjects.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-8 text-zinc-600 space-y-2">
-                        <i data-lucide="folder-plus" class="w-10 h-10 mx-auto stroke-1"></i>
-                        <p class="text-sm">Nenhuma matéria no cronograma.</p>
-                    </div>`;
+                container.innerHTML = `<div class="text-center py-8 text-zinc-600 space-y-2"><i data-lucide="folder-plus" class="w-10 h-10 mx-auto stroke-1"></i><p class="text-sm">Nenhuma matéria no cronograma.</p></div>`;
             }
 
             state.subjects.forEach(subject => {
@@ -426,18 +438,14 @@
 
                     let badgeColor = "bg-zinc-900 text-zinc-500 border-zinc-800";
                     if (total > 0) {
-                        badgeColor = isEligible 
-                            ? "bg-emerald-950/40 text-emerald-400 border-emerald-800/40" 
-                            : "bg-red-950/40 text-red-400 border-red-800/40";
+                        badgeColor = isEligible ? "bg-emerald-950/40 text-emerald-400 border-emerald-800/40" : "bg-red-950/40 text-red-400 border-red-800/40";
                     }
 
                     topicsHtml += `
                         <div class="p-3 rounded-xl bg-black border border-zinc-800 space-y-2">
                             <div class="flex items-center justify-between">
                                 <label class="flex items-center space-x-2 cursor-pointer flex-1">
-                                    <input type="checkbox" ${topic.completed ? 'checked' : ''} 
-                                        onchange="toggleTopic('${subject.id}', '${topic.id}', ${percent})" 
-                                        class="rounded bg-zinc-900 border-zinc-700 text-blue-600 focus:ring-0 w-4 h-4 ${!isEligible && !topic.completed ? 'opacity-40' : ''}">
+                                    <input type="checkbox" ${topic.completed ? 'checked' : ''} onchange="toggleTopic('${subject.id}', '${topic.id}', ${percent})" class="rounded bg-zinc-900 border-zinc-700 text-blue-600 focus:ring-0 w-4 h-4 ${!isEligible && !topic.completed ? 'opacity-40' : ''}">
                                     <span class="text-xs font-semibold ${topic.completed ? 'line-through text-zinc-600' : 'text-zinc-200'}">${topic.title}</span>
                                 </label>
                                 <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${badgeColor}">
@@ -447,18 +455,8 @@
                             <div class="flex items-center justify-between pt-1 border-t border-zinc-900 text-[11px] text-zinc-500">
                                 <span>Questões:</span>
                                 <div class="flex items-center space-x-2">
-                                    <label class="flex items-center space-x-1">
-                                        <span>Acertos:</span>
-                                        <input type="number" min="0" value="${correct}" 
-                                            onchange="updateTopicScore('${subject.id}', '${topic.id}', 'correct', this.value)" 
-                                            class="w-12 bg-zinc-900 border border-zinc-800 rounded px-1 py-0.5 text-center text-emerald-400 font-bold focus:outline-none">
-                                    </label>
-                                    <label class="flex items-center space-x-1">
-                                        <span>Total:</span>
-                                        <input type="number" min="0" value="${total}" 
-                                            onchange="updateTopicScore('${subject.id}', '${topic.id}', 'total', this.value)" 
-                                            class="w-12 bg-zinc-900 border border-zinc-800 rounded px-1 py-0.5 text-center text-zinc-200 font-bold focus:outline-none">
-                                    </label>
+                                    <label class="flex items-center space-x-1"><span>Acertos:</span><input type="number" min="0" value="${correct}" onchange="updateTopicScore('${subject.id}', '${topic.id}', 'correct', this.value)" class="w-12 bg-zinc-900 border border-zinc-800 rounded px-1 py-0.5 text-center text-emerald-400 font-bold focus:outline-none"></label>
+                                    <label class="flex items-center space-x-1"><span>Total:</span><input type="number" min="0" value="${total}" onchange="updateTopicScore('${subject.id}', '${topic.id}', 'total', this.value)" class="w-12 bg-zinc-900 border border-zinc-800 rounded px-1 py-0.5 text-center text-zinc-200 font-bold focus:outline-none"></label>
                                 </div>
                             </div>
                         </div>`;
@@ -474,26 +472,14 @@
                             <p class="text-xs text-zinc-400">Meta: ${subject.studiedHours || 0}h / ${subject.targetHours}h estudadas</p>
                         </div>
                         <div class="flex items-center space-x-1">
-                            <button onclick="addStudiedHour('${subject.id}')" class="p-1.5 bg-blue-950/60 text-blue-400 border border-blue-800/40 hover:bg-blue-900/60 rounded-lg text-xs font-bold flex items-center space-x-1 transition">
-                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
-                                <span>+1h</span>
-                            </button>
-                            <button onclick="openSubjectModal('${subject.id}')" class="p-1.5 text-zinc-500 hover:text-zinc-300 transition">
-                                <i data-lucide="edit-3" class="w-4 h-4"></i>
-                            </button>
-                            <button onclick="deleteSubject('${subject.id}')" class="p-1.5 text-zinc-500 hover:text-red-400 transition">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
+                            <button onclick="addStudiedHour('${subject.id}')" class="p-1.5 bg-blue-950/60 text-blue-400 border border-blue-800/40 hover:bg-blue-900/60 rounded-lg text-xs font-bold flex items-center space-x-1 transition"><i data-lucide="clock" class="w-3.5 h-3.5"></i><span>+1h</span></button>
+                            <button onclick="openSubjectModal('${subject.id}')" class="p-1.5 text-zinc-500 hover:text-zinc-300 transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="deleteSubject('${subject.id}')" class="p-1.5 text-zinc-500 hover:text-red-400 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </div>
                     <div class="space-y-1">
-                        <div class="flex justify-between text-xs text-zinc-400">
-                            <span>Progresso dos Tópicos</span>
-                            <span class="font-bold text-white">${progressPercent}%</span>
-                        </div>
-                        <div class="w-full bg-zinc-900 h-2 rounded-full overflow-hidden border border-zinc-800">
-                            <div class="bg-blue-600 h-full transition-all duration-300" style="width: ${progressPercent}%"></div>
-                        </div>
+                        <div class="flex justify-between text-xs text-zinc-400"><span>Progresso dos Tópicos</span><span class="font-bold text-white">${progressPercent}%</span></div>
+                        <div class="w-full bg-zinc-900 h-2 rounded-full overflow-hidden border border-zinc-800"><div class="bg-blue-600 h-full transition-all duration-300" style="width: ${progressPercent}%"></div></div>
                     </div>
                     <div class="space-y-2 pt-1">${topicsHtml}</div>`;
                 container.appendChild(card);
@@ -524,61 +510,39 @@
                 totalWeekHours += day.hours;
                 if (day.hours > 0) {
                     const subjectsText = day.allocated.map(a => `${a.name} (${a.hours}h)`).join(', ') || 'Livre';
-                    grid.innerHTML += `
-                        <div class="flex justify-between items-center p-2 rounded-xl bg-black border border-zinc-800">
-                            <span class="font-bold text-zinc-300 w-20">${dayNames[day.day] || day.day}:</span>
-                            <span class="text-zinc-400 text-right flex-1 truncate px-2">${subjectsText}</span>
-                            <span class="text-[10px] text-blue-400 font-bold bg-blue-950/40 px-1.5 py-0.5 rounded border border-blue-900/30">${day.hours}h</span>
-                        </div>`;
+                    grid.innerHTML += `<div class="flex justify-between items-center p-2 rounded-xl bg-black border border-zinc-800"><span class="font-bold text-zinc-300 w-20">${dayNames[day.day] || day.day}:</span><span class="text-zinc-400 text-right flex-1 truncate px-2">${subjectsText}</span><span class="text-[10px] text-blue-400 font-bold bg-blue-950/40 px-1.5 py-0.5 rounded border border-blue-900/30">${day.hours}h</span></div>`;
                 }
             });
             document.getElementById('weeklyHoursTotal').innerText = `${totalWeekHours}h/semana`;
         }
 
         function finishWeek() {
-            let weekHours = 0;
-            let weekQuestions = 0;
-            let weekCorrect = 0;
-
+            let weekHours = 0, weekQuestions = 0, weekCorrect = 0;
             state.subjects.forEach(s => {
                 weekHours += s.studiedHours || 0;
-                s.topics.forEach(t => {
-                    weekQuestions += t.total || 0;
-                    weekCorrect += t.correct || 0;
-                });
+                s.topics.forEach(t => { weekQuestions += t.total || 0; weekCorrect += t.correct || 0; });
             });
 
-            if (weekHours === 0 && weekQuestions === 0) {
-                alert("Nenhuma hora ou questão registrada nesta semana ainda!");
-                return;
-            }
+            if (weekHours === 0 && weekQuestions === 0) return alert("Nenhuma hora ou questão registrada nesta semana ainda!");
 
-            const weekTitle = prompt("Informe a identificação desta semana (Ex: Semana 1, Semana 2, etc.):", `Semana ${ (state.history ? state.history.length : 0) + 1 }`);
+            const weekTitle = prompt("Informe a identificação desta semana:", `Semana ${(state.history ? state.history.length : 0) + 1}`);
             if (!weekTitle) return;
 
             const accuracy = weekQuestions > 0 ? Math.round((weekCorrect / weekQuestions) * 100) : 0;
 
             if (!state.history) state.history = [];
             state.history.unshift({
-                id: Date.now().toString(),
-                title: weekTitle,
-                date: new Date().toLocaleDateString('pt-BR'),
-                hours: weekHours,
-                questions: weekQuestions,
-                correct: weekCorrect,
-                accuracy: accuracy
+                id: Date.now().toString(), title: weekTitle, date: new Date().toLocaleDateString('pt-BR'),
+                hours: weekHours, questions: weekQuestions, correct: weekCorrect, accuracy: accuracy
             });
 
             state.historicalTotalHours = (state.historicalTotalHours || 0) + weekHours;
             state.historicalTotalQuestions = (state.historicalTotalQuestions || 0) + weekQuestions;
             state.historicalTotalCorrect = (state.historicalTotalCorrect || 0) + weekCorrect;
 
-            state.subjects.forEach(s => {
-                s.studiedHours = 0;
-            });
-
+            state.subjects.forEach(s => s.studiedHours = 0);
             saveData();
-            alert(`Sua "${weekTitle}" foi finalizada com sucesso e salva no Histórico! As metas semanais foram zeradas para o novo ciclo.`);
+            alert(`Sua "${weekTitle}" foi finalizada com sucesso e salva no Histórico!`);
         }
 
         function renderHistory() {
@@ -594,23 +558,11 @@
                 const card = document.createElement('div');
                 card.className = "bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-2 relative";
                 card.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm font-bold text-white">${item.title}</span>
-                        <span class="text-xs text-zinc-500">${item.date}</span>
-                    </div>
+                    <div class="flex justify-between items-center"><span class="text-sm font-bold text-white">${item.title}</span><span class="text-xs text-zinc-500">${item.date}</span></div>
                     <div class="grid grid-cols-3 gap-2 pt-1 text-center">
-                        <div class="bg-black p-2 rounded-xl border border-zinc-800">
-                            <span class="text-[10px] text-zinc-500 uppercase block">Horas</span>
-                            <span class="text-xs font-bold text-blue-400">${item.hours}h</span>
-                        </div>
-                        <div class="bg-black p-2 rounded-xl border border-zinc-800">
-                            <span class="text-[10px] text-zinc-500 uppercase block">Questões</span>
-                            <span class="text-xs font-bold text-white">${item.questions}</span>
-                        </div>
-                        <div class="bg-black p-2 rounded-xl border border-zinc-800">
-                            <span class="text-[10px] text-zinc-500 uppercase block">Acertos</span>
-                            <span class="text-xs font-bold text-emerald-400">${item.accuracy}%</span>
-                        </div>
+                        <div class="bg-black p-2 rounded-xl border border-zinc-800"><span class="text-[10px] text-zinc-500 uppercase block">Horas</span><span class="text-xs font-bold text-blue-400">${item.hours}h</span></div>
+                        <div class="bg-black p-2 rounded-xl border border-zinc-800"><span class="text-[10px] text-zinc-500 uppercase block">Questões</span><span class="text-xs font-bold text-white">${item.questions}</span></div>
+                        <div class="bg-black p-2 rounded-xl border border-zinc-800"><span class="text-[10px] text-zinc-500 uppercase block">Acertos</span><span class="text-xs font-bold text-emerald-400">${item.accuracy}%</span></div>
                     </div>`;
                 container.appendChild(card);
             });
@@ -632,11 +584,7 @@
         function closePlannerModal() { document.getElementById('plannerModal').classList.add('hidden'); }
 
         function generateAutoSchedule() {
-            if (state.subjects.length === 0) {
-                alert("Adicione matérias primeiro!");
-                closePlannerModal();
-                return;
-            }
+            if (state.subjects.length === 0) return alert("Adicione matérias primeiro!");
 
             const weeklyHours = {
                 seg: parseInt(document.getElementById('hours-seg').value) || 0,
@@ -730,7 +678,7 @@
                 document.getElementById('modalSubjectTargetHours').value = subject.targetHours;
                 document.getElementById('modalSubjectTopics').value = subject.topics.map(t => t.title).join('\n');
             } else {
-                document.getElementById('subjectModalTitle').innerText = 'Adicionar Matéria ao Cronograma';
+                document.getElementById('subjectModalTitle').innerText = 'Adicionar Matéria';
                 document.getElementById('modalSubjectName').value = '';
                 document.getElementById('modalSubjectWeight').value = 1;
                 document.getElementById('modalSubjectTargetHours').value = '';
