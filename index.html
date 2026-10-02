@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-PT" class="h-full bg-slate-900 text-slate-100">
+<html lang="pt-PT" class="h-full bg-black text-slate-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EstudoFlow Pro - Cronograma</title>
+    <title>EstudoFlow Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -11,20 +11,22 @@
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="h-full flex flex-col font-sans antialiased bg-slate-900 text-slate-100">
+<body class="h-full flex flex-col font-sans antialiased bg-black text-slate-100">
 
     <!-- Header / Navbar -->
-    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700/50 sticky top-0 z-50">
+    <header class="bg-black/90 backdrop-blur border-b border-zinc-800 sticky top-0 z-50">
         <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-2">
-                <div class="p-2 bg-blue-600 rounded-xl text-white">
+                <div class="p-2 bg-zinc-900 border border-zinc-700 rounded-xl text-blue-400">
                     <i data-lucide="calendar" class="w-6 h-6"></i>
                 </div>
-                <h1 class="text-lg font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                    EstudoFlow Pro
-                </h1>
+                <div>
+                    <h1 class="text-lg font-black tracking-wide text-white">
+                        EstudoFlow <span class="text-blue-500">PRO</span>
+                    </h1>
+                </div>
             </div>
-            <button id="resetDataBtn" class="p-2 text-slate-400 hover:text-red-400 transition" title="Limpar Dados">
+            <button id="resetDataBtn" class="p-2 text-zinc-500 hover:text-red-400 transition" title="Limpar Dados">
                 <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
             </button>
         </div>
@@ -36,27 +38,27 @@
         <!-- Tab 1: Cronograma & Metas -->
         <section id="tab-schedule" class="space-y-4">
             <!-- Global Progress Banner -->
-            <div class="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-500/30 rounded-2xl p-4 space-y-2 shadow-lg">
+            <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-2 shadow-xl">
                 <div class="flex justify-between items-center text-sm">
-                    <span class="font-bold text-slate-200">Progresso Geral do Cronograma</span>
-                    <span id="globalPercent" class="font-black text-blue-400">0%</span>
+                    <span class="font-bold text-zinc-300">Progresso Geral do Cronograma</span>
+                    <span id="globalPercent" class="font-black text-blue-500 text-base">0%</span>
                 </div>
-                <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-slate-700">
-                    <div id="globalProgressBar" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full transition-all duration-500" style="width: 0%"></div>
+                <div class="w-full bg-zinc-900 h-3 rounded-full overflow-hidden border border-zinc-800">
+                    <div id="globalProgressBar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
                 </div>
-                <div class="flex justify-between text-xs text-slate-400 pt-1">
-                    <span id="globalCompletedText">0 / 0 metas concluídas</span>
+                <div class="flex justify-between text-xs text-zinc-500 pt-1 font-medium">
+                    <span id="globalCompletedText">0 / 0 tópicos concluídos</span>
                     <span id="globalHoursText">0h estudadas</span>
                 </div>
             </div>
 
             <!-- Header + Add Button -->
             <div class="flex items-center justify-between">
-                <h2 class="text-base font-bold text-slate-200 flex items-center space-x-2">
-                    <i data-lucide="list-checks" class="w-5 h-5 text-blue-400"></i>
+                <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-2">
+                    <i data-lucide="list-checks" class="w-4 h-4 text-blue-500"></i>
                     <span>Plano de Estudos</span>
                 </h2>
-                <button onclick="openSubjectModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1 transition shadow-lg shadow-blue-600/30">
+                <button onclick="openSubjectModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg shadow-blue-600/20">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     <span>Adicionar Matéria</span>
                 </button>
@@ -71,11 +73,11 @@
         <!-- Tab 2: Pontos de Atenção & Erros -->
         <section id="tab-errors" class="space-y-4 hidden">
             <div class="flex items-center justify-between">
-                <h2 class="text-base font-bold text-slate-200 flex items-center space-x-2">
-                    <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400"></i>
+                <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i>
                     <span>Pontos de Atenção (Erros)</span>
                 </h2>
-                <button onclick="openErrorModal()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1 transition shadow-lg shadow-amber-600/30">
+                <button onclick="openErrorModal()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg shadow-amber-600/20">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     <span>Novo Registo</span>
                 </button>
@@ -88,22 +90,22 @@
 
         <!-- Tab 3: Temporizador Pomodoro -->
         <section id="tab-timer" class="space-y-6 hidden">
-            <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 text-center shadow-xl">
+            <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 text-center shadow-xl">
                 <div class="flex justify-center space-x-2 mb-6">
-                    <button onclick="setTimerMode('pomodoro')" id="mode-pomodoro" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white">Pomodoro</button>
-                    <button onclick="setTimerMode('short')" id="mode-short" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-700 text-slate-300">Pausa Curta</button>
+                    <button onclick="setTimerMode('pomodoro')" id="mode-pomodoro" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white">Pomodoro (25m)</button>
+                    <button onclick="setTimerMode('short')" id="mode-short" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-900 text-zinc-400 border border-zinc-800">Pausa Curta (5m)</button>
                 </div>
 
-                <div class="relative w-48 h-48 mx-auto flex items-center justify-center my-4">
-                    <div class="text-5xl font-black tracking-wider text-slate-100" id="timer-display">25:00</div>
+                <div class="relative w-48 h-48 mx-auto flex items-center justify-center my-4 border border-zinc-800 rounded-full bg-zinc-900/50">
+                    <div class="text-5xl font-black tracking-wider text-white font-mono" id="timer-display">25:00</div>
                 </div>
 
                 <div class="flex justify-center space-x-4 mt-6">
-                    <button id="startTimerBtn" onclick="toggleTimer()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold flex items-center justify-center space-x-2 transition shadow-lg shadow-blue-600/30">
+                    <button id="startTimerBtn" onclick="toggleTimer()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold flex items-center justify-center space-x-2 transition shadow-lg shadow-blue-600/20">
                         <i data-lucide="play" id="playIcon" class="w-5 h-5"></i>
                         <span id="startBtnText">Iniciar</span>
                     </button>
-                    <button onclick="resetTimer()" class="p-3 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl transition">
+                    <button onclick="resetTimer()" class="p-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-xl transition">
                         <i data-lucide="square" class="w-5 h-5"></i>
                     </button>
                 </div>
@@ -113,74 +115,74 @@
     </main>
 
     <!-- Modal: Adicionar/Editar Matéria -->
-    <div id="subjectModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
-            <h3 id="subjectModalTitle" class="text-base font-bold text-slate-100">Adicionar Matéria ao Cronograma</h3>
+    <div id="subjectModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+            <h3 id="subjectModalTitle" class="text-base font-bold text-white">Adicionar Matéria ao Cronograma</h3>
             
             <input type="hidden" id="editSubjectId">
             <div>
-                <label class="block text-xs text-slate-400 mb-1">Nome da Matéria</label>
-                <input type="text" id="modalSubjectName" placeholder="Ex: Matemática, Direito..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500">
+                <label class="block text-xs text-zinc-400 mb-1">Nome da Matéria</label>
+                <input type="text" id="modalSubjectName" placeholder="Ex: Matemática, Direito..." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
             </div>
 
             <div>
-                <label class="block text-xs text-slate-400 mb-1">Meta de Horas de Estudo</label>
-                <input type="number" id="modalSubjectTargetHours" placeholder="Ex: 10" min="1" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500">
+                <label class="block text-xs text-zinc-400 mb-1">Meta de Horas de Estudo</label>
+                <input type="number" id="modalSubjectTargetHours" placeholder="Ex: 10" min="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
             </div>
 
             <div>
-                <label class="block text-xs text-slate-400 mb-1">Assuntos / Tópicos (um por linha)</label>
-                <textarea id="modalSubjectTopics" rows="3" placeholder="Ex: Álgebra&#10;Geometria&#10;Trigonometria" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500"></textarea>
+                <label class="block text-xs text-zinc-400 mb-1">Assuntos / Tópicos (um por linha)</label>
+                <textarea id="modalSubjectTopics" rows="3" placeholder="Ex: Álgebra&#10;Geometria&#10;Trigonometria" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
             </div>
 
             <div class="flex space-x-2 pt-2">
-                <button onclick="closeSubjectModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 rounded-xl text-sm font-semibold transition">Cancelar</button>
+                <button onclick="closeSubjectModal()" class="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800 transition">Cancelar</button>
                 <button onclick="saveSubject()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Guardar</button>
             </div>
         </div>
     </div>
 
     <!-- Modal: Adicionar Registo de Erro -->
-    <div id="errorModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
-            <h3 class="text-base font-bold text-slate-100">Registar Ponto de Atenção</h3>
+    <div id="errorModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-white">Registar Ponto de Atenção</h3>
             
             <div>
-                <label class="block text-xs text-slate-400 mb-1">Matéria</label>
-                <select id="modalErrorSubjectSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500">
+                <label class="block text-xs text-zinc-400 mb-1">Matéria</label>
+                <select id="modalErrorSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
                     <!-- Opções via JS -->
                 </select>
             </div>
 
             <div>
-                <label class="block text-xs text-slate-400 mb-1">Questão / Assunto com Erro</label>
-                <input type="text" id="modalErrorQuestion" placeholder="Ex: Fórmulas de Geometria Plana" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500">
+                <label class="block text-xs text-zinc-400 mb-1">Questão / Assunto com Erro</label>
+                <input type="text" id="modalErrorQuestion" placeholder="Ex: Fórmulas de Geometria Plana" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
             </div>
 
             <div>
-                <label class="block text-xs text-slate-400 mb-1">Causa do Erro / Ponto de Atenção</label>
-                <textarea id="modalErrorReason" rows="3" placeholder="Ex: Confundi a fórmula da área do trapézio. Rever conceito antes da prova." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500"></textarea>
+                <label class="block text-xs text-zinc-400 mb-1">Causa do Erro / Ponto de Atenção</label>
+                <textarea id="modalErrorReason" rows="3" placeholder="Ex: Confundi a fórmula da área do trapézio. Rever conceito antes da prova." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></textarea>
             </div>
 
             <div class="flex space-x-2 pt-2">
-                <button onclick="closeErrorModal()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 rounded-xl text-sm font-semibold transition">Cancelar</button>
+                <button onclick="closeErrorModal()" class="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800 transition">Cancelar</button>
                 <button onclick="saveErrorRecord()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Guardar Ponto</button>
             </div>
         </div>
     </div>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-800/90 backdrop-blur border-t border-slate-700/50 z-50">
+    <nav class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur border-t border-zinc-800 z-50">
         <div class="max-w-md mx-auto grid grid-cols-3 px-2 py-2 text-center text-xs">
-            <button onclick="switchTab('schedule')" id="nav-schedule" class="flex flex-col items-center py-1.5 text-blue-500 font-semibold">
+            <button onclick="switchTab('schedule')" id="nav-schedule" class="flex flex-col items-center py-1.5 text-blue-500 font-bold">
                 <i data-lucide="calendar" class="w-5 h-5 mb-1"></i>
                 <span>Cronograma</span>
             </button>
-            <button onclick="switchTab('errors')" id="nav-errors" class="flex flex-col items-center py-1.5 text-slate-400">
+            <button onclick="switchTab('errors')" id="nav-errors" class="flex flex-col items-center py-1.5 text-zinc-500">
                 <i data-lucide="alert-triangle" class="w-5 h-5 mb-1"></i>
                 <span>Erros & Atenção</span>
             </button>
-            <button onclick="switchTab('timer')" id="nav-timer" class="flex flex-col items-center py-1.5 text-slate-400">
+            <button onclick="switchTab('timer')" id="nav-timer" class="flex flex-col items-center py-1.5 text-zinc-500">
                 <i data-lucide="timer" class="w-5 h-5 mb-1"></i>
                 <span>Timer</span>
             </button>
@@ -230,14 +232,14 @@
             ['schedule', 'errors', 'timer'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 const navBtn = document.getElementById(`nav-${t}`);
-                navBtn.classList.remove('text-blue-500', 'font-semibold');
-                navBtn.classList.add('text-slate-400');
+                navBtn.classList.remove('text-blue-500', 'font-bold');
+                navBtn.classList.add('text-zinc-500');
             });
 
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             const activeNav = document.getElementById(`nav-${tabId}`);
-            activeNav.classList.add('text-blue-500', 'font-semibold');
-            activeNav.classList.remove('text-slate-400');
+            activeNav.classList.add('text-blue-500', 'font-bold');
+            activeNav.classList.remove('text-zinc-500');
         }
 
         // Schedule Rendering & Logic
@@ -251,7 +253,7 @@
 
             if (state.subjects.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-8 text-slate-500 space-y-2">
+                    <div class="text-center py-8 text-zinc-600 space-y-2">
                         <i data-lucide="folder-plus" class="w-10 h-10 mx-auto stroke-1"></i>
                         <p class="text-sm">Nenhuma matéria no cronograma.<br>Clique em "Adicionar Matéria" para começar!</p>
                     </div>
@@ -269,7 +271,7 @@
                 const progressPercent = subTotalTopics > 0 ? Math.round((subCompletedTopics / subTotalTopics) * 100) : 0;
 
                 const card = document.createElement('div');
-                card.className = "bg-slate-800/50 border border-slate-700/50 rounded-2xl p-4 space-y-3 shadow-md";
+                card.className = "bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3 shadow-md";
                 
                 let topicsHtml = '';
                 subject.topics.forEach(topic => {
@@ -278,48 +280,48 @@
                     const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
                     const isEligible = percent >= 80;
 
-                    let badgeColor = "bg-slate-800 text-slate-400 border-slate-700";
+                    let badgeColor = "bg-zinc-900 text-zinc-500 border-zinc-800";
                     if (total > 0) {
                         badgeColor = isEligible 
-                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" 
-                            : "bg-red-500/10 text-red-400 border-red-500/30";
+                            ? "bg-emerald-950/40 text-emerald-400 border-emerald-800/40" 
+                            : "bg-red-950/40 text-red-400 border-red-800/40";
                     }
 
                     topicsHtml += `
-                        <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+                        <div class="p-3 rounded-xl bg-black border border-zinc-800 space-y-2">
                             <div class="flex items-center justify-between">
                                 <label class="flex items-center space-x-2 cursor-pointer flex-1">
                                     <input type="checkbox" ${topic.completed ? 'checked' : ''} 
                                         onchange="toggleTopic('${subject.id}', '${topic.id}', ${percent})" 
-                                        class="rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-0 w-4 h-4 ${!isEligible && !topic.completed ? 'opacity-50' : ''}">
-                                    <span class="text-xs font-semibold ${topic.completed ? 'line-through text-slate-500' : 'text-slate-200'}">${topic.title}</span>
+                                        class="rounded bg-zinc-900 border-zinc-700 text-blue-600 focus:ring-0 w-4 h-4 ${!isEligible && !topic.completed ? 'opacity-40' : ''}">
+                                    <span class="text-xs font-semibold ${topic.completed ? 'line-through text-zinc-600' : 'text-zinc-200'}">${topic.title}</span>
                                 </label>
                                 <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${badgeColor}">
                                     ${total > 0 ? `${percent}% aproveitamento` : 'Sem questões'}
                                 </span>
                             </div>
 
-                            <div class="flex items-center justify-between pt-1 border-t border-slate-800/80 text-[11px] text-slate-400">
+                            <div class="flex items-center justify-between pt-1 border-t border-zinc-900 text-[11px] text-zinc-500">
                                 <span>Questões:</span>
                                 <div class="flex items-center space-x-2">
                                     <label class="flex items-center space-x-1">
                                         <span>Acertos:</span>
                                         <input type="number" min="0" value="${correct}" 
                                             onchange="updateTopicScore('${subject.id}', '${topic.id}', 'correct', this.value)" 
-                                            class="w-12 bg-slate-800 border border-slate-700 rounded px-1 py-0.5 text-center text-emerald-400 font-bold focus:outline-none">
+                                            class="w-12 bg-zinc-900 border border-zinc-800 rounded px-1 py-0.5 text-center text-emerald-400 font-bold focus:outline-none">
                                     </label>
                                     <label class="flex items-center space-x-1">
                                         <span>Total:</span>
                                         <input type="number" min="0" value="${total}" 
                                             onchange="updateTopicScore('${subject.id}', '${topic.id}', 'total', this.value)" 
-                                            class="w-12 bg-slate-800 border border-slate-700 rounded px-1 py-0.5 text-center text-slate-200 font-bold focus:outline-none">
+                                            class="w-12 bg-zinc-900 border border-zinc-800 rounded px-1 py-0.5 text-center text-zinc-200 font-bold focus:outline-none">
                                     </label>
                                 </div>
                             </div>
                             ${!isEligible && !topic.completed && total > 0 ? `
-                                <p class="text-[10px] text-amber-400 flex items-center space-x-1 pt-0.5">
+                                <p class="text-[10px] text-amber-500 flex items-center space-x-1 pt-0.5">
                                     <i data-lucide="alert-circle" class="w-3 h-3"></i>
-                                    <span>Necessita de ≥ 80% de aproveitamento para marcar como concluído.</span>
+                                    <span>Necessita de ≥ 80% de aproveitamento para concluir.</span>
                                 </p>
                             ` : ''}
                         </div>
@@ -329,18 +331,18 @@
                 card.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div>
-                            <h3 class="text-base font-bold text-slate-100">${subject.name}</h3>
-                            <p class="text-xs text-slate-400">Meta: ${subject.studiedHours || 0}h / ${subject.targetHours}h estudadas</p>
+                            <h3 class="text-base font-bold text-white">${subject.name}</h3>
+                            <p class="text-xs text-zinc-400">Meta: ${subject.studiedHours || 0}h / ${subject.targetHours}h estudadas</p>
                         </div>
                         <div class="flex items-center space-x-1">
-                            <button onclick="addStudiedHour('${subject.id}')" class="p-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 rounded-lg text-xs font-semibold flex items-center space-x-1 transition" title="+1 Hora">
+                            <button onclick="addStudiedHour('${subject.id}')" class="p-1.5 bg-blue-950/60 text-blue-400 border border-blue-800/40 hover:bg-blue-900/60 rounded-lg text-xs font-bold flex items-center space-x-1 transition" title="+1 Hora">
                                 <i data-lucide="clock" class="w-3.5 h-3.5"></i>
                                 <span>+1h</span>
                             </button>
-                            <button onclick="openSubjectModal('${subject.id}')" class="p-1.5 text-slate-400 hover:text-slate-200 transition">
+                            <button onclick="openSubjectModal('${subject.id}')" class="p-1.5 text-zinc-500 hover:text-zinc-300 transition">
                                 <i data-lucide="edit-3" class="w-4 h-4"></i>
                             </button>
-                            <button onclick="deleteSubject('${subject.id}')" class="p-1.5 text-slate-400 hover:text-red-400 transition">
+                            <button onclick="deleteSubject('${subject.id}')" class="p-1.5 text-zinc-500 hover:text-red-400 transition">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -348,12 +350,12 @@
 
                     <!-- Progresso da Matéria -->
                     <div class="space-y-1">
-                        <div class="flex justify-between text-xs text-slate-400">
+                        <div class="flex justify-between text-xs text-zinc-400">
                             <span>Progresso dos Tópicos</span>
-                            <span class="font-bold text-slate-200">${progressPercent}%</span>
+                            <span class="font-bold text-white">${progressPercent}%</span>
                         </div>
-                        <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
-                            <div class="bg-blue-500 h-full transition-all duration-300" style="width: ${progressPercent}%"></div>
+                        <div class="w-full bg-zinc-900 h-2 rounded-full overflow-hidden border border-zinc-800">
+                            <div class="bg-blue-600 h-full transition-all duration-300" style="width: ${progressPercent}%"></div>
                         </div>
                     </div>
 
@@ -379,7 +381,6 @@
                 const topic = subject.topics.find(t => t.id === topicId);
                 if (topic) {
                     topic[field] = Math.max(0, parseInt(val) || 0);
-                    // Se o total for menor que os acertos, ajustar
                     if (topic.correct > topic.total) topic.total = topic.correct;
                     saveData();
                 }
@@ -447,7 +448,6 @@
             }
 
             if (id) {
-                // Editar
                 const subject = state.subjects.find(s => s.id === id);
                 if (subject) {
                     subject.name = name;
@@ -465,7 +465,6 @@
                     });
                 }
             } else {
-                // Criar Novo
                 const newSubject = {
                     id: Date.now().toString(),
                     name,
@@ -500,8 +499,8 @@
 
             if (state.errors.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-8 text-slate-500 space-y-2">
-                        <i data-lucide="check-circle-2" class="w-10 h-10 mx-auto stroke-1 text-emerald-500/50"></i>
+                    <div class="text-center py-8 text-zinc-600 space-y-2">
+                        <i data-lucide="check-circle-2" class="w-10 h-10 mx-auto stroke-1 text-emerald-500/40"></i>
                         <p class="text-sm">Nenhum ponto de atenção registado.<br>Bom trabalho nos seus estudos!</p>
                     </div>
                 `;
@@ -512,15 +511,15 @@
                 const subjectName = subject ? subject.name : 'Geral';
 
                 const card = document.createElement('div');
-                card.className = "bg-slate-800/40 border border-amber-500/20 rounded-2xl p-4 space-y-2 relative";
+                card.className = "bg-zinc-950 border border-amber-500/20 rounded-2xl p-4 space-y-2 relative";
                 card.innerHTML = `
                     <div class="flex justify-between items-start pr-6">
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">${subjectName}</span>
-                        <span class="text-xs text-slate-500">${err.date}</span>
+                        <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">${subjectName}</span>
+                        <span class="text-xs text-zinc-500">${err.date}</span>
                     </div>
-                    <p class="text-sm font-semibold text-slate-100">${err.question}</p>
-                    <p class="text-xs text-slate-300 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 leading-relaxed">${err.reason}</p>
-                    <button onclick="deleteError('${err.id}')" class="absolute top-4 right-4 text-slate-500 hover:text-red-400 transition">
+                    <p class="text-sm font-semibold text-white">${err.question}</p>
+                    <p class="text-xs text-zinc-400 bg-black p-2.5 rounded-xl border border-zinc-800 leading-relaxed">${err.reason}</p>
+                    <button onclick="deleteError('${err.id}')" class="absolute top-4 right-4 text-zinc-600 hover:text-red-400 transition">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 `;
