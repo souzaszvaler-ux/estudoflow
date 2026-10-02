@@ -15,6 +15,11 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- PDF.js para extração de texto de ficheiros PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
     <style>
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -188,22 +193,34 @@
         </div>
     </div>
 
-    <!-- Modal: Importar Edital -->
+    <!-- Modal: Importar Edital (Suporte a PDF e Texto) -->
     <div id="importModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
                 <i data-lucide="sparkles" class="w-5 h-5"></i>
                 <span>Importar Edital Verticalizado</span>
             </h3>
-            <p class="text-xs text-zinc-400">Cole abaixo o texto do seu edital verticalizado para cadastrar matérias e tópicos automaticamente:</p>
-            
-            <textarea id="editalText" rows="8" placeholder="Exemplo:
+
+            <!-- Opções de Aba: PDF ou Texto -->
+            <div class="flex border-b border-zinc-800 text-xs font-bold">
+                <button id="tabPdfBtn" onclick="switchImportTab('pdf')" class="flex-1 py-2 text-blue-400 border-b-2 border-blue-500">Enviar PDF</button>
+                <button id="tabTextBtn" onclick="switchImportTab('text')" class="flex-1 py-2 text-zinc-500">Colar Texto</button>
+            </div>
+
+            <!-- Modo PDF -->
+            <div id="importPdfContainer" class="space-y-3">
+                <p class="text-xs text-zinc-400">Selecione o ficheiro PDF do edital no seu telemóvel:</p>
+                <input type="file" id="pdfFileInput" accept="application/pdf" class="w-full text-xs text-zinc-300 bg-black border border-zinc-800 rounded-xl p-2.5 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white">
+            </div>
+
+            <!-- Modo Texto -->
+            <div id="importTextContainer" class="space-y-3 hidden">
+                <p class="text-xs text-zinc-400">Cole abaixo o texto do edital verticalizado:</p>
+                <textarea id="editalText" rows="6" placeholder="Exemplo:
 PORTUGUÊS
 1. Compreensão de texto
-2. Sintaxe
-
-DIREITO CONSTITUCIONAL
-1. Direitos fundamentais" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none"></textarea>
+2. Sintaxe" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none"></textarea>
+            </div>
 
             <div class="flex space-x-2 pt-2">
                 <button onclick="fecharModalImportacao()" class="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800 transition">Cancelar</button>
@@ -310,6 +327,7 @@ DIREITO CONSTITUCIONAL
     </nav>
 
     <script>
+        let currentImportTab = 'pdf';
         let state = JSON.parse(localStorage.getItem('estudoflow_schedule_v4')) || {
             weeklyHours: { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 },
             weeklySchedule: [],
@@ -320,8 +338,6 @@ DIREITO CONSTITUCIONAL
             errors: [],
             history: []
         };
-
-        let timer = { instance: null, secondsLeft: 25 * 60, duration: 25 * 60, isRunning: false };
 
         function saveData() {
             localStorage.setItem('estudoflow_schedule_v4', JSON.stringify(state));
@@ -344,29 +360,82 @@ DIREITO CONSTITUCIONAL
         function fecharModalImportacao() {
             document.getElementById('importModal').classList.add('hidden');
             document.getElementById('editalText').value = '';
+            document.getElementById('pdfFileInput').value = '';
+        }
+
+        function switchImportTab(mode) {
+            currentImportTab = mode;
+            if (mode === 'pdf') {
+                document.getElementById('importPdfContainer').classList.remove('hidden');
+                document.getElementById('importTextContainer').classList.add('hidden');
+                document.getElementById('tabPdfBtn').className = 'flex-1 py-2 text-blue-400 border-b-2 border-blue-500';
+                document.getElementById('tabTextBtn').className = 'flex-1 py-2 text-zinc-500';
+            } else {
+                document.getElementById('importTextContainer').classList.remove('hidden');
+                document.getElementById('importPdfContainer').classList.add('hidden');
+                document.getElementById('tabTextBtn').className = 'flex-1 py-2 text-blue-400 border-b-2 border-blue-500';
+                document.getElementById('tabPdfBtn').className = 'flex-1 py-2 text-zinc-500';
+            }
+        }
+
+        async function extractTextFromPDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                fullText += pageText + '\n';
+            }
+            return fullText;
         }
 
         async function processarEditalComIA() {
-            const editalTexto = document.getElementById('editalText').value.trim();
             const btn = document.getElementById('btnProcessar');
+            let editalTexto = '';
 
-            if (!editalTexto) {
-                showAlert("Por favor, cole o conteúdo do edital verticalizado.");
-                return;
+            if (currentImportTab === 'pdf') {
+                const fileInput = document.getElementById('pdfFileInput');
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    showAlert("Por favor, selecione um ficheiro PDF.");
+                    return;
+                }
+                btn.innerText = "Lendo PDF...";
+                btn.disabled = true;
+                try {
+                    editalTexto = await extractTextFromPDF(fileInput.files[0]);
+                } catch (e) {
+                    console.error(e);
+                    showAlert("Erro ao extrair texto do ficheiro PDF.");
+                    btn.innerText = "Processar e Adicionar";
+                    btn.disabled = false;
+                    return;
+                }
+            } else {
+                editalTexto = document.getElementById('editalText').value.trim();
+                if (!editalTexto) {
+                    showAlert("Por favor, cole o texto do edital.");
+                    return;
+                }
             }
 
             let apiKey = localStorage.getItem('estudoflow_gemini_key');
             if (!apiKey) {
                 apiKey = prompt("Insira a sua chave API do Google AI Studio:");
-                if (!apiKey) return;
+                if (!apiKey) {
+                    btn.innerText = "Processar e Adicionar";
+                    btn.disabled = false;
+                    return;
+                }
                 localStorage.setItem('estudoflow_gemini_key', apiKey.trim());
             }
 
             btn.innerText = "Processando com IA...";
             btn.disabled = true;
 
-            const prompt = `Analise o seguinte edital verticalizado e extraia todas as disciplinas e seus respectivos tópicos.
-            Retorne APENAS um objeto JSON válido no seguinte formato:
+            const prompt = `Analise o seguinte edital e extraia todas as disciplinas e seus respectivos tópicos de estudo.
+            Retorne APENAS um objeto JSON válido, sem texto explicativo ou marcação markdown, no seguinte formato:
             {
               "disciplinas": [
                 {
@@ -379,7 +448,7 @@ DIREITO CONSTITUCIONAL
             }
 
             Conteúdo:
-            ${editalTexto}`;
+            ${editalTexto.substring(0, 30000)}`;
 
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
@@ -422,7 +491,7 @@ DIREITO CONSTITUCIONAL
 
             } catch (erro) {
                 console.error(erro);
-                showAlert("Erro ao processar o edital. Verifique a sua chave API e tente novamente.");
+                showAlert("Erro ao processar o edital. Verifique a chave da API e tente novamente.");
             } finally {
                 btn.innerText = "Processar e Adicionar";
                 btn.disabled = false;
@@ -447,7 +516,7 @@ DIREITO CONSTITUCIONAL
 
             const overallHours = (state.historicalTotalHours || 0) + currentWeeklyHours;
             const overallQuestions = (state.historicalTotalQuestions || 0) + currentQuestions;
-            const overallAccuracy = overallQuestions > 0 ? Math.round((currentCorrect / currentQuestions) * 100) : 0;
+            const overallAccuracy = currentQuestions > 0 ? Math.round((currentCorrect / currentQuestions) * 100) : 0;
 
             document.getElementById('statTotalHours').innerText = `${overallHours}h`;
             document.getElementById('statWeeklyHours').innerText = `${currentWeeklyHours}h nesta semana`;
@@ -475,7 +544,6 @@ DIREITO CONSTITUCIONAL
                 let topicsHtml = '';
                 subject.topics.forEach(topic => {
                     const percent = topic.total > 0 ? Math.round((topic.correct / topic.total) * 100) : 0;
-                    const isEligible = percent >= 80;
 
                     topicsHtml += `
                         <div class="p-3 rounded-xl bg-black border border-zinc-800 space-y-2">
