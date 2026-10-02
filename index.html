@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="pt-PT" class="h-full bg-black text-slate-100">
+<html lang="pt-BR" class="h-full bg-black text-slate-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EstudoFlow Pro</title>
     
-    <!-- Configurações para funcionar como App (PWA) -->
+    <!-- Configurações para Web App / PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
 
-    <!-- Ícone Personalizado da App (Shield / Escudo) -->
+    <!-- Ícone SVG para navegadores e Apple -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
 
-    <!-- Manifest dinâmico para forçar modo App -->
-    <link rel="manifest" href='data:application/manifest+json,{"name":"EstudoFlow Pro","short_name":"EstudoFlow","start_url":".","display":"standalone","background_color":"#000000","theme_color":"#000000","icons":[{"src":"data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%232563eb\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/></svg>","sizes":"512x512","type":"image/svg+xml"}]}'>
+    <!-- Web App Manifest Embutido -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"EstudoFlow Pro","short_name":"EstudoFlow","start_url":".","display":"standalone","background_color":"#000000","theme_color":"#000000","icons":[{"src":"data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%232563eb\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/></svg>","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}]}'>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -109,7 +109,7 @@
                 </h2>
                 <button onclick="openErrorModal()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg shadow-amber-600/20">
                     <i data-lucide="plus" class="w-4 h-4"></i>
-                    <span>Novo Registo</span>
+                    <span>Novo Registro</span>
                 </button>
             </div>
 
@@ -197,15 +197,15 @@
             </div>
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeSubjectModal()" class="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800 transition">Cancelar</button>
-                <button onclick="saveSubject()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Guardar</button>
+                <button onclick="saveSubject()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Salvar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal: Adicionar Registo de Erro -->
+    <!-- Modal: Adicionar Registro de Erro -->
     <div id="errorModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
-            <h3 class="text-base font-bold text-white">Registar Ponto de Atenção</h3>
+            <h3 class="text-base font-bold text-white">Registrar Ponto de Atenção</h3>
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Matéria</label>
                 <select id="modalErrorSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"></select>
@@ -220,7 +220,7 @@
             </div>
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeErrorModal()" class="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800 transition">Cancelar</button>
-                <button onclick="saveErrorRecord()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Guardar Ponto</button>
+                <button onclick="saveErrorRecord()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Salvar Ponto</button>
             </div>
         </div>
     </div>
@@ -243,7 +243,19 @@
         </div>
     </nav>
 
-    <!-- App Script -->
+    <!-- Registration of Service Worker dynamically for PWA installation -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        const swCode = `
+          self.addEventListener('install', e => self.skipWaiting());
+          self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
+        `;
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(err => console.log('SW error:', err));
+      }
+    </script>
+
+    <!-- Main Logic Script -->
     <script>
         let state = JSON.parse(localStorage.getItem('estudoflow_schedule_v3')) || {
             weeklyHours: { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 },
@@ -612,7 +624,7 @@
             const container = document.getElementById('errorsContainer');
             container.innerHTML = '';
             if (state.errors.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-zinc-600"><p class="text-sm">Nenhum ponto de atenção registado.</p></div>`;
+                container.innerHTML = `<div class="text-center py-8 text-zinc-600"><p class="text-sm">Nenhum ponto de atenção registrado.</p></div>`;
             }
             state.errors.forEach(err => {
                 const subject = state.subjects.find(s => s.id === err.subjectId);
@@ -648,7 +660,7 @@
 
             if (!question || !reason) return alert("Preencha todos os campos.");
 
-            state.errors.unshift({ id: Date.now().toString(), subjectId, question, reason, date: new Date().toLocaleDateString('pt-PT') });
+            state.errors.unshift({ id: Date.now().toString(), subjectId, question, reason, date: new Date().toLocaleDateString('pt-BR') });
             closeErrorModal();
             saveData();
         }
