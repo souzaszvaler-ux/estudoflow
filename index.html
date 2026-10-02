@@ -649,7 +649,7 @@
                 const topic = subject.topics.find(t => t.id === topicId);
                 if (topic) {
                     if (!topic.completed && percent < 80) {
-                        alert("Necessita de no mínimo 80% de aproveitamento em questões para concluir este tópico.");
+                        showAlert("Necessita de no mínimo 80% de aproveitamento em questões para concluir este tópico.");
                         renderSchedule();
                         return;
                     }
