@@ -15,6 +15,12 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -22,175 +28,153 @@
 </head>
 <body class="h-full flex flex-col font-sans antialiased bg-black text-slate-100 select-none">
 
-    <!-- Header -->
-    <header class="bg-black/90 backdrop-blur border-b border-zinc-800 sticky top-0 z-50 pt-2">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <div class="p-2 bg-zinc-900 border border-zinc-700 rounded-xl text-blue-400">
-                    <i data-lucide="shield" class="w-6 h-6"></i>
+    <!-- Tela de Autenticação (Login / Registro) -->
+    <div id="authScreen" class="fixed inset-0 bg-black z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-3xl w-full max-w-sm p-6 space-y-6 shadow-2xl">
+            <div class="text-center space-y-2">
+                <div class="inline-flex p-3 bg-zinc-900 border border-zinc-700 rounded-2xl text-blue-400 mb-2">
+                    <i data-lucide="shield" class="w-8 h-8"></i>
+                </div>
+                <h1 class="text-2xl font-black text-white">EstudoFlow <span class="text-blue-500">PRO</span></h1>
+                <p class="text-xs text-zinc-400" id="authSubtitle">Acesse para sincronizar em todos os dispositivos</p>
+            </div>
+
+            <form id="authForm" onsubmit="handleAuth(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-zinc-400 mb-1">E-mail</label>
+                    <input type="email" id="authEmail" required placeholder="seu@email.com" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
-                    <h1 class="text-lg font-black tracking-wide text-white">
-                        EstudoFlow <span class="text-blue-500">PRO</span>
-                    </h1>
+                    <label class="block text-xs text-zinc-400 mb-1">Senha</label>
+                    <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
-            </div>
-            <div class="flex items-center space-x-1.5">
-                <button onclick="finishWeek()" class="px-2.5 py-1.5 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 border border-emerald-800/50 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg">
-                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
-                    <span>Fechar Semana</span>
+
+                <button type="submit" id="btnAuthSubmit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-blue-600/20">
+                    Entrar
                 </button>
-                <button onclick="resetData()" class="p-2 text-zinc-500 hover:text-red-400 transition" title="Limpar Dados">
-                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-    </header>
+            </form>
 
-    <!-- Main Container Responsivo -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 pb-24 overflow-y-auto hide-scrollbar">
-        
-        <!-- Tab 1: Cronograma -->
-        <section id="tab-schedule" class="space-y-6">
-            
-            <!-- Cards de Estatísticas Responsivos (4 colunas em ecrãs grandes) -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-1 shadow-md">
-                    <div class="flex items-center justify-between text-zinc-400">
-                        <span class="text-[10px] font-bold uppercase tracking-wider">Horas Totais</span>
-                        <i data-lucide="clock" class="w-4 h-4 text-blue-400"></i>
-                    </div>
-                    <div id="statTotalHours" class="text-2xl font-black text-white">0h</div>
-                    <div class="text-[11px] text-zinc-500" id="statWeeklyHours">0h nesta semana</div>
-                </div>
-                
-                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-1 shadow-md">
-                    <div class="flex items-center justify-between text-zinc-400">
-                        <span class="text-[10px] font-bold uppercase tracking-wider">Questões Finais</span>
-                        <i data-lucide="target" class="w-4 h-4 text-emerald-400"></i>
-                    </div>
-                    <div id="statTotalQuestions" class="text-2xl font-black text-white">0</div>
-                    <div class="text-[11px] text-zinc-500" id="statAccuracyPercent">0% acertos no total</div>
-                </div>
-
-                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-2 col-span-2 lg:col-span-2 shadow-md">
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="font-bold text-zinc-300">Progresso Geral do Edital</span>
-                        <span id="globalPercent" class="font-black text-blue-500 text-base">0%</span>
-                    </div>
-                    <div class="w-full bg-zinc-900 h-3 rounded-full overflow-hidden border border-zinc-800">
-                        <div id="globalProgressBar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
-                    </div>
-                    <div class="flex justify-between text-xs text-zinc-500 pt-0.5 font-medium">
-                        <span id="globalCompletedText">0 / 0 tópicos concluídos</span>
-                        <span id="globalHoursText">0h estudadas</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Cabeçalho das Disciplinas e Botões de Ação -->
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
-                <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1.5">
-                    <i data-lucide="list-checks" class="w-4 h-4 text-blue-500"></i>
-                    <span>Disciplinas</span>
-                </h2>
-                <div class="flex space-x-2 w-full sm:w-auto">
-                    <button onclick="abrirModalImportacao()" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition shadow-lg shadow-blue-600/20">
-                        <i data-lucide="sparkles" class="w-4 h-4"></i>
-                        <span>Importar Edital</span>
-                    </button>
-                    <button onclick="openSubjectModal()" class="flex-1 sm:flex-none bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Adicionar Matéria</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Lista de Disciplinas em Grelha Responsiva (2 colunas no PC) -->
-            <div id="scheduleContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-        </section>
-
-        <!-- Tab 2: Histórico -->
-        <section id="tab-history" class="space-y-4 hidden">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-2">
-                <i data-lucide="history" class="w-4 h-4 text-emerald-400"></i>
-                <span>Histórico de Semanas Concluídas</span>
-            </h2>
-            <div id="historyContainer" class="space-y-3"></div>
-        </section>
-
-        <!-- Tab 3: Erros -->
-        <section id="tab-errors" class="space-y-4 hidden">
-            <div class="flex items-center justify-between">
-                <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-2">
-                    <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i>
-                    <span>Pontos de Atenção (Erros)</span>
-                </h2>
-                <button onclick="openErrorModal()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg shadow-amber-600/20">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    <span>Novo Registro</span>
+            <div class="text-center pt-2">
+                <button onclick="toggleAuthMode()" id="btnToggleAuth" class="text-xs text-zinc-400 hover:text-white transition">
+                    Não tem conta? <span class="text-blue-400 font-bold">Cadastre-se</span>
                 </button>
             </div>
-            <div id="errorsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-        </section>
-
-        <!-- Tab 4: Timer -->
-        <section id="tab-timer" class="space-y-6 hidden max-w-md mx-auto">
-            <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 text-center shadow-xl">
-                <div class="flex justify-center space-x-2 mb-6">
-                    <button onclick="setTimerMode('pomodoro')" id="mode-pomodoro" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white">Pomodoro (25m)</button>
-                    <button onclick="setTimerMode('short')" id="mode-short" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-900 text-zinc-400 border border-zinc-800">Pausa Curta (5m)</button>
-                </div>
-
-                <div class="relative w-48 h-48 mx-auto flex items-center justify-center my-4 border border-zinc-800 rounded-full bg-zinc-900/50">
-                    <div class="text-5xl font-black tracking-wider text-white font-mono" id="timer-display">25:00</div>
-                </div>
-
-                <div class="flex justify-center space-x-4 mt-6">
-                    <button id="startTimerBtn" onclick="toggleTimer()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold flex items-center justify-center space-x-2 transition shadow-lg shadow-blue-600/20">
-                        <i data-lucide="play" id="playIcon" class="w-5 h-5"></i>
-                        <span id="startBtnText">Iniciar</span>
-                    </button>
-                    <button onclick="resetTimer()" class="p-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-xl transition">
-                        <i data-lucide="square" class="w-5 h-5"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Modal: Alerta Personalizado -->
-    <div id="customAlert" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-6 text-center space-y-4 shadow-2xl">
-            <h3 class="text-lg font-bold text-blue-500">EstudoFlow PRO</h3>
-            <p id="customAlertMessage" class="text-sm text-zinc-300 leading-relaxed"></p>
-            <button onclick="closeCustomAlert()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-sm transition">OK</button>
         </div>
     </div>
 
-    <!-- Modal: Importar Edital Instantâneo -->
+    <!-- Interface Principal do Aplicativo -->
+    <div id="appInterface" class="h-full flex flex-col hidden">
+        <!-- Header -->
+        <header class="bg-black/90 backdrop-blur border-b border-zinc-800 sticky top-0 z-40 pt-2">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="p-2 bg-zinc-900 border border-zinc-700 rounded-xl text-blue-400">
+                        <i data-lucide="shield" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-black tracking-wide text-white">
+                            EstudoFlow <span class="text-blue-500">PRO</span>
+                        </h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="userEmailDisplay" class="text-xs text-zinc-400 hidden sm:inline"></span>
+                    <button onclick="logout()" class="p-2 text-zinc-400 hover:text-red-400 transition border border-zinc-800 rounded-xl bg-zinc-950" title="Sair da Conta">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Container -->
+        <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 pb-24 overflow-y-auto hide-scrollbar">
+            
+            <!-- Tab 1: Cronograma -->
+            <section id="tab-schedule" class="space-y-6">
+                <!-- Cards de Estatísticas -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-1 shadow-md">
+                        <div class="flex items-center justify-between text-zinc-400">
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Horas Totais</span>
+                            <i data-lucide="clock" class="w-4 h-4 text-blue-400"></i>
+                        </div>
+                        <div id="statTotalHours" class="text-2xl font-black text-white">0h</div>
+                        <div class="text-[11px] text-zinc-500" id="statWeeklyHours">0h nesta semana</div>
+                    </div>
+                    
+                    <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-1 shadow-md">
+                        <div class="flex items-center justify-between text-zinc-400">
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Questões Finais</span>
+                            <i data-lucide="target" class="w-4 h-4 text-emerald-400"></i>
+                        </div>
+                        <div id="statTotalQuestions" class="text-2xl font-black text-white">0</div>
+                        <div class="text-[11px] text-zinc-500" id="statAccuracyPercent">0% acertos no total</div>
+                    </div>
+
+                    <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-2 col-span-2 lg:col-span-2 shadow-md">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="font-bold text-zinc-300">Progresso Geral do Edital</span>
+                            <span id="globalPercent" class="font-black text-blue-500 text-base">0%</span>
+                        </div>
+                        <div class="w-full bg-zinc-900 h-3 rounded-full overflow-hidden border border-zinc-800">
+                            <div id="globalProgressBar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-zinc-500 pt-0.5 font-medium">
+                            <span id="globalCompletedText">0 / 0 tópicos concluídos</span>
+                            <span id="globalHoursText">0h estudadas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cabeçalho e Ações -->
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1.5">
+                        <i data-lucide="list-checks" class="w-4 h-4 text-blue-500"></i>
+                        <span>Disciplinas</span>
+                    </h2>
+                    <div class="flex space-x-2 w-full sm:w-auto">
+                        <button onclick="abrirModalImportacao()" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition shadow-lg shadow-blue-600/20">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            <span>Importar Edital</span>
+                        </button>
+                        <button onclick="openSubjectModal()" class="flex-1 sm:flex-none bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Adicionar Matéria</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de Disciplinas -->
+                <div id="scheduleContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur border-t border-zinc-800 z-40 pb-2">
+            <div class="max-w-md mx-auto grid grid-cols-4 px-2 py-2 text-center text-[11px]">
+                <button onclick="switchTab('schedule')" id="nav-schedule" class="flex flex-col items-center py-1 text-blue-500 font-bold">
+                    <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i>
+                    <span>Cronograma</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Modal: Importar Edital -->
     <div id="importModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
                 <i data-lucide="sparkles" class="w-5 h-5"></i>
                 <span>Importar Edital Verticalizado</span>
             </h3>
-
-            <p class="text-xs text-zinc-400">Cole o texto do seu edital abaixo. O sistema identificará automaticamente as disciplinas em maiúsculas:</p>
-            
+            <p class="text-xs text-zinc-400">Cole o texto do edital abaixo (títulos das matérias em maiúsculas):</p>
             <textarea id="editalText" rows="10" placeholder="Exemplo:
 PORTUGUÊS
 1. Compreensão de texto
-2. Sintaxe
-
-DIREITO CONSTITUCIONAL
-1. Direitos fundamentais
-2. Organização do Estado" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none font-mono"></textarea>
-
+2. Sintaxe" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none font-mono"></textarea>
             <div class="flex space-x-2 pt-2">
-                <button onclick="fecharModalImportacao()" class="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800 transition">Cancelar</button>
-                <button onclick="processarEditalLocal()" id="btnProcessar" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Adicionar ao Cronograma</button>
+                <button onclick="fecharModalImportacao()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button onclick="processarEditalLocal()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Adicionar</button>
             </div>
         </div>
     </div>
@@ -202,7 +186,7 @@ DIREITO CONSTITUCIONAL
             <input type="hidden" id="editSubjectId">
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Nome da Matéria</label>
-                <input type="text" id="modalSubjectName" placeholder="Ex: Matemática, Direito..." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
+                <input type="text" id="modalSubjectName" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
             </div>
             <div class="grid grid-cols-2 gap-2">
                 <div>
@@ -210,7 +194,7 @@ DIREITO CONSTITUCIONAL
                     <input type="number" id="modalSubjectWeight" min="1" max="5" value="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
                 </div>
                 <div>
-                    <label class="block text-xs text-zinc-400 mb-1">Meta de Horas Total</label>
+                    <label class="block text-xs text-zinc-400 mb-1">Meta de Horas</label>
                     <input type="number" id="modalSubjectTargetHours" min="1" value="10" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
                 </div>
             </div>
@@ -225,43 +209,96 @@ DIREITO CONSTITUCIONAL
         </div>
     </div>
 
-    <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur border-t border-zinc-800 z-50 pb-2">
-        <div class="max-w-md mx-auto grid grid-cols-4 px-2 py-2 text-center text-[11px]">
-            <button onclick="switchTab('schedule')" id="nav-schedule" class="flex flex-col items-center py-1 text-blue-500 font-bold">
-                <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i>
-                <span>Cronograma</span>
-            </button>
-            <button onclick="switchTab('history')" id="nav-history" class="flex flex-col items-center py-1 text-zinc-500">
-                <i data-lucide="history" class="w-5 h-5 mb-0.5"></i>
-                <span>Histórico</span>
-            </button>
-            <button onclick="switchTab('errors')" id="nav-errors" class="flex flex-col items-center py-1 text-zinc-500">
-                <i data-lucide="alert-triangle" class="w-5 h-5 mb-0.5"></i>
-                <span>Erros</span>
-            </button>
-            <button onclick="switchTab('timer')" id="nav-timer" class="flex flex-col items-center py-1 text-zinc-500">
-                <i data-lucide="timer" class="w-5 h-5 mb-0.5"></i>
-                <span>Timer</span>
-            </button>
+    <!-- Modal: Alerta Customizado -->
+    <div id="customAlert" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-6 text-center space-y-4 shadow-2xl">
+            <h3 class="text-lg font-bold text-blue-500">EstudoFlow PRO</h3>
+            <p id="customAlertMessage" class="text-sm text-zinc-300 leading-relaxed"></p>
+            <button onclick="closeCustomAlert()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-sm transition">OK</button>
         </div>
-    </nav>
+    </div>
 
     <script>
-        let state = JSON.parse(localStorage.getItem('estudoflow_schedule_v4')) || {
-            weeklyHours: { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 },
-            weeklySchedule: [],
-            historicalTotalHours: 0,
-            historicalTotalQuestions: 0,
-            historicalTotalCorrect: 0,
-            subjects: [],
-            errors: [],
-            history: []
+        // CONFIGURAÇÃO DO SEU PROJETO FIREBASE
+        // Substitua com as credenciais obtidas no console.firebase.google.com
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY",
+            authDomain: "SEU_PROJETO.firebaseapp.com",
+            projectId: "SEU_PROJETO",
+            storageBucket: "SEU_PROJETO.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
         };
 
-        function saveData() {
-            localStorage.setItem('estudoflow_schedule_v4', JSON.stringify(state));
-            render();
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let isSignUpMode = false;
+        let state = { subjects: [], historicalTotalHours: 0, historicalTotalQuestions: 0, historicalTotalCorrect: 0 };
+
+        // Monitorar autenticação do usuário em tempo real
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('appInterface').classList.remove('hidden');
+                document.getElementById('userEmailDisplay').innerText = user.email;
+                loadUserData();
+            } else {
+                currentUser = null;
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('appInterface').classList.add('hidden');
+            }
+        });
+
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            document.getElementById('authSubtitle').innerText = isSignUpMode ? "Crie a sua conta gratuita" : "Acesse para sincronizar em todos os dispositivos";
+            document.getElementById('btnAuthSubmit').innerText = isSignUpMode ? "Cadastrar" : "Entrar";
+            document.getElementById('btnToggleAuth').innerHTML = isSignUpMode ? 'Já tem conta? <span class="text-blue-400 font-bold">Faça Login</span>' : 'Não tem conta? <span class="text-blue-400 font-bold">Cadastre-se</span>';
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value.trim();
+
+            try {
+                if (isSignUpMode) {
+                    await auth.createUserWithEmailAndPassword(email, password);
+                } else {
+                    await auth.signInWithEmailAndPassword(email, password);
+                }
+            } catch (error) {
+                showAlert(error.message);
+            }
+        }
+
+        function logout() { auth.signOut(); }
+
+        // Carregar dados diretamente da Nuvem (Firestore)
+        function loadUserData() {
+            if (!currentUser) return;
+            db.collection('schedules').doc(currentUser.uid).onSnapshot(doc => {
+                if (doc.exists) {
+                    state = doc.data();
+                } else {
+                    saveData();
+                }
+                render();
+            });
+        }
+
+        // Salvar dados na Nuvem
+        async function saveData() {
+            if (!currentUser) return;
+            try {
+                await db.collection('schedules').doc(currentUser.uid).set(state);
+            } catch (e) {
+                console.error("Erro ao salvar dados: ", e);
+            }
         }
 
         function showAlert(mensagem) {
@@ -269,59 +306,36 @@ DIREITO CONSTITUCIONAL
             document.getElementById('customAlert').classList.remove('hidden');
         }
 
-        function closeCustomAlert() {
-            document.getElementById('customAlert').classList.add('hidden');
-        }
-
-        function abrirModalImportacao() {
-            document.getElementById('importModal').classList.remove('hidden');
-        }
-
-        function fecharModalImportacao() {
-            document.getElementById('importModal').classList.add('hidden');
-            document.getElementById('editalText').value = '';
-        }
+        function closeCustomAlert() { document.getElementById('customAlert').classList.add('hidden'); }
+        function abrirModalImportacao() { document.getElementById('importModal').classList.remove('hidden'); }
+        function fecharModalImportacao() { document.getElementById('importModal').classList.add('hidden'); document.getElementById('editalText').value = ''; }
 
         function processarEditalLocal() {
             const rawText = document.getElementById('editalText').value.trim();
-            if (!rawText) {
-                showAlert("Por favor, cole o conteúdo do edital verticalizado.");
-                return;
-            }
+            if (!rawText) return;
 
             const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
             let currentSubject = null;
-            let addedCount = 0;
 
             lines.forEach((line) => {
                 const isHeading = line === line.toUpperCase() && !/^\d+[\.\)]/.test(line) && line.length < 50;
-
                 if (isHeading || !currentSubject) {
-                    const subjectName = line.replace(/^\d+[\.\)]\s*/, '');
                     currentSubject = {
                         id: Date.now().toString() + Math.random().toString(36).substr(2, 4),
-                        name: subjectName,
-                        weight: 1,
-                        targetHours: 10,
-                        studiedHours: 0,
-                        topics: []
+                        name: line.replace(/^\d+[\.\)]\s*/, ''),
+                        weight: 1, targetHours: 10, studiedHours: 0, topics: []
                     };
                     state.subjects.push(currentSubject);
-                    addedCount++;
                 } else {
                     currentSubject.topics.push({
                         id: 't_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-                        title: line,
-                        correct: 0,
-                        total: 0,
-                        completed: false
+                        title: line, correct: 0, total: 0, completed: false
                     });
                 }
             });
 
             saveData();
             fecharModalImportacao();
-            showAlert(`Edital importado com sucesso! (${addedCount} matérias adicionadas)`);
         }
 
         function render() {
@@ -340,24 +354,15 @@ DIREITO CONSTITUCIONAL
                 });
             });
 
-            const overallHours = (state.historicalTotalHours || 0) + currentWeeklyHours;
-            const overallQuestions = (state.historicalTotalQuestions || 0) + currentQuestions;
-            const overallAccuracy = currentQuestions > 0 ? Math.round((currentCorrect / currentQuestions) * 100) : 0;
-
-            document.getElementById('statTotalHours').innerText = `${overallHours}h`;
-            document.getElementById('statWeeklyHours').innerText = `${currentWeeklyHours}h nesta semana`;
-            document.getElementById('statTotalQuestions').innerText = `${overallQuestions}`;
-            document.getElementById('statAccuracyPercent').innerText = `${overallAccuracy}% acertos no total`;
+            document.getElementById('statTotalHours').innerText = `${currentWeeklyHours}h`;
+            document.getElementById('statTotalQuestions').innerText = `${currentQuestions}`;
+            document.getElementById('statAccuracyPercent').innerText = `${currentQuestions > 0 ? Math.round((currentCorrect / currentQuestions) * 100) : 0}% acertos`;
         }
 
         function renderSchedule() {
             const container = document.getElementById('scheduleContainer');
             container.innerHTML = '';
             let totalTopics = 0, completedTopics = 0, totalHours = 0;
-
-            if (state.subjects.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-12 text-zinc-600 space-y-2"><i data-lucide="folder-plus" class="w-12 h-12 mx-auto stroke-1"></i><p class="text-sm">Nenhuma matéria no cronograma.</p></div>`;
-            }
 
             state.subjects.forEach(subject => {
                 const subCompleted = subject.topics.filter(t => t.completed).length;
@@ -370,7 +375,6 @@ DIREITO CONSTITUCIONAL
                 let topicsHtml = '';
                 subject.topics.forEach(topic => {
                     const percent = topic.total > 0 ? Math.round((topic.correct / topic.total) * 100) : 0;
-
                     topicsHtml += `
                         <div class="p-3 rounded-xl bg-black border border-zinc-800 space-y-2">
                             <div class="flex items-center justify-between">
@@ -378,52 +382,23 @@ DIREITO CONSTITUCIONAL
                                     <input type="checkbox" ${topic.completed ? 'checked' : ''} onchange="toggleTopic('${subject.id}', '${topic.id}', ${percent})" class="rounded bg-zinc-900 border-zinc-700 text-blue-600 w-4 h-4">
                                     <span class="text-xs font-semibold ${topic.completed ? 'line-through text-zinc-600' : 'text-zinc-200'}">${topic.title}</span>
                                 </label>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${percent >= 80 ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/40' : 'bg-red-950/40 text-red-400 border-red-800/40'}">
-                                    ${topic.total > 0 ? `${percent}% aproveitamento` : 'Sem questões'}
-                                </span>
-                            </div>
-                            <div class="flex items-center justify-between pt-1 border-t border-zinc-900 text-[11px] text-zinc-500">
-                                <span>Questões:</span>
-                                <div class="flex items-center space-x-2">
-                                    <label class="flex items-center space-x-1"><span>Acertos:</span><input type="number" min="0" value="${topic.correct}" onchange="updateTopicScore('${subject.id}', '${topic.id}', 'correct', this.value)" class="w-12 bg-zinc-900 border border-zinc-800 rounded px-1 py-0.5 text-center text-emerald-400 font-bold"></label>
-                                    <label class="flex items-center space-x-1"><span>Total:</span><input type="number" min="0" value="${topic.total}" onchange="updateTopicScore('${subject.id}', '${topic.id}', 'total', this.value)" class="w-12 bg-zinc-900 border border-zinc-800 rounded px-1 py-0.5 text-center text-zinc-200 font-bold"></label>
-                                </div>
                             </div>
                         </div>`;
                 });
 
                 const card = document.createElement('div');
-                card.className = "bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3 shadow-md flex flex-col justify-between";
+                card.className = "bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3 shadow-md";
                 card.innerHTML = `
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <div class="flex items-center space-x-2">
-                                    <h3 class="text-base font-bold text-white">${subject.name}</h3>
-                                    <span class="text-[10px] font-bold px-1.5 py-0.5 bg-blue-950/60 border border-blue-800/40 text-blue-400 rounded">Peso ${subject.weight || 1}</span>
-                                </div>
-                                <p class="text-xs text-zinc-400">Meta: ${subject.studiedHours || 0}h / ${subject.targetHours}h estudadas</p>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <button onclick="addStudiedHour('${subject.id}')" class="p-1.5 bg-blue-950/60 text-blue-400 border border-blue-800/40 hover:bg-blue-900/60 rounded-lg text-xs font-bold flex items-center space-x-1 transition"><i data-lucide="clock" class="w-3.5 h-3.5"></i><span>+1h</span></button>
-                                <button onclick="openSubjectModal('${subject.id}')" class="p-1.5 text-zinc-500 hover:text-zinc-300 transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                                <button onclick="deleteSubject('${subject.id}')" class="p-1.5 text-zinc-500 hover:text-red-400 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                            </div>
-                        </div>
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-xs text-zinc-400"><span>Progresso dos Tópicos</span><span class="font-bold text-white">${progressPercent}%</span></div>
-                            <div class="w-full bg-zinc-900 h-2 rounded-full overflow-hidden border border-zinc-800"><div class="bg-blue-600 h-full transition-all duration-300" style="width: ${progressPercent}%"></div></div>
-                        </div>
-                        <div class="space-y-2 pt-1">${topicsHtml}</div>
-                    </div>`;
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-base font-bold text-white">${subject.name}</h3>
+                    </div>
+                    <div class="space-y-2 pt-1">${topicsHtml}</div>`;
                 container.appendChild(card);
             });
 
             const globalPercent = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
             document.getElementById('globalPercent').innerText = `${globalPercent}%`;
             document.getElementById('globalProgressBar').style.width = `${globalPercent}%`;
-            document.getElementById('globalCompletedText').innerText = `${completedTopics} / ${totalTopics} tópicos concluídos`;
-            document.getElementById('globalHoursText').innerText = `${totalHours}h nesta semana`;
         }
 
         function toggleTopic(subjectId, topicId, percent) {
@@ -431,114 +406,27 @@ DIREITO CONSTITUCIONAL
             if (!subject) return;
             const topic = subject.topics.find(t => t.id === topicId);
             if (!topic) return;
-
-            if (!topic.completed && percent < 80 && topic.total > 0) {
-                showAlert("Necessita de no mínimo 80% de aproveitamento em questões para concluir este tópico.");
-                render();
-                return;
-            }
-
             topic.completed = !topic.completed;
             saveData();
         }
 
-        function updateTopicScore(subjectId, topicId, field, value) {
-            const subject = state.subjects.find(s => s.id === subjectId);
-            if (!subject) return;
-            const topic = subject.topics.find(t => t.id === topicId);
-            if (!topic) return;
-
-            topic[field] = parseInt(value) || 0;
-            saveData();
-        }
-
-        function addStudiedHour(subjectId) {
-            const subject = state.subjects.find(s => s.id === subjectId);
-            if (subject) {
-                subject.studiedHours = (subject.studiedHours || 0) + 1;
-                saveData();
-            }
-        }
-
-        function switchTab(tabId) {
-            ['schedule', 'history', 'errors', 'timer'].forEach(t => {
-                const el = document.getElementById(`tab-${t}`);
-                if (el) el.classList.add('hidden');
-                const navBtn = document.getElementById(`nav-${t}`);
-                if (navBtn) {
-                    navBtn.classList.remove('text-blue-500', 'font-bold');
-                    navBtn.classList.add('text-zinc-500');
-                }
-            });
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            const activeNav = document.getElementById(`nav-${tabId}`);
-            activeNav.classList.add('text-blue-500', 'font-bold');
-            activeNav.classList.remove('text-zinc-500');
-        }
-
-        function openSubjectModal(subjectId = null) {
-            document.getElementById('subjectModal').classList.remove('hidden');
-            if (subjectId) {
-                const sub = state.subjects.find(s => s.id === subjectId);
-                document.getElementById('editSubjectId').value = sub.id;
-                document.getElementById('modalSubjectName').value = sub.name;
-                document.getElementById('modalSubjectWeight').value = sub.weight;
-                document.getElementById('modalSubjectTargetHours').value = sub.targetHours;
-                document.getElementById('modalSubjectTopics').value = sub.topics.map(t => t.title).join('\n');
-            } else {
-                document.getElementById('editSubjectId').value = '';
-                document.getElementById('modalSubjectName').value = '';
-                document.getElementById('modalSubjectWeight').value = 1;
-                document.getElementById('modalSubjectTargetHours').value = 10;
-                document.getElementById('modalSubjectTopics').value = '';
-            }
-        }
-
+        function openSubjectModal() { document.getElementById('subjectModal').classList.remove('hidden'); }
         function closeSubjectModal() { document.getElementById('subjectModal').classList.add('hidden'); }
 
         function saveSubject() {
-            const id = document.getElementById('editSubjectId').value;
             const name = document.getElementById('modalSubjectName').value.trim();
-            const weight = parseInt(document.getElementById('modalSubjectWeight').value) || 1;
-            const targetHours = parseInt(document.getElementById('modalSubjectTargetHours').value) || 10;
             const rawTopics = document.getElementById('modalSubjectTopics').value.split('\n').filter(t => t.trim() !== '');
-
             if (!name) return;
 
-            if (id) {
-                const sub = state.subjects.find(s => s.id === id);
-                sub.name = name;
-                sub.weight = weight;
-                sub.targetHours = targetHours;
-                sub.topics = rawTopics.map((t, idx) => {
-                    const existing = sub.topics[idx];
-                    return existing ? { ...existing, title: t } : { id: 't_' + Date.now() + '_' + idx, title: t, correct: 0, total: 0, completed: false };
-                });
-            } else {
-                state.subjects.push({
-                    id: Date.now().toString(),
-                    name, weight, targetHours, studiedHours: 0,
-                    topics: rawTopics.map((t, idx) => ({ id: 't_' + Date.now() + '_' + idx, title: t, correct: 0, total: 0, completed: false }))
-                });
-            }
+            state.subjects.push({
+                id: Date.now().toString(),
+                name, weight: 1, targetHours: 10, studiedHours: 0,
+                topics: rawTopics.map((t, idx) => ({ id: 't_' + Date.now() + '_' + idx, title: t, correct: 0, total: 0, completed: false }))
+            });
 
             saveData();
             closeSubjectModal();
         }
-
-        function deleteSubject(id) {
-            state.subjects = state.subjects.filter(s => s.id !== id);
-            saveData();
-        }
-
-        function resetData() {
-            if (confirm("Deseja apagar todos os dados e reiniciar o cronograma?")) {
-                localStorage.removeItem('estudoflow_schedule_v4');
-                location.reload();
-            }
-        }
-
-        render();
     </script>
 </body>
 </html>
