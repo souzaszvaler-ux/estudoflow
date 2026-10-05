@@ -24,7 +24,7 @@
 
     <!-- Header -->
     <header class="bg-black/90 backdrop-blur border-b border-zinc-800 sticky top-0 z-50 pt-2">
-        <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-2">
                 <div class="p-2 bg-zinc-900 border border-zinc-700 rounded-xl text-blue-400">
                     <i data-lucide="shield" class="w-6 h-6"></i>
@@ -47,71 +47,67 @@
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="flex-1 max-w-md w-full mx-auto p-4 pb-24 overflow-y-auto hide-scrollbar">
+    <!-- Main Container Responsivo -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 pb-24 overflow-y-auto hide-scrollbar">
         
         <!-- Tab 1: Cronograma -->
-        <section id="tab-schedule" class="space-y-4">
+        <section id="tab-schedule" class="space-y-6">
             
-            <!-- Cards de Estatísticas -->
-            <div class="grid grid-cols-2 gap-2">
-                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3 space-y-1">
+            <!-- Cards de Estatísticas Responsivos (4 colunas em ecrãs grandes) -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-1 shadow-md">
                     <div class="flex items-center justify-between text-zinc-400">
                         <span class="text-[10px] font-bold uppercase tracking-wider">Horas Totais</span>
-                        <i data-lucide="clock" class="w-3.5 h-3.5 text-blue-400"></i>
+                        <i data-lucide="clock" class="w-4 h-4 text-blue-400"></i>
                     </div>
-                    <div id="statTotalHours" class="text-xl font-black text-white">0h</div>
-                    <div class="text-[10px] text-zinc-500" id="statWeeklyHours">0h nesta semana</div>
+                    <div id="statTotalHours" class="text-2xl font-black text-white">0h</div>
+                    <div class="text-[11px] text-zinc-500" id="statWeeklyHours">0h nesta semana</div>
                 </div>
-                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3 space-y-1">
+                
+                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-1 shadow-md">
                     <div class="flex items-center justify-between text-zinc-400">
                         <span class="text-[10px] font-bold uppercase tracking-wider">Questões Finais</span>
-                        <i data-lucide="target" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <i data-lucide="target" class="w-4 h-4 text-emerald-400"></i>
                     </div>
-                    <div id="statTotalQuestions" class="text-xl font-black text-white">0</div>
-                    <div class="text-[10px] text-zinc-500" id="statAccuracyPercent">0% acertos no total</div>
+                    <div id="statTotalQuestions" class="text-2xl font-black text-white">0</div>
+                    <div class="text-[11px] text-zinc-500" id="statAccuracyPercent">0% acertos no total</div>
                 </div>
-            </div>
 
-            <!-- Barra de Progresso Geral -->
-            <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-2 shadow-xl">
-                <div class="flex justify-between items-center text-sm">
-                    <span class="font-bold text-zinc-300">Progresso Geral do Edital</span>
-                    <span id="globalPercent" class="font-black text-blue-500 text-base">0%</span>
-                </div>
-                <div class="w-full bg-zinc-900 h-3 rounded-full overflow-hidden border border-zinc-800">
-                    <div id="globalProgressBar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
-                </div>
-                <div class="flex justify-between text-xs text-zinc-500 pt-1 font-medium">
-                    <span id="globalCompletedText">0 / 0 tópicos concluídos</span>
-                    <span id="globalHoursText">0h estudadas</span>
+                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-2 col-span-2 lg:col-span-2 shadow-md">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="font-bold text-zinc-300">Progresso Geral do Edital</span>
+                        <span id="globalPercent" class="font-black text-blue-500 text-base">0%</span>
+                    </div>
+                    <div class="w-full bg-zinc-900 h-3 rounded-full overflow-hidden border border-zinc-800">
+                        <div id="globalProgressBar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-zinc-500 pt-0.5 font-medium">
+                        <span id="globalCompletedText">0 / 0 tópicos concluídos</span>
+                        <span id="globalHoursText">0h estudadas</span>
+                    </div>
                 </div>
             </div>
 
             <!-- Cabeçalho das Disciplinas e Botões de Ação -->
-            <div class="flex items-center justify-between gap-2 pt-2">
-                <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1.5">
                     <i data-lucide="list-checks" class="w-4 h-4 text-blue-500"></i>
                     <span>Disciplinas</span>
                 </h2>
-                <div class="flex space-x-1">
-                    <button onclick="openPlannerModal()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition">
-                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                        <span>Gerar Plano</span>
-                    </button>
-                    <button onclick="abrirModalImportacao()" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition shadow-lg shadow-blue-600/20">
-                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                <div class="flex space-x-2 w-full sm:w-auto">
+                    <button onclick="abrirModalImportacao()" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition shadow-lg shadow-blue-600/20">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
                         <span>Importar Edital</span>
                     </button>
-                    <button onclick="openSubjectModal()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1 transition">
-                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                        <span>Add Matéria</span>
+                    <button onclick="openSubjectModal()" class="flex-1 sm:flex-none bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Adicionar Matéria</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Lista de Disciplinas -->
-            <div id="scheduleContainer" class="space-y-3"></div>
+            <!-- Lista de Disciplinas em Grelha Responsiva (2 colunas no PC) -->
+            <div id="scheduleContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </section>
 
         <!-- Tab 2: Histórico -->
@@ -135,11 +131,11 @@
                     <span>Novo Registro</span>
                 </button>
             </div>
-            <div id="errorsContainer" class="space-y-3"></div>
+            <div id="errorsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
         </section>
 
         <!-- Tab 4: Timer -->
-        <section id="tab-timer" class="space-y-6 hidden">
+        <section id="tab-timer" class="space-y-6 hidden max-w-md mx-auto">
             <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 text-center shadow-xl">
                 <div class="flex justify-center space-x-2 mb-6">
                     <button onclick="setTimerMode('pomodoro')" id="mode-pomodoro" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white">Pomodoro (25m)</button>
@@ -173,24 +169,24 @@
         </div>
     </div>
 
-    <!-- Modal: Importar Edital Instantâneo (Sem dependência de API) -->
+    <!-- Modal: Importar Edital Instantâneo -->
     <div id="importModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
                 <i data-lucide="sparkles" class="w-5 h-5"></i>
                 <span>Importar Edital Verticalizado</span>
             </h3>
 
-            <p class="text-xs text-zinc-400">Cole o texto do seu edital abaixo. Separe as disciplinas em maiúsculas ou títulos principais:</p>
+            <p class="text-xs text-zinc-400">Cole o texto do seu edital abaixo. O sistema identificará automaticamente as disciplinas em maiúsculas:</p>
             
-            <textarea id="editalText" rows="8" placeholder="Exemplo:
+            <textarea id="editalText" rows="10" placeholder="Exemplo:
 PORTUGUÊS
 1. Compreensão de texto
 2. Sintaxe
 
 DIREITO CONSTITUCIONAL
 1. Direitos fundamentais
-2. Organização do Estado" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none"></textarea>
+2. Organização do Estado" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none font-mono"></textarea>
 
             <div class="flex space-x-2 pt-2">
                 <button onclick="fecharModalImportacao()" class="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800 transition">Cancelar</button>
@@ -201,24 +197,26 @@ DIREITO CONSTITUCIONAL
 
     <!-- Modal: Adicionar/Editar Matéria -->
     <div id="subjectModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <h3 id="subjectModalTitle" class="text-base font-bold text-white">Adicionar Matéria</h3>
             <input type="hidden" id="editSubjectId">
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Nome da Matéria</label>
                 <input type="text" id="modalSubjectName" placeholder="Ex: Matemática, Direito..." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
             </div>
-            <div>
-                <label class="block text-xs text-zinc-400 mb-1">Peso da Matéria (1 a 5)</label>
-                <input type="number" id="modalSubjectWeight" min="1" max="5" value="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
-            </div>
-            <div>
-                <label class="block text-xs text-zinc-400 mb-1">Meta de Horas Total</label>
-                <input type="number" id="modalSubjectTargetHours" min="1" value="10" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs text-zinc-400 mb-1">Peso (1 a 5)</label>
+                    <input type="number" id="modalSubjectWeight" min="1" max="5" value="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
+                </div>
+                <div>
+                    <label class="block text-xs text-zinc-400 mb-1">Meta de Horas Total</label>
+                    <input type="number" id="modalSubjectTargetHours" min="1" value="10" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
+                </div>
             </div>
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Tópicos (um por linha)</label>
-                <textarea id="modalSubjectTopics" rows="3" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white"></textarea>
+                <textarea id="modalSubjectTopics" rows="4" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white font-mono"></textarea>
             </div>
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeSubjectModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
@@ -358,7 +356,7 @@ DIREITO CONSTITUCIONAL
             let totalTopics = 0, completedTopics = 0, totalHours = 0;
 
             if (state.subjects.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-zinc-600 space-y-2"><i data-lucide="folder-plus" class="w-10 h-10 mx-auto stroke-1"></i><p class="text-sm">Nenhuma matéria no cronograma.</p></div>`;
+                container.innerHTML = `<div class="col-span-full text-center py-12 text-zinc-600 space-y-2"><i data-lucide="folder-plus" class="w-12 h-12 mx-auto stroke-1"></i><p class="text-sm">Nenhuma matéria no cronograma.</p></div>`;
             }
 
             state.subjects.forEach(subject => {
@@ -395,27 +393,29 @@ DIREITO CONSTITUCIONAL
                 });
 
                 const card = document.createElement('div');
-                card.className = "bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3 shadow-md";
+                card.className = "bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3 shadow-md flex flex-col justify-between";
                 card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <div class="flex items-center space-x-2">
-                                <h3 class="text-base font-bold text-white">${subject.name}</h3>
-                                <span class="text-[10px] font-bold px-1.5 py-0.5 bg-blue-950/60 border border-blue-800/40 text-blue-400 rounded">Peso ${subject.weight || 1}</span>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <h3 class="text-base font-bold text-white">${subject.name}</h3>
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 bg-blue-950/60 border border-blue-800/40 text-blue-400 rounded">Peso ${subject.weight || 1}</span>
+                                </div>
+                                <p class="text-xs text-zinc-400">Meta: ${subject.studiedHours || 0}h / ${subject.targetHours}h estudadas</p>
                             </div>
-                            <p class="text-xs text-zinc-400">Meta: ${subject.studiedHours || 0}h / ${subject.targetHours}h estudadas</p>
+                            <div class="flex items-center space-x-1">
+                                <button onclick="addStudiedHour('${subject.id}')" class="p-1.5 bg-blue-950/60 text-blue-400 border border-blue-800/40 hover:bg-blue-900/60 rounded-lg text-xs font-bold flex items-center space-x-1 transition"><i data-lucide="clock" class="w-3.5 h-3.5"></i><span>+1h</span></button>
+                                <button onclick="openSubjectModal('${subject.id}')" class="p-1.5 text-zinc-500 hover:text-zinc-300 transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                                <button onclick="deleteSubject('${subject.id}')" class="p-1.5 text-zinc-500 hover:text-red-400 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
                         </div>
-                        <div class="flex items-center space-x-1">
-                            <button onclick="addStudiedHour('${subject.id}')" class="p-1.5 bg-blue-950/60 text-blue-400 border border-blue-800/40 hover:bg-blue-900/60 rounded-lg text-xs font-bold flex items-center space-x-1 transition"><i data-lucide="clock" class="w-3.5 h-3.5"></i><span>+1h</span></button>
-                            <button onclick="openSubjectModal('${subject.id}')" class="p-1.5 text-zinc-500 hover:text-zinc-300 transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                            <button onclick="deleteSubject('${subject.id}')" class="p-1.5 text-zinc-500 hover:text-red-400 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs text-zinc-400"><span>Progresso dos Tópicos</span><span class="font-bold text-white">${progressPercent}%</span></div>
+                            <div class="w-full bg-zinc-900 h-2 rounded-full overflow-hidden border border-zinc-800"><div class="bg-blue-600 h-full transition-all duration-300" style="width: ${progressPercent}%"></div></div>
                         </div>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-xs text-zinc-400"><span>Progresso dos Tópicos</span><span class="font-bold text-white">${progressPercent}%</span></div>
-                        <div class="w-full bg-zinc-900 h-2 rounded-full overflow-hidden border border-zinc-800"><div class="bg-blue-600 h-full transition-all duration-300" style="width: ${progressPercent}%"></div></div>
-                    </div>
-                    <div class="space-y-2 pt-1">${topicsHtml}</div>`;
+                        <div class="space-y-2 pt-1">${topicsHtml}</div>
+                    </div>`;
                 container.appendChild(card);
             });
 
