@@ -28,7 +28,7 @@
 </head>
 <body class="h-full flex flex-col font-sans antialiased bg-black text-slate-100 select-none">
 
-    <!-- Tela de Autenticação (Login / Registro) -->
+    <!-- Ecrã de Autenticação (Login / Registo) -->
     <div id="authScreen" class="fixed inset-0 bg-black z-50 flex items-center justify-center p-4">
         <div class="bg-zinc-950 border border-zinc-800 rounded-3xl w-full max-w-sm p-6 space-y-6 shadow-2xl">
             <div class="text-center space-y-2">
@@ -36,7 +36,7 @@
                     <i data-lucide="shield" class="w-8 h-8"></i>
                 </div>
                 <h1 class="text-2xl font-black text-white">EstudoFlow <span class="text-blue-500">PRO</span></h1>
-                <p class="text-xs text-zinc-400" id="authSubtitle">Acesse para sincronizar em todos os dispositivos</p>
+                <p class="text-xs text-zinc-400" id="authSubtitle">Aceda para sincronizar em todos os dispositivos</p>
             </div>
 
             <form id="authForm" onsubmit="handleAuth(event)" class="space-y-4">
@@ -45,7 +45,7 @@
                     <input type="email" id="authEmail" required placeholder="seu@email.com" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs text-zinc-400 mb-1">Senha</label>
+                    <label class="block text-xs text-zinc-400 mb-1">Palavra-passe</label>
                     <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
 
@@ -56,7 +56,7 @@
 
             <div class="text-center pt-2">
                 <button onclick="toggleAuthMode()" id="btnToggleAuth" class="text-xs text-zinc-400 hover:text-white transition">
-                    Não tem conta? <span class="text-blue-400 font-bold">Cadastre-se</span>
+                    Não tem conta? <span class="text-blue-400 font-bold">Registe-se</span>
                 </button>
             </div>
         </div>
@@ -88,8 +88,6 @@
 
         <!-- Main Container -->
         <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 pb-24 overflow-y-auto hide-scrollbar">
-            
-            <!-- Tab 1: Cronograma -->
             <section id="tab-schedule" class="space-y-6">
                 <!-- Cards de Estatísticas -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -119,14 +117,10 @@
                         <div class="w-full bg-zinc-900 h-3 rounded-full overflow-hidden border border-zinc-800">
                             <div id="globalProgressBar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
                         </div>
-                        <div class="flex justify-between text-xs text-zinc-500 pt-0.5 font-medium">
-                            <span id="globalCompletedText">0 / 0 tópicos concluídos</span>
-                            <span id="globalHoursText">0h estudadas</span>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Cabeçalho e Ações -->
+                <!-- Ações -->
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
                     <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1.5">
                         <i data-lucide="list-checks" class="w-4 h-4 text-blue-500"></i>
@@ -144,34 +138,19 @@
                     </div>
                 </div>
 
-                <!-- Lista de Disciplinas -->
                 <div id="scheduleContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </section>
         </main>
-
-        <!-- Bottom Navigation -->
-        <nav class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur border-t border-zinc-800 z-40 pb-2">
-            <div class="max-w-md mx-auto grid grid-cols-4 px-2 py-2 text-center text-[11px]">
-                <button onclick="switchTab('schedule')" id="nav-schedule" class="flex flex-col items-center py-1 text-blue-500 font-bold">
-                    <i data-lucide="calendar" class="w-5 h-5 mb-0.5"></i>
-                    <span>Cronograma</span>
-                </button>
-            </div>
-        </nav>
     </div>
 
-    <!-- Modal: Importar Edital -->
+    <!-- Modais -->
     <div id="importModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
                 <i data-lucide="sparkles" class="w-5 h-5"></i>
                 <span>Importar Edital Verticalizado</span>
             </h3>
-            <p class="text-xs text-zinc-400">Cole o texto do edital abaixo (títulos das matérias em maiúsculas):</p>
-            <textarea id="editalText" rows="10" placeholder="Exemplo:
-PORTUGUÊS
-1. Compreensão de texto
-2. Sintaxe" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none font-mono"></textarea>
+            <textarea id="editalText" rows="10" placeholder="PORTUGUÊS&#10;1. Compreensão de texto" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none font-mono"></textarea>
             <div class="flex space-x-2 pt-2">
                 <button onclick="fecharModalImportacao()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
                 <button onclick="processarEditalLocal()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Adicionar</button>
@@ -179,29 +158,11 @@ PORTUGUÊS
         </div>
     </div>
 
-    <!-- Modal: Adicionar/Editar Matéria -->
     <div id="subjectModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <h3 id="subjectModalTitle" class="text-base font-bold text-white">Adicionar Matéria</h3>
-            <input type="hidden" id="editSubjectId">
-            <div>
-                <label class="block text-xs text-zinc-400 mb-1">Nome da Matéria</label>
-                <input type="text" id="modalSubjectName" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block text-xs text-zinc-400 mb-1">Peso (1 a 5)</label>
-                    <input type="number" id="modalSubjectWeight" min="1" max="5" value="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
-                </div>
-                <div>
-                    <label class="block text-xs text-zinc-400 mb-1">Meta de Horas</label>
-                    <input type="number" id="modalSubjectTargetHours" min="1" value="10" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
-                </div>
-            </div>
-            <div>
-                <label class="block text-xs text-zinc-400 mb-1">Tópicos (um por linha)</label>
-                <textarea id="modalSubjectTopics" rows="4" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white font-mono"></textarea>
-            </div>
+            <input type="text" id="modalSubjectName" placeholder="Nome da Matéria" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
+            <textarea id="modalSubjectTopics" rows="4" placeholder="Tópicos (um por linha)" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white font-mono"></textarea>
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeSubjectModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
                 <button onclick="saveSubject()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar</button>
@@ -209,7 +170,6 @@ PORTUGUÊS
         </div>
     </div>
 
-    <!-- Modal: Alerta Customizado -->
     <div id="customAlert" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-6 text-center space-y-4 shadow-2xl">
             <h3 class="text-lg font-bold text-blue-500">EstudoFlow PRO</h3>
@@ -219,15 +179,14 @@ PORTUGUÊS
     </div>
 
     <script>
-        // CONFIGURAÇÃO DO SEU PROJETO FIREBASE
-        // Substitua com as credenciais obtidas no console.firebase.google.com
+        // Credenciais do seu Projeto Firebase inseridas diretamente aqui
         const firebaseConfig = {
-            apiKey: "SUA_API_KEY",
-            authDomain: "SEU_PROJETO.firebaseapp.com",
-            projectId: "SEU_PROJETO",
-            storageBucket: "SEU_PROJETO.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
+            apiKey: "AIzaSyBCM2cfdMsNCLUltoly066qglHznMRI86I",
+            authDomain: "estudoflow-fef07.firebaseapp.com",
+            projectId: "estudoflow-fef07",
+            storageBucket: "estudoflow-fef07.firebasestorage.app",
+            messagingSenderId: "74901576739",
+            appId: "1:74901576739:web:41fb812867e19d7154e596"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -236,9 +195,8 @@ PORTUGUÊS
 
         let currentUser = null;
         let isSignUpMode = false;
-        let state = { subjects: [], historicalTotalHours: 0, historicalTotalQuestions: 0, historicalTotalCorrect: 0 };
+        let state = { subjects: [] };
 
-        // Monitorar autenticação do usuário em tempo real
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
@@ -255,9 +213,9 @@ PORTUGUÊS
 
         function toggleAuthMode() {
             isSignUpMode = !isSignUpMode;
-            document.getElementById('authSubtitle').innerText = isSignUpMode ? "Crie a sua conta gratuita" : "Acesse para sincronizar em todos os dispositivos";
+            document.getElementById('authSubtitle').innerText = isSignUpMode ? "Crie a sua conta gratuita" : "Aceda para sincronizar em todos os dispositivos";
             document.getElementById('btnAuthSubmit').innerText = isSignUpMode ? "Cadastrar" : "Entrar";
-            document.getElementById('btnToggleAuth').innerHTML = isSignUpMode ? 'Já tem conta? <span class="text-blue-400 font-bold">Faça Login</span>' : 'Não tem conta? <span class="text-blue-400 font-bold">Cadastre-se</span>';
+            document.getElementById('btnToggleAuth').innerHTML = isSignUpMode ? 'Já tem conta? <span class="text-blue-400 font-bold">Faça Login</span>' : 'Não tem conta? <span class="text-blue-400 font-bold">Registe-se</span>';
         }
 
         async function handleAuth(e) {
@@ -278,7 +236,6 @@ PORTUGUÊS
 
         function logout() { auth.signOut(); }
 
-        // Carregar dados diretamente da Nuvem (Firestore)
         function loadUserData() {
             if (!currentUser) return;
             db.collection('schedules').doc(currentUser.uid).onSnapshot(doc => {
@@ -291,13 +248,12 @@ PORTUGUÊS
             });
         }
 
-        // Salvar dados na Nuvem
         async function saveData() {
             if (!currentUser) return;
             try {
                 await db.collection('schedules').doc(currentUser.uid).set(state);
             } catch (e) {
-                console.error("Erro ao salvar dados: ", e);
+                console.error("Erro ao guardar dados: ", e);
             }
         }
 
@@ -323,13 +279,13 @@ PORTUGUÊS
                     currentSubject = {
                         id: Date.now().toString() + Math.random().toString(36).substr(2, 4),
                         name: line.replace(/^\d+[\.\)]\s*/, ''),
-                        weight: 1, targetHours: 10, studiedHours: 0, topics: []
+                        studiedHours: 0, topics: []
                     };
                     state.subjects.push(currentSubject);
                 } else {
                     currentSubject.topics.push({
                         id: 't_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-                        title: line, correct: 0, total: 0, completed: false
+                        title: line, completed: false
                     });
                 }
             });
@@ -339,60 +295,35 @@ PORTUGUÊS
         }
 
         function render() {
-            renderGlobalStats();
             renderSchedule();
             lucide.createIcons();
-        }
-
-        function renderGlobalStats() {
-            let currentWeeklyHours = 0, currentQuestions = 0, currentCorrect = 0;
-            state.subjects.forEach(s => {
-                currentWeeklyHours += s.studiedHours || 0;
-                s.topics.forEach(t => {
-                    currentQuestions += t.total || 0;
-                    currentCorrect += t.correct || 0;
-                });
-            });
-
-            document.getElementById('statTotalHours').innerText = `${currentWeeklyHours}h`;
-            document.getElementById('statTotalQuestions').innerText = `${currentQuestions}`;
-            document.getElementById('statAccuracyPercent').innerText = `${currentQuestions > 0 ? Math.round((currentCorrect / currentQuestions) * 100) : 0}% acertos`;
         }
 
         function renderSchedule() {
             const container = document.getElementById('scheduleContainer');
             container.innerHTML = '';
-            let totalTopics = 0, completedTopics = 0, totalHours = 0;
+            let totalTopics = 0, completedTopics = 0;
 
             state.subjects.forEach(subject => {
                 const subCompleted = subject.topics.filter(t => t.completed).length;
                 const subTotal = subject.topics.length;
                 totalTopics += subTotal;
                 completedTopics += subCompleted;
-                totalHours += subject.studiedHours || 0;
-                const progressPercent = subTotal > 0 ? Math.round((subCompleted / subTotal) * 100) : 0;
 
                 let topicsHtml = '';
                 subject.topics.forEach(topic => {
-                    const percent = topic.total > 0 ? Math.round((topic.correct / topic.total) * 100) : 0;
                     topicsHtml += `
-                        <div class="p-3 rounded-xl bg-black border border-zinc-800 space-y-2">
-                            <div class="flex items-center justify-between">
-                                <label class="flex items-center space-x-2 cursor-pointer flex-1">
-                                    <input type="checkbox" ${topic.completed ? 'checked' : ''} onchange="toggleTopic('${subject.id}', '${topic.id}', ${percent})" class="rounded bg-zinc-900 border-zinc-700 text-blue-600 w-4 h-4">
-                                    <span class="text-xs font-semibold ${topic.completed ? 'line-through text-zinc-600' : 'text-zinc-200'}">${topic.title}</span>
-                                </label>
-                            </div>
+                        <div class="p-3 rounded-xl bg-black border border-zinc-800 flex items-center justify-between">
+                            <label class="flex items-center space-x-2 cursor-pointer flex-1">
+                                <input type="checkbox" ${topic.completed ? 'checked' : ''} onchange="toggleTopic('${subject.id}', '${topic.id}')" class="rounded bg-zinc-900 border-zinc-700 text-blue-600 w-4 h-4">
+                                <span class="text-xs font-semibold ${topic.completed ? 'line-through text-zinc-600' : 'text-zinc-200'}">${topic.title}</span>
+                            </label>
                         </div>`;
                 });
 
                 const card = document.createElement('div');
                 card.className = "bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3 shadow-md";
-                card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <h3 class="text-base font-bold text-white">${subject.name}</h3>
-                    </div>
-                    <div class="space-y-2 pt-1">${topicsHtml}</div>`;
+                card.innerHTML = `<h3 class="text-base font-bold text-white">${subject.name}</h3><div class="space-y-2 pt-1">${topicsHtml}</div>`;
                 container.appendChild(card);
             });
 
@@ -401,7 +332,7 @@ PORTUGUÊS
             document.getElementById('globalProgressBar').style.width = `${globalPercent}%`;
         }
 
-        function toggleTopic(subjectId, topicId, percent) {
+        function toggleTopic(subjectId, topicId) {
             const subject = state.subjects.find(s => s.id === subjectId);
             if (!subject) return;
             const topic = subject.topics.find(t => t.id === topicId);
@@ -420,8 +351,8 @@ PORTUGUÊS
 
             state.subjects.push({
                 id: Date.now().toString(),
-                name, weight: 1, targetHours: 10, studiedHours: 0,
-                topics: rawTopics.map((t, idx) => ({ id: 't_' + Date.now() + '_' + idx, title: t, correct: 0, total: 0, completed: false }))
+                name, studiedHours: 0,
+                topics: rawTopics.map((t, idx) => ({ id: 't_' + Date.now() + '_' + idx, title: t, completed: false }))
             });
 
             saveData();
