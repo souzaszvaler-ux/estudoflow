@@ -108,7 +108,7 @@
             </div>
         </header>
 
-        <!-- Main Content com padding inferior estendido (pb-36) para que o menu não cubra o final -->
+        <!-- Main Content -->
         <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 pb-36 overflow-y-auto hide-scrollbar">
             <!-- ABA 1: CRONOGRAMA DE ESTUDOS -->
             <section id="tab-cronograma" class="space-y-5 tab-content">
@@ -156,7 +156,7 @@
                             <i data-lucide="file-up" class="w-3.5 h-3.5"></i>
                             <span>Importar Edital</span>
                         </button>
-                        <button onclick="gerarPlano()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                        <button onclick="abrirModalPlano()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                             <span>Gerar Plano</span>
                         </button>
@@ -167,7 +167,7 @@
                     </div>
                 </div>
 
-                <div id="scheduleContainer" class="space-y-4 mb-8"></div>
+                <div id="scheduleContainer" class="space-y-4 mb-10"></div>
             </section>
 
             <!-- ABA 2: HISTÓRICO SEMANA A SEMANA -->
@@ -177,9 +177,7 @@
                         <i data-lucide="history" class="w-5 h-5 text-blue-500"></i>
                         <span>Evolução Semana a Semana</span>
                     </h2>
-                    <div id="historicoSemanalList" class="space-y-3">
-                        <p class="text-xs text-zinc-500 italic">Nenhuma semana fechada ainda. Use o botão "Fechar Semana" no topo para registrar seu progresso.</p>
-                    </div>
+                    <div id="historicoSemanalList" class="space-y-3"></div>
                 </div>
             </section>
 
@@ -194,23 +192,37 @@
                 </div>
             </section>
 
-            <!-- ABA 4: TIMER DE ESTUDOS -->
+            <!-- ABA 4: TIMER & POMODORO -->
             <section id="tab-timer" class="space-y-6 tab-content hidden">
                 <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 text-center max-w-md mx-auto space-y-5 shadow-2xl">
-                    <h2 class="text-lg font-bold text-white flex items-center justify-center space-x-2">
-                        <i data-lucide="timer" class="w-5 h-5 text-blue-500"></i>
-                        <span>Cronômetro de Estudos</span>
-                    </h2>
+                    <div class="flex justify-center space-x-2 bg-black p-1.5 rounded-2xl border border-zinc-800">
+                        <button id="modePomodoroBtn" onclick="setTimerMode('pomodoro')" class="flex-1 py-1.5 text-xs font-bold rounded-xl bg-blue-600 text-white transition">Pomodoro</button>
+                        <button id="modeLivreBtn" onclick="setTimerMode('livre')" class="flex-1 py-1.5 text-xs font-bold rounded-xl text-zinc-400 hover:text-white transition">Cronômetro Livre</button>
+                    </div>
 
                     <div>
-                        <label class="block text-xs text-zinc-400 mb-2">Selecione a matéria:</label>
+                        <label class="block text-xs text-zinc-400 mb-2">Matéria Atual:</label>
                         <select id="timerSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                             <option value="">-- Escolha uma matéria --</option>
                         </select>
                     </div>
 
-                    <div id="timerDisplay" class="text-5xl font-black font-mono text-white tracking-wider my-4">
-                        00:00:00
+                    <!-- Ajustes do Pomodoro -->
+                    <div id="pomodoroConfig" class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="bg-black p-3 border border-zinc-800 rounded-xl">
+                            <label class="block text-zinc-400 mb-1">Tempo Foco (min)</label>
+                            <input type="number" id="pomoWorkTime" value="25" min="1" max="120" onchange="resetTimer()" class="w-full bg-zinc-900 border border-zinc-700 rounded text-center text-white py-1 font-bold">
+                        </div>
+                        <div class="bg-black p-3 border border-zinc-800 rounded-xl">
+                            <label class="block text-zinc-400 mb-1">Pausa (min)</label>
+                            <input type="number" id="pomoBreakTime" value="5" min="1" max="60" class="w-full bg-zinc-900 border border-zinc-700 rounded text-center text-white py-1 font-bold">
+                        </div>
+                    </div>
+
+                    <div id="pomodoroStatus" class="text-xs font-bold text-blue-400 uppercase tracking-widest">Sessão de Foco</div>
+
+                    <div id="timerDisplay" class="text-5xl font-black font-mono text-white tracking-wider my-2">
+                        25:00
                     </div>
 
                     <div class="flex space-x-3">
@@ -248,7 +260,7 @@
         </nav>
     </div>
 
-    <!-- Modal de Importar Edital -->
+    <!-- MODAL IMPORTAR EDITAL -->
     <div id="importModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
@@ -259,12 +271,38 @@
             <textarea id="editalText" rows="10" placeholder="PORTUGUÊS&#10;1. Compreensão de texto&#10;2. Ortografia&#10;&#10;DIREITO CONSTITUCIONAL&#10;1. Direitos Fundamentais" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none font-mono"></textarea>
             <div class="flex space-x-2 pt-2">
                 <button onclick="fecharModalImportacao()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button onclick="processarEditalLocal()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Importar</button>
+                <button onclick="processarEditalLocal()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Importar Edital</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Criar / Editar Matéria -->
+    <!-- MODAL PLANO SEMANAL -->
+    <div id="planModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                <span>Gerar Plano de Estudos Semanal</span>
+            </h3>
+            <p class="text-xs text-zinc-400">Informe suas metas de tempo. O plano será gerado automaticamente com base no peso das matérias e no seu histórico de estudo.</p>
+
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Horas disponíveis na SEMANA</label>
+                <input type="number" id="planWeeklyHours" value="20" min="1" max="100" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Horas de estudo por DIA</label>
+                <input type="number" id="planDailyHours" value="3" min="1" max="24" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="fecharModalPlano()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Calcular Plano</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MATÉRIA -->
     <div id="subjectModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <h3 id="subjectModalTitle" class="text-base font-bold text-white">Adicionar Matéria</h3>
@@ -292,6 +330,7 @@
         </div>
     </div>
 
+    <!-- ALERTA PERSONALIZADO -->
     <div id="customAlert" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-6 text-center space-y-4 shadow-2xl">
             <h3 class="text-lg font-bold text-blue-500">EstudoFlow PRO</h3>
@@ -317,8 +356,12 @@
         let currentUser = null;
         let isSignUpMode = false;
         let state = { subjects: [], weeklyHours: 0, totalHours: 0, historyWeeks: [] };
+        
+        // Variáveis do Timer / Pomodoro
+        let timerMode = 'pomodoro'; // 'pomodoro' ou 'livre'
         let timerInterval = null;
-        let secondsElapsed = 0;
+        let secondsLeft = 25 * 60;
+        let isBreak = false;
 
         auth.onAuthStateChanged(user => {
             if (user) {
@@ -391,12 +434,12 @@
             });
         }
 
-        function addHours(subjectId) {
+        function addHours(subjectId, amount = 1) {
             const subject = state.subjects.find(s => s.id === subjectId);
             if (subject) {
-                subject.studiedHours = (subject.studiedHours || 0) + 1;
-                state.totalHours = (state.totalHours || 0) + 1;
-                state.weeklyHours = (state.weeklyHours || 0) + 1;
+                subject.studiedHours = (subject.studiedHours || 0) + amount;
+                state.totalHours = (state.totalHours || 0) + amount;
+                state.weeklyHours = (state.weeklyHours || 0) + amount;
                 saveData();
             }
         }
@@ -409,14 +452,10 @@
             
             topic[field] = Math.max(0, parseInt(val) || 0);
 
-            if (topic.acertos > topic.total) {
-                topic.acertos = topic.total;
-            }
+            if (topic.acertos > topic.total) topic.acertos = topic.total;
 
             const pct = topic.total >= 10 ? (topic.acertos / topic.total) * 100 : 0;
-            if (pct < 80 || topic.total < 10) {
-                topic.completed = false;
-            }
+            if (pct < 80 || topic.total < 10) topic.completed = false;
 
             saveData();
         }
@@ -430,20 +469,14 @@
             const totalQ = topic.total || 0;
             const pct = totalQ > 0 ? (topic.acertos / totalQ) * 100 : 0;
 
-            if (totalQ < 10) {
-                showAlert(`Atenção: Você precisa resolver no mínimo 10 questões para poder avançar (atualmente tem ${totalQ}).`);
-                return;
-            }
-
-            if (pct < 80) {
-                showAlert(`Atenção: Você precisa de no mínimo 80% de aproveitamento para liberar este tópico (atualmente tem ${Math.round(pct)}%).`);
-                return;
-            }
+            if (totalQ < 10) return showAlert(`Atenção: Você precisa resolver no mínimo 10 questões para poder avançar (atualmente tem ${totalQ}).`);
+            if (pct < 80) return showAlert(`Atenção: Você precisa de no mínimo 80% de aproveitamento para liberar este tópico (atualmente tem ${Math.round(pct)}%).`);
 
             topic.completed = !topic.completed;
             saveData();
         }
 
+        // --- IMPORTAÇÃO DE EDITAL ---
         function abrirModalImportacao() { document.getElementById('importModal').classList.remove('hidden'); }
         function fecharModalImportacao() { document.getElementById('importModal').classList.add('hidden'); document.getElementById('editalText').value = ''; }
 
@@ -460,10 +493,7 @@
                     currentSubject = {
                         id: Date.now().toString() + Math.random().toString(36).substr(2, 4),
                         name: line.replace(/^\d+[\.\)]\s*/, ''),
-                        weight: 1,
-                        targetHours: 4,
-                        studiedHours: 0,
-                        topics: []
+                        weight: 1, targetHours: 4, studiedHours: 0, topics: []
                     };
                     state.subjects.push(currentSubject);
                 } else {
@@ -479,25 +509,31 @@
             showAlert("Edital importado com sucesso!");
         }
 
-        function gerarPlano() {
-            if (state.subjects.length === 0) return showAlert("Adicione pelo menos uma matéria para gerar o plano.");
-            
+        // --- PLANO DE ESTUDOS ---
+        function abrirModalPlano() {
+            if (state.subjects.length === 0) return showAlert("Adicione ou importe o edital antes de gerar o plano.");
+            document.getElementById('planModal').classList.remove('hidden');
+        }
+
+        function fecharModalPlano() { document.getElementById('planModal').classList.add('hidden'); }
+
+        function gerarPlanoInteligente() {
+            const weeklyGoal = parseInt(document.getElementById('planWeeklyHours').value) || 20;
             let totalWeights = 0;
             state.subjects.forEach(s => totalWeights += (parseInt(s.weight) || 1));
 
-            const totalHoursGoal = 20;
-
             state.subjects.forEach(s => {
                 const peso = parseInt(s.weight) || 1;
-                s.targetHours = Math.round((peso / totalWeights) * totalHoursGoal);
+                s.targetHours = Math.round((peso / totalWeights) * weeklyGoal);
             });
 
             saveData();
-            showAlert("Plano de estudos gerado com sucesso com base no peso de cada matéria!");
+            fecharModalPlano();
+            showAlert(`Plano semanal ajustado para ${weeklyGoal}h com sucesso!`);
         }
 
         function fecharSemana() {
-            if (confirm("Deseja fechar a semana atual? Isso registrará o relatório semanal no Histórico e zerará as horas da semana.")) {
+            if (confirm("Deseja fechar a semana atual e salvar no histórico?")) {
                 let totalQ = 0, totalC = 0, topicsDone = 0;
                 state.subjects.forEach(s => {
                     s.topics.forEach(t => {
@@ -511,18 +547,117 @@
                     id: Date.now().toString(),
                     data: new Date().toLocaleDateString('pt-BR'),
                     weeklyHours: state.weeklyHours || 0,
-                    totalQuestions: totalQ,
-                    totalCorrect: totalC,
+                    totalQuestions: totalQ, totalCorrect: totalC,
                     accuracy: totalQ > 0 ? Math.round((totalC / totalQ) * 100) : 0,
                     topicsCompleted: topicsDone
                 };
 
                 if (!state.historyWeeks) state.historyWeeks = [];
                 state.historyWeeks.unshift(semanaRecord);
-
                 state.weeklyHours = 0;
                 saveData();
-                showAlert("Semana fechada com sucesso! O relatório foi gravado na aba Histórico.");
+                showAlert("Semana fechada com sucesso! O relatório foi salvo no Histórico.");
+            }
+        }
+
+        // --- TIMER E POMODORO ---
+        function setTimerMode(mode) {
+            timerMode = mode;
+            resetTimer();
+            if (mode === 'pomodoro') {
+                document.getElementById('modePomodoroBtn').className = "flex-1 py-1.5 text-xs font-bold rounded-xl bg-blue-600 text-white transition";
+                document.getElementById('modeLivreBtn').className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-zinc-400 hover:text-white transition";
+                document.getElementById('pomodoroConfig').classList.remove('hidden');
+                document.getElementById('pomodoroStatus').classList.remove('hidden');
+            } else {
+                document.getElementById('modeLivreBtn').className = "flex-1 py-1.5 text-xs font-bold rounded-xl bg-blue-600 text-white transition";
+                document.getElementById('modePomodoroBtn').className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-zinc-400 hover:text-white transition";
+                document.getElementById('pomodoroConfig').classList.add('hidden');
+                document.getElementById('pomodoroStatus').classList.add('hidden');
+            }
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('btnStartTimer');
+            const selectedSubjectId = document.getElementById('timerSubjectSelect').value;
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                btn.innerText = "Iniciar";
+                btn.className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition";
+            } else {
+                if (!selectedSubjectId) return showAlert("Selecione uma matéria antes de iniciar o tempo de estudo.");
+                
+                timerInterval = setInterval(() => {
+                    if (timerMode === 'pomodoro') {
+                        secondsLeft--;
+                        if (secondsLeft <= 0) {
+                            clearInterval(timerInterval);
+                            timerInterval = null;
+                            btn.innerText = "Iniciar";
+
+                            if (!isBreak) {
+                                // Concluiu sessão de estudo no Pomodoro
+                                const workMins = parseInt(document.getElementById('pomoWorkTime').value) || 25;
+                                const hoursStudied = workMins / 60;
+                                addHours(selectedSubjectId, hoursStudied);
+
+                                showAlert(`⏰ Parabéns! Sessão Pomodoro concluída. +${workMins} min registrados em seu estudo. Hora da pausa!`);
+                                isBreak = true;
+                                secondsLeft = (parseInt(document.getElementById('pomoBreakTime').value) || 5) * 60;
+                                document.getElementById('pomodoroStatus').innerText = "Pausa Ativa";
+                                document.getElementById('pomodoroStatus').className = "text-xs font-bold text-emerald-400 uppercase tracking-widest";
+                            } else {
+                                showAlert("🔔 Pausa finalizada! Pronto para iniciar o próximo ciclo de estudo?");
+                                isBreak = false;
+                                secondsLeft = (parseInt(document.getElementById('pomoWorkTime').value) || 25) * 60;
+                                document.getElementById('pomodoroStatus').innerText = "Sessão de Foco";
+                                document.getElementById('pomodoroStatus').className = "text-xs font-bold text-blue-400 uppercase tracking-widest";
+                            }
+                        }
+                    } else {
+                        // Modo Livre: soma a cada segundo
+                        secondsLeft++;
+                        if (secondsLeft % 3600 === 0) {
+                            addHours(selectedSubjectId, 1);
+                        }
+                    }
+                    updateTimerDisplay();
+                }, 1000);
+
+                btn.innerText = "Pausar";
+                btn.className = "flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-xl text-sm transition";
+            }
+        }
+
+        function resetTimer() {
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            document.getElementById('btnStartTimer').innerText = "Iniciar";
+            
+            if (timerMode === 'pomodoro') {
+                isBreak = false;
+                const workMins = parseInt(document.getElementById('pomoWorkTime').value) || 25;
+                secondsLeft = workMins * 60;
+                document.getElementById('pomodoroStatus').innerText = "Sessão de Foco";
+                document.getElementById('pomodoroStatus').className = "text-xs font-bold text-blue-400 uppercase tracking-widest";
+            } else {
+                secondsLeft = 0;
+            }
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const hrs = Math.floor(secondsLeft / 3600);
+            const mins = Math.floor((secondsLeft % 3600) / 60);
+            const secs = secondsLeft % 60;
+
+            if (timerMode === 'pomodoro') {
+                document.getElementById('timerDisplay').innerText = 
+                    `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            } else {
+                document.getElementById('timerDisplay').innerText = 
+                    `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
             }
         }
 
@@ -546,9 +681,7 @@
             document.getElementById('subjectModal').classList.remove('hidden');
         }
 
-        function closeSubjectModal() { 
-            document.getElementById('subjectModal').classList.add('hidden'); 
-        }
+        function closeSubjectModal() { document.getElementById('subjectModal').classList.add('hidden'); }
 
         function saveSubject() {
             const editId = document.getElementById('editingSubjectId').value;
@@ -563,15 +696,8 @@
                 if (subject) {
                     subject.name = name;
                     subject.weight = weight;
-                    
                     const existingTopicsMap = new Map(subject.topics.map(t => [t.title, t]));
-                    subject.topics = rawTopics.map((tTitle, idx) => {
-                        if (existingTopicsMap.has(tTitle)) {
-                            return existingTopicsMap.get(tTitle);
-                        } else {
-                            return { id: 't_' + Date.now() + '_' + idx, title: tTitle, completed: false, acertos: 0, total: 0 };
-                        }
-                    });
+                    subject.topics = rawTopics.map((tTitle, idx) => existingTopicsMap.get(tTitle) || { id: 't_' + Date.now() + '_' + idx, title: tTitle, completed: false, acertos: 0, total: 0 });
                 }
             } else {
                 state.subjects.push({
@@ -613,7 +739,7 @@
                 completedTopics += subCompleted;
 
                 const targetHrs = subject.targetHours || (subject.weight || 1) * 4;
-                const studiedHrs = subject.studiedHours || 0;
+                const studiedHrs = Math.round((subject.studiedHours || 0) * 10) / 10;
                 const subPct = subTotal > 0 ? Math.round((subCompleted / subTotal) * 100) : 0;
 
                 let topicsHtml = '';
@@ -638,7 +764,7 @@
                         </span>`;
                         cardBorderClass = 'border-emerald-800/80 bg-zinc-950/80';
                     } else {
-                        const faltaTexto = totalQ < 10 ? `Faltam ${10 - totalQ} questões` : `${pct}% (< 80%)`;
+                        const faltaTexto = totalQ < 10 ? `Faltam ${10 - totalQ} q` : `${pct}% (< 80%)`;
                         badgeHtml = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-950/60 text-red-400 border border-red-900 flex items-center space-x-1">
                             <i data-lucide="lock" class="w-3 h-3"></i>
                             <span>${faltaTexto}</span>
@@ -680,7 +806,7 @@
                             <p class="text-[11px] text-zinc-400 mt-0.5">Meta: ${targetHrs}h / ${studiedHrs}h estudadas</p>
                         </div>
                         <div class="flex items-center space-x-1">
-                            <button onclick="addHours('${subject.id}')" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 p-1.5 rounded-lg text-xs font-bold flex items-center space-x-1" title="Adicionar 1 hora estudada">
+                            <button onclick="addHours('${subject.id}', 1)" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 p-1.5 rounded-lg text-xs font-bold flex items-center space-x-1" title="Adicionar 1 hora estudada">
                                 <i data-lucide="clock" class="w-3.5 h-3.5"></i>
                                 <span>+1h</span>
                             </button>
@@ -710,8 +836,8 @@
 
             document.getElementById('globalPercent').innerText = `${globalPercent}%`;
             document.getElementById('globalProgressBar').style.width = `${globalPercent}%`;
-            document.getElementById('statTotalHours').innerText = `${state.totalHours || 0}h`;
-            document.getElementById('statWeeklyHours').innerText = `${state.weeklyHours || 0}h nesta semana`;
+            document.getElementById('statTotalHours').innerText = `${Math.round((state.totalHours || 0) * 10) / 10}h`;
+            document.getElementById('statWeeklyHours').innerText = `${Math.round((state.weeklyHours || 0) * 10) / 10}h nesta semana`;
             document.getElementById('statTotalQuestions').innerText = totalQuestions;
             document.getElementById('statAccuracy').innerText = `${accuracy}% acertos no total`;
             document.getElementById('statWeeklyTopics').innerText = `${completedTopics} / ${totalTopics} tópicos concluídos nesta semana`;
@@ -737,7 +863,7 @@
                         <div class="grid grid-cols-2 gap-2 text-xs pt-1">
                             <div>
                                 <p class="text-[10px] text-zinc-500">Horas Estudadas</p>
-                                <p class="font-bold text-white">${item.weeklyHours}h</p>
+                                <p class="font-bold text-white">${Math.round(item.weeklyHours * 10) / 10}h</p>
                             </div>
                             <div>
                                 <p class="text-[10px] text-zinc-500">Tópicos Concluídos</p>
@@ -790,34 +916,6 @@
                 opt.innerText = s.name;
                 select.appendChild(opt);
             });
-        }
-
-        function toggleTimer() {
-            const btn = document.getElementById('btnStartTimer');
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                btn.innerText = "Iniciar";
-                btn.className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition";
-            } else {
-                timerInterval = setInterval(() => {
-                    secondsElapsed++;
-                    const hrs = Math.floor(secondsElapsed / 3600);
-                    const mins = Math.floor((secondsElapsed % 3600) / 60);
-                    const secs = secondsElapsed % 60;
-                    document.getElementById('timerDisplay').innerText = 
-                        `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-                }, 1000);
-                btn.innerText = "Pausar";
-                btn.className = "flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-xl text-sm transition";
-            }
-        }
-
-        function resetTimer() {
-            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-            secondsElapsed = 0;
-            document.getElementById('timerDisplay').innerText = "00:00:00";
-            document.getElementById('btnStartTimer').innerText = "Iniciar";
         }
 
         function showAlert(msg) {
