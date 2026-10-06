@@ -192,7 +192,7 @@
                             <span>Configurar Metas</span>
                         </button>
                     </div>
-                    <p class="text-xs text-zinc-400">Distribui as disciplinas diárias de estudo normal e programa um bloco de exatamente 30 minutos para a revisão do dia.</p>
+                    <p class="text-xs text-zinc-400">Clique em "Configurar Metas" e em seguida em "Salvar Plano" para gerar o cronograma semanal inteligente.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
             </section>
@@ -427,37 +427,7 @@
         </div>
     </div>
 
-    <!-- MODAL APROVEITAMENTO PARA TÓPICO -->
-    <div id="approvalModal" class="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl text-center">
-            <div class="inline-flex p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-400 mb-1">
-                <i data-lucide="award" class="w-8 h-8"></i>
-            </div>
-            <h3 class="text-base font-bold text-white">Validação de Aproveitamento</h3>
-            <p class="text-xs text-zinc-400">Para concluir este tópico, informe o resultado dos seus exercícios de fixação (Mínimo de 80% exigido).</p>
-            
-            <input type="hidden" id="pendingSubjectIndex" value="">
-            <input type="hidden" id="pendingTopicIndex" value="">
-
-            <div class="grid grid-cols-2 gap-3 text-left">
-                <div>
-                    <label class="block text-[11px] text-zinc-400 mb-1">Total de Questões</label>
-                    <input type="number" id="inputTotalQ" min="1" value="10" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white text-center font-bold focus:outline-none focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-[11px] text-zinc-400 mb-1">Acertos</label>
-                    <input type="number" id="inputCorrectQ" min="0" value="8" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white text-center font-bold focus:outline-none focus:border-blue-500">
-                </div>
-            </div>
-
-            <div class="flex space-x-2 pt-2">
-                <button type="button" onclick="cancelTopicApproval()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="confirmTopicApproval()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Validar e Concluir</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Script Principal da Aplicação -->
+    <!-- SCRIPT PRINCIPAL -->
     <script>
         lucide.createIcons();
 
@@ -468,6 +438,8 @@
         let cadernoErros = [];
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let dailySubjectsCount = 2;
+        let planoGerado = false;
+        let planoStatusConcluido = {};
         let pomoInterval = null;
         let pomoSeconds = 25 * 60;
         let pomoIsRunning = false;
@@ -564,7 +536,7 @@
 
         function saveUserData() {
             if (!currentUser) return;
-            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, weeklyHoursConfig, dailySubjectsCount };
+            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, weeklyHoursConfig, dailySubjectsCount, planoGerado, planoStatusConcluido };
             firebase.firestore().collection('schedules').doc(currentUser.uid).set(data)
                 .catch(err => console.error("Erro ao salvar dados:", err));
         }
@@ -581,6 +553,8 @@
                         cadernoErros = data.cadernoErros || [];
                         if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
                         if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
+                        if (data.planoGerado !== undefined) planoGerado = data.planoGerado;
+                        if (data.planoStatusConcluido) planoStatusConcluido = data.planoStatusConcluido;
                     } else {
                         subjects = [];
                     }
@@ -703,7 +677,7 @@
                     <div class="space-y-1.5 pl-2 border-l border-zinc-800 ${isMin ? 'hidden' : ''}">
                         ${sub.topics && sub.topics.length > 0 ? sub.topics.map((top, tIndex) => `
                             <label class="flex items-center space-x-2 text-xs text-zinc-300 cursor-pointer">
-                                <input type="checkbox" ${top.done ? 'checked' : ''} onclick="event.preventDefault(); handleTopicCheck(${sIndex},${tIndex})" class="rounded bg-black border-zinc-700 text-blue-600 focus:ring-0">
+                                <input type="checkbox" ${top.done ? 'checked' : ''} onclick="event.preventDefault(); handleTopicCheck(${sIndex}, ${tIndex})" class="rounded bg-black border-zinc-700 text-blue-600 focus:ring-0">
                                 <span class="${top.done ? 'line-through text-zinc-500' : ''}">${top.name}</span>
                             </label>
                         `).join('') : '<p class="text-[11px] text-zinc-600">Nenhum tópico cadastrado.</p>'}
@@ -717,6 +691,22 @@
         function renderSmartPlan() {
             const container = document.getElementById('smartPlanContainer');
             if (!container) return;
+
+            if (!planoGerado) {
+                container.innerHTML = `
+                    <div class="text-center py-12 space-y-3">
+                        <div class="inline-flex p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-blue-400">
+                            <i data-lucide="sparkles" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-xs text-zinc-400">Nenhum plano gerado ainda.</p>
+                        <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md">
+                            Configurar e Gerar Plano
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
 
             const activeSubjects = subjects.filter(sub => sub.includeInPlan !== false);
             if (activeSubjects.length === 0) {
@@ -736,13 +726,13 @@
             scoredSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
 
             const days = [
-                { name: 'Segunda-feira', hours: weeklyHoursConfig.seg },
-                { name: 'Terça-feira', hours: weeklyHoursConfig.ter },
-                { name: 'Quarta-feira', hours: weeklyHoursConfig.qua },
-                { name: 'Quinta-feira', hours: weeklyHoursConfig.qui },
-                { name: 'Sexta-feira', hours: weeklyHoursConfig.sex },
-                { name: 'Sábado', hours: weeklyHoursConfig.sab },
-                { name: 'Domingo', hours: weeklyHoursConfig.dom }
+                { id: 'seg', name: 'Segunda-feira', hours: weeklyHoursConfig.seg },
+                { id: 'ter', name: 'Terça-feira', hours: weeklyHoursConfig.ter },
+                { id: 'qua', name: 'Quarta-feira', hours: weeklyHoursConfig.qua },
+                { id: 'qui', name: 'Quinta-feira', hours: weeklyHoursConfig.qui },
+                { id: 'sex', name: 'Sexta-feira', hours: weeklyHoursConfig.sex },
+                { id: 'sab', name: 'Sábado', hours: weeklyHoursConfig.sab },
+                { id: 'dom', name: 'Domingo', hours: weeklyHoursConfig.dom }
             ];
 
             let normPtr = 0;
@@ -776,38 +766,63 @@
                     else revType = "Revisão de 24 horas";
                 }
 
-                const normalHtml = normalsForDay.map((sub, idx) => `
-                    <div class="flex items-center justify-between text-xs bg-zinc-900/60 border border-zinc-800/80 p-2 rounded-xl">
-                        <div>
-                            <span class="font-bold text-white">${idx + 1}. Estudo Normal: ${sub.name}</span>
-                        </div>
-                    </div>
-                `).join('');
+                const normalHtml = normalsForDay.map((sub, idx) => {
+                    const checkKey = `${day.id}_normal_${idx}_${sub.name}`;
+                    const isChecked = planoStatusConcluido[checkKey] ? 'checked' : '';
+                    return `
+                        <label class="flex items-center justify-between text-xs bg-zinc-900/60 border border-zinc-800/80 p-2.5 rounded-xl cursor-pointer hover:bg-zinc-900 transition">
+                            <div class="flex items-center space-x-2.5">
+                                <input type="checkbox" ${isChecked} onchange="togglePlanoCheck('${checkKey}', '${sub.name}', 'Estudo Normal (${sub.name})')" class="rounded bg-black border-zinc-700 text-blue-600 focus:ring-0 w-4 h-4 cursor-pointer">
+                                <span class="font-bold text-white ${isChecked ? 'line-through text-zinc-500' : ''}">${idx + 1}. Estudo Normal: ${sub.name}</span>
+                            </div>
+                            <span class="text-[10px] text-zinc-400">${day.hours}h</span>
+                        </label>
+                    `;
+                }).join('');
+
+                let reviewHtml = '';
+                if (hasReview) {
+                    const checkKeyRev = `${day.id}_review_${reviewSub.name}`;
+                    const isCheckedRev = planoStatusConcluido[checkKeyRev] ? 'checked' : '';
+                    reviewHtml = `
+                        <label class="flex items-center justify-between text-xs bg-amber-950/30 border border-amber-900/40 p-2.5 rounded-xl cursor-pointer hover:bg-amber-950/40 transition">
+                            <div class="flex items-center space-x-2.5">
+                                <input type="checkbox" ${isCheckedRev} onchange="togglePlanoCheck('${checkKeyRev}', '${reviewSub.name}', '${revType} (${reviewSub.name})')" class="rounded bg-black border-zinc-700 text-amber-600 focus:ring-0 w-4 h-4 cursor-pointer">
+                                <span class="font-bold text-amber-400 ${isCheckedRev ? 'line-through text-zinc-500' : ''}">${dailySubjectsCount + 1}. ${revType}: ${reviewSub.name}</span>
+                            </div>
+                            <span class="text-[10px] font-bold text-amber-500 bg-amber-950/60 px-2 py-1 rounded-lg border border-amber-800/50">30 min</span>
+                        </label>
+                    `;
+                }
 
                 return `
                     <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
-                            <span class="text-xs font-bold text-zinc-300">${day.hours}h livres ${hasReview ? '+ 30min Revisão' : ''}</span>
+                            <span class="text-xs font-bold text-zinc-300">Marque o que foi feito</span>
                         </div>
                         <div class="space-y-1.5 pt-1">
                             ${normalHtml}
-                            ${hasReview ? `
-                                <div class="flex items-center justify-between text-xs bg-amber-950/30 border border-amber-900/40 p-2 rounded-xl">
-                                    <div>
-                                        <span class="font-bold text-amber-400">${dailySubjectsCount + 1}. ${revType}:${reviewSub.name}</span>
-                                    </div>
-                                    <span class="text-[10px] font-bold text-amber-500 bg-amber-950/60 px-2 py-1 rounded-lg border border-amber-800/50">30 min</span>
-                                </div>
-                            ` : `
-                                <div class="text-[10px] text-zinc-500 italic px-1 pt-0.5">
-                                    * Primeiro dia do ciclo dedicado exclusivamente ao estudo base (sem carga de revisão prévia).
-                                </div>
-                            `}
+                            ${reviewHtml}
+                            ${!hasReview ? '<div class="text-[10px] text-zinc-500 italic px-1 pt-0.5">* Primeiro dia do ciclo dedicado exclusivamente ao estudo base (sem revisões prévias).</div>' : ''}
                         </div>
                     </div>
                 `;
             }).join('');
+            lucide.createIcons();
+        }
+
+        function togglePlanoCheck(checkKey, subjectName, activityTitle) {
+            const isChecked = !planoStatusConcluido[checkKey];
+            planoStatusConcluido[checkKey] = isChecked;
+
+            if (isChecked) {
+                registrarEvolucioDiaria(subjectName, activityTitle, 100);
+            }
+
+            saveUserData();
+            renderSmartPlan();
+            renderHistorico();
         }
 
         function handleTopicCheck(sIndex, tIndex) {
@@ -850,7 +865,6 @@
             subjects[sIndex].correctCount = (subjects[sIndex].correctCount || 0) + correct;
             subjects[sIndex].topics[tIndex].done = true;
             
-            // Registrar no histórico diário automaticamente
             registrarEvolucioDiaria(subjects[sIndex].name, subjects[sIndex].topics[tIndex].name, percent);
 
             saveUserData();
@@ -866,7 +880,10 @@
                 registroHoje = { date: hojeStr, itens: [] };
                 historicoDiario.unshift(registroHoje);
             }
-            registroHoje.itens.push({ subject: subjectName, topic: topicName, accuracy: accuracy.toFixed(0) });
+            const jaExiste = registroHoje.itens.some(item => item.subject === subjectName && item.topic === topicName);
+            if (!jaExiste) {
+                registroHoje.itens.push({ subject: subjectName, topic: topicName, accuracy: accuracy.toFixed(0) });
+            }
         }
 
         function renderHistorico() {
@@ -875,14 +892,13 @@
 
             let htmlContent = '';
 
-            // Renderizar Histórico Diário (Evolução por Tópicos)
             if (historicoDiario && historicoDiario.length > 0) {
-                htmlContent += `<h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Evolução por Tópicos (Diário)</h3>`;
+                htmlContent += `<h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Evolução por Atividades (Diário)</h3>`;
                 htmlContent += historicoDiario.map(dia => `
                     <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2 mb-3">
                         <div class="flex items-center justify-between text-xs font-bold text-blue-400 border-b border-zinc-900 pb-1.5">
                             <span>Data: ${dia.date}</span>
-                            <span class="text-[10px] text-zinc-500">${dia.itens.length} tópicos concluídos</span>
+                            <span class="text-[10px] text-zinc-500">${dia.itens.length} itens concluídos</span>
                         </div>
                         <div class="space-y-1.5 pt-1">
                             ${dia.itens.map(item => `
@@ -891,7 +907,7 @@
                                         <span class="font-bold text-white">${item.subject}</span>
                                         <span class="block text-[11px] text-zinc-400">• ${item.topic}</span>
                                     </div>
-                                    <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-1 rounded-lg border border-emerald-800/50">${item.accuracy}% acertos</span>
+                                    <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-1 rounded-lg border border-emerald-800/50">Feito</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -899,7 +915,6 @@
                 `).join('');
             }
 
-            // Renderizar Histórico Fechado de Semanas
             if (historicoSemanal && historicoSemanal.length > 0) {
                 htmlContent += `<h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mt-5 mb-2">Semanas Arquivadas</h3>`;
                 htmlContent += historicoSemanal.map((sem, sIdx) => `
@@ -913,7 +928,7 @@
             }
 
             if (!historicoDiario.length && !historicoSemanal.length) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum registro no histórico ainda. Conclua tópicos no cronograma para registrar sua evolução.</p>`;
+                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum registro no histórico ainda. Marque as atividades realizadas no plano para registrar sua evolução.</p>`;
             } else {
                 container.innerHTML = htmlContent;
             }
@@ -1024,10 +1039,11 @@
             weeklyHoursConfig.sab = parseInt(document.getElementById('day_sab').value) || 0;
             weeklyHoursConfig.dom = parseInt(document.getElementById('day_dom').value) || 0;
 
+            planoGerado = true;
             saveUserData();
             fecharModalPlano();
             renderSmartPlan();
-            alert("Plano inteligente atualizado com sucesso!");
+            alert("Plano inteligente gerado com sucesso!");
         }
 
         function fecharSemana() {
@@ -1044,7 +1060,10 @@
             if (confirm("Deseja limpar todo o histórico?")) {
                 historicoDiario = [];
                 historicoSemanal = [];
+                planoStatusConcluido = {};
+                planoGerado = false;
                 saveUserData();
+                renderSmartPlan();
                 renderHistorico();
             }
         }
