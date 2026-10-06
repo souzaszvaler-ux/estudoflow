@@ -185,14 +185,14 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="sparkles" class="w-5 h-5 text-blue-500"></i>
-                            <span>Plano da Próxima Semana (Baseado no Aproveitamento)</span>
+                            <span>Plano da Próxima Semana</span>
                         </h2>
                         <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="settings" class="w-3.5 h-3.5"></i>
                             <span>Configurar Metas</span>
                         </button>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano distribui as horas diárias entre as matérias ativas, dando prioridade automática de revisão àquelas que apresentaram menor índice de aproveitamento na semana atual.</p>
+                    <p class="text-xs text-zinc-400">Cada dia traz 2 disciplinas de estudo normal e uma sessão dedicada de revisão de 30 minutos focada nas matérias que apresentaram menor aproveitamento.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
             </section>
@@ -711,19 +711,17 @@
                 return;
             }
 
-            // Cálculo de prioridade baseado no aproveitamento (Qtd acertos / Qtd questões)
-            // Matérias sem questões ou com aproveitamento baixo recebem maior prioridade de revisão.
+            // Calcula aproveitamento e pontuação de prioridade para a revisão
             const scoredSubjects = activeSubjects.map(sub => {
                 const totalQ = sub.questionsCount || 0;
                 const correctQ = sub.correctCount || 0;
-                const accuracy = totalQ > 0 ? (correctQ / totalQ) * 100 : 100; // 100% se não testado ainda
+                const accuracy = totalQ > 0 ? (correctQ / totalQ) * 100 : 100;
                 const weight = sub.weight || 1;
-                
-                // Fórmula de prioridade: quanto menor o aproveitamento e maior o peso, maior a prioridade
-                let priorityScore = weight * (101 - accuracy);
+                const priorityScore = weight * (101 - accuracy);
                 return { ...sub, accuracy, priorityScore };
             });
 
+            // Ordena para identificar quais precisam mais de revisão
             scoredSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
 
             const days = [
@@ -736,7 +734,9 @@
                 { name: 'Domingo', hours: weeklyHoursConfig.dom }
             ];
 
-            let subIndexPtr = 0;
+            let normPtr = 0;
+            let revPtr = 0;
+
             container.innerHTML = days.map(day => {
                 if (day.hours <= 0) {
                     return `
@@ -747,37 +747,42 @@
                     `;
                 }
 
-                // Aloca 1 ou 2 matérias prioritárias para o dia
-                const assigned1 = scoredSubjects[subIndexPtr % scoredSubjects.length];
-                subIndexPtr++;
-                const assigned2 = day.hours >= 3 ? scoredSubjects[subIndexPtr % scoredSubjects.length] : null;
-                if (day.hours >= 3) subIndexPtr++;
+                // 2 Disciplinas de Estudo Normal
+                const normal1 = scoredSubjects[normPtr % scoredSubjects.length];
+                normPtr++;
+                const normal2 = scoredSubjects[normPtr % scoredSubjects.length];
+                normPtr++;
 
-                const accText1 = assigned1.questionsCount > 0 ? `Aproveitamento atual: ${assigned1.accuracy.toFixed(0)}%` : 'Sem testes recentes';
+                // 1 Disciplina para Revisão (dando preferência às que possuem menor aproveitamento)
+                const reviewSub = scoredSubjects[revPtr % scoredSubjects.length];
+                revPtr++;
 
                 return `
-                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2">
+                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
-                            <span class="text-xs font-bold text-zinc-300">${day.hours}h livres</span>
+                            <span class="text-xs font-bold text-zinc-300">${day.hours}h livres + 30min Revisão</span>
                         </div>
                         <div class="space-y-1.5 pt-1">
                             <div class="flex items-center justify-between text-xs bg-zinc-900/60 border border-zinc-800/80 p-2 rounded-xl">
                                 <div>
-                                    <span class="font-bold text-white">${assigned1.name}</span>
-                                    <span class="block text-[10px] text-zinc-500">${accText1}</span>
+                                    <span class="font-bold text-white">1. Estudo Normal: ${normal1.name}</span>
+                                    <span class="block text-[10px] text-zinc-500">Foco em teoria e novos tópicos</span>
                                 </div>
-                                <span class="text-[11px] font-semibold text-blue-400">${assigned1.accuracy < 80 && assigned1.questionsCount > 0 ? 'Foco de Revisão' : 'Estudo Normal'}</span>
                             </div>
-                            ${assigned2 ? `
-                                <div class="flex items-center justify-between text-xs bg-zinc-900/60 border border-zinc-800/80 p-2 rounded-xl">
-                                    <div>
-                                        <span class="font-bold text-white">${assigned2.name}</span>
-                                        <span class="block text-[10px] text-zinc-500">${assigned2.questionsCount > 0 ? `Aproveitamento: ${assigned2.accuracy.toFixed(0)}%` : 'Sem testes recentes'}</span>
-                                    </div>
-                                    <span class="text-[11px] font-semibold text-blue-400">Revisão</span>
+                            <div class="flex items-center justify-between text-xs bg-zinc-900/60 border border-zinc-800/80 p-2 rounded-xl">
+                                <div>
+                                    <span class="font-bold text-white">2. Estudo Normal: ${normal2.name}</span>
+                                    <span class="block text-[10px] text-zinc-500">Foco em teoria e novos tópicos</span>
                                 </div>
-                            ` : ''}
+                            </div>
+                            <div class="flex items-center justify-between text-xs bg-amber-950/30 border border-amber-900/40 p-2 rounded-xl">
+                                <div>
+                                    <span class="font-bold text-amber-400">3. Revisão (30 min): ${reviewSub.name}</span>
+                                    <span class="block text-[10px] text-zinc-400">${reviewSub.questionsCount > 0 ? `Aproveitamento atual: ${reviewSub.accuracy.toFixed(0)}%` : 'Revisão geral de fixação'}</span>
+                                </div>
+                                <span class="text-[10px] font-bold text-amber-500 bg-amber-950/60 px-2 py-1 rounded-lg border border-amber-800/50">30 min</span>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -936,7 +941,7 @@
             saveUserData();
             fecharModalPlano();
             renderSmartPlan();
-            alert("Plano inteligente atualizado com base no seu aproveitamento!");
+            alert("Plano inteligente atualizado com sucesso!");
         }
 
         function fecharSemana() {
