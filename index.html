@@ -179,7 +179,25 @@
                 <div id="scheduleContainer" class="space-y-4 mb-20"></div>
             </section>
 
-            <!-- ABA 2: HISTÓRICO SEMANA A SEMANA -->
+            <!-- ABA 2: PLANO INTELIGENTE DA PRÓXIMA SEMANA -->
+            <section id="tab-plano" class="space-y-4 tab-content hidden">
+                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-base font-bold text-white flex items-center space-x-2">
+                            <i data-lucide="sparkles" class="w-5 h-5 text-blue-500"></i>
+                            <span>Plano da Próxima Semana (Baseado no Aproveitamento)</span>
+                        </h2>
+                        <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                            <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+                            <span>Configurar Metas</span>
+                        </button>
+                    </div>
+                    <p class="text-xs text-zinc-400">Este plano distribui as horas diárias entre as matérias ativas, dando prioridade automática de revisão àquelas que apresentaram menor índice de aproveitamento na semana atual.</p>
+                    <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
+                </div>
+            </section>
+
+            <!-- ABA 3: HISTÓRICO SEMANA A SEMANA -->
             <section id="tab-historico" class="space-y-4 tab-content hidden">
                 <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4">
                     <div class="flex items-center justify-between">
@@ -196,7 +214,7 @@
                 </div>
             </section>
 
-            <!-- ABA 3: CADERNO DE ERROS -->
+            <!-- ABA 4: CADERNO DE ERROS -->
             <section id="tab-erros" class="space-y-4 tab-content hidden">
                 <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-3">
                     <h2 class="text-base font-bold text-white flex items-center space-x-2">
@@ -207,7 +225,7 @@
                 </div>
             </section>
 
-            <!-- ABA 4: CRONÔMETRO -->
+            <!-- ABA 5: CRONÔMETRO -->
             <section id="tab-timer" class="space-y-6 tab-content hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- POMODORO -->
@@ -289,6 +307,10 @@
                     <i data-lucide="calendar" class="w-5 h-5"></i>
                     <span class="text-[10px]">Cronograma</span>
                 </button>
+                <button type="button" onclick="switchTab('plano')" id="nav-plano" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    <span class="text-[10px]">Plano</span>
+                </button>
                 <button type="button" onclick="switchTab('historico')" id="nav-historico" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
                     <i data-lucide="history" class="w-5 h-5"></i>
                     <span class="text-[10px]">Histórico</span>
@@ -328,7 +350,7 @@
                 <i data-lucide="sparkles" class="w-5 h-5"></i>
                 <span>Gerar Plano e Selecionar Matérias</span>
             </h3>
-            <p class="text-xs text-zinc-400">Desmarque as matérias que deseja excluir temporariamente da geração de estudo desta semana.</p>
+            <p class="text-xs text-zinc-400">Desmarque as matérias que deseja excluir temporariamente da geração de estudo desta semana e ajuste suas horas livres diárias.</p>
 
             <div id="planSubjectsList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
                 <!-- Preenchido dinamicamente -->
@@ -438,6 +460,7 @@
         let subjects = [];
         let historicoSemanal = [];
         let cadernoErros = [];
+        let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let pomoInterval = null;
         let pomoSeconds = 25 * 60;
         let pomoIsRunning = false;
@@ -524,11 +547,14 @@
                 activeNav.classList.remove('text-zinc-500');
                 activeNav.classList.add('text-blue-500', 'font-bold');
             }
+            if (tabId === 'plano') {
+                renderSmartPlan();
+            }
         }
 
         function saveUserData() {
             if (!currentUser) return;
-            const data = { subjects, historicoSemanal, cadernoErros };
+            const data = { subjects, historicoSemanal, cadernoErros, weeklyHoursConfig };
             firebase.firestore().collection('schedules').doc(currentUser.uid).set(data)
                 .catch(err => console.error("Erro ao salvar dados:", err));
         }
@@ -542,6 +568,7 @@
                         subjects = data.subjects || [];
                         historicoSemanal = data.historicoSemanal || [];
                         cadernoErros = data.cadernoErros || [];
+                        if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
                     } else {
                         subjects = [];
                     }
@@ -554,6 +581,7 @@
             renderSchedule();
             updateSelects();
             updateStats();
+            renderSmartPlan();
             lucide.createIcons();
         }
 
@@ -673,6 +701,89 @@
             lucide.createIcons();
         }
 
+        function renderSmartPlan() {
+            const container = document.getElementById('smartPlanContainer');
+            if (!container) return;
+
+            const activeSubjects = subjects.filter(sub => sub.includeInPlan !== false);
+            if (activeSubjects.length === 0) {
+                container.innerHTML = '<p class="text-xs text-zinc-500 text-center py-6">Nenhuma matéria incluída no plano. Clique em "Configurar Metas" para selecionar.</p>';
+                return;
+            }
+
+            // Cálculo de prioridade baseado no aproveitamento (Qtd acertos / Qtd questões)
+            // Matérias sem questões ou com aproveitamento baixo recebem maior prioridade de revisão.
+            const scoredSubjects = activeSubjects.map(sub => {
+                const totalQ = sub.questionsCount || 0;
+                const correctQ = sub.correctCount || 0;
+                const accuracy = totalQ > 0 ? (correctQ / totalQ) * 100 : 100; // 100% se não testado ainda
+                const weight = sub.weight || 1;
+                
+                // Fórmula de prioridade: quanto menor o aproveitamento e maior o peso, maior a prioridade
+                let priorityScore = weight * (101 - accuracy);
+                return { ...sub, accuracy, priorityScore };
+            });
+
+            scoredSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
+
+            const days = [
+                { name: 'Segunda-feira', hours: weeklyHoursConfig.seg },
+                { name: 'Terça-feira', hours: weeklyHoursConfig.ter },
+                { name: 'Quarta-feira', hours: weeklyHoursConfig.qua },
+                { name: 'Quinta-feira', hours: weeklyHoursConfig.qui },
+                { name: 'Sexta-feira', hours: weeklyHoursConfig.sex },
+                { name: 'Sábado', hours: weeklyHoursConfig.sab },
+                { name: 'Domingo', hours: weeklyHoursConfig.dom }
+            ];
+
+            let subIndexPtr = 0;
+            container.innerHTML = days.map(day => {
+                if (day.hours <= 0) {
+                    return `
+                        <div class="bg-black border border-zinc-800 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
+                            <span class="text-xs font-bold text-zinc-400">${day.name}</span>
+                            <span class="text-[11px] text-zinc-500">Descanso / 0h</span>
+                        </div>
+                    `;
+                }
+
+                // Aloca 1 ou 2 matérias prioritárias para o dia
+                const assigned1 = scoredSubjects[subIndexPtr % scoredSubjects.length];
+                subIndexPtr++;
+                const assigned2 = day.hours >= 3 ? scoredSubjects[subIndexPtr % scoredSubjects.length] : null;
+                if (day.hours >= 3) subIndexPtr++;
+
+                const accText1 = assigned1.questionsCount > 0 ? `Aproveitamento atual: ${assigned1.accuracy.toFixed(0)}%` : 'Sem testes recentes';
+
+                return `
+                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
+                            <span class="text-xs font-bold text-zinc-300">${day.hours}h livres</span>
+                        </div>
+                        <div class="space-y-1.5 pt-1">
+                            <div class="flex items-center justify-between text-xs bg-zinc-900/60 border border-zinc-800/80 p-2 rounded-xl">
+                                <div>
+                                    <span class="font-bold text-white">${assigned1.name}</span>
+                                    <span class="block text-[10px] text-zinc-500">${accText1}</span>
+                                </div>
+                                <span class="text-[11px] font-semibold text-blue-400">${assigned1.accuracy < 80 && assigned1.questionsCount > 0 ? 'Foco de Revisão' : 'Estudo Normal'}</span>
+                            </div>
+                            ${assigned2 ? `
+                                <div class="flex items-center justify-between text-xs bg-zinc-900/60 border border-zinc-800/80 p-2 rounded-xl">
+                                    <div>
+                                        <span class="font-bold text-white">${assigned2.name}</span>
+                                        <span class="block text-[10px] text-zinc-500">${assigned2.questionsCount > 0 ? `Aproveitamento: ${assigned2.accuracy.toFixed(0)}%` : 'Sem testes recentes'}</span>
+                                    </div>
+                                    <span class="text-[11px] font-semibold text-blue-400">Revisão</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         function handleTopicCheck(sIndex, tIndex) {
             const topic = subjects[sIndex].topics[tIndex];
             if (topic.done) {
@@ -771,6 +882,14 @@
                     </label>
                 `).join('');
             }
+            document.getElementById('day_seg').value = weeklyHoursConfig.seg;
+            document.getElementById('day_ter').value = weeklyHoursConfig.ter;
+            document.getElementById('day_qua').value = weeklyHoursConfig.qua;
+            document.getElementById('day_qui').value = weeklyHoursConfig.qui;
+            document.getElementById('day_sex').value = weeklyHoursConfig.sex;
+            document.getElementById('day_sab').value = weeklyHoursConfig.sab;
+            document.getElementById('day_dom').value = weeklyHoursConfig.dom;
+
             document.getElementById('planModal').classList.remove('hidden'); 
         }
         function fecharModalPlano() { document.getElementById('planModal').classList.add('hidden'); }
@@ -805,9 +924,19 @@
                     subjects[idx].includeInPlan = cb.checked;
                 }
             });
+
+            weeklyHoursConfig.seg = parseInt(document.getElementById('day_seg').value) || 0;
+            weeklyHoursConfig.ter = parseInt(document.getElementById('day_ter').value) || 0;
+            weeklyHoursConfig.qua = parseInt(document.getElementById('day_qua').value) || 0;
+            weeklyHoursConfig.qui = parseInt(document.getElementById('day_qui').value) || 0;
+            weeklyHoursConfig.sex = parseInt(document.getElementById('day_sex').value) || 0;
+            weeklyHoursConfig.sab = parseInt(document.getElementById('day_sab').value) || 0;
+            weeklyHoursConfig.dom = parseInt(document.getElementById('day_dom').value) || 0;
+
             saveUserData();
             fecharModalPlano();
-            alert("Metas e inclusão de matérias no plano atualizadas com sucesso!");
+            renderSmartPlan();
+            alert("Plano inteligente atualizado com base no seu aproveitamento!");
         }
 
         function fecharSemana() {
