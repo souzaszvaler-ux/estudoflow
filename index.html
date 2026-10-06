@@ -619,12 +619,19 @@
                 subjects[idx].weight = weight;
                 subjects[idx].topics = newTopics;
             } else {
-                subjects.push({ name, weight, topics: newTopics, hoursStudied: 0, questionsCount: 0, correctCount: 0, includeInPlan: true });
+                subjects.push({ name, weight, topics: newTopics, hoursStudied: 0, questionsCount: 0, correctCount: 0, includeInPlan: true, minimized: false });
             }
 
             saveUserData();
             renderApp();
             closeSubjectModal();
+        }
+
+        function toggleMinimize(sIndex) {
+            if (subjects[sIndex]) {
+                subjects[sIndex].minimized = !subjects[sIndex].minimized;
+                renderSchedule();
+            }
         }
 
         function renderSchedule() {
@@ -635,17 +642,24 @@
                 return;
             }
 
-            container.innerHTML = subjects.map((sub, sIndex) => `
+            container.innerHTML = subjects.map((sub, sIndex) => {
+                const isMin = sub.minimized || false;
+                return `
                 <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3">
                     <div class="flex items-center justify-between">
-                        <h3 class="font-bold text-sm text-white">${sub.name} <span class="text-[10px] text-zinc-500 font-normal">(Peso ${sub.weight || 1})</span></h3>
+                        <div class="flex items-center space-x-2">
+                            <button type="button" onclick="toggleMinimize(${sIndex})" class="text-zinc-400 hover:text-white transition" title="${isMin ? 'Maximizar Tópicos' : 'Minimizar Tópicos'}">
+                                <i data-lucide="${isMin ? 'chevron-right' : 'chevron-down'}" class="w-4 h-4"></i>
+                            </button>
+                            <h3 class="font-bold text-sm text-white">${sub.name} <span class="text-[10px] text-zinc-500 font-normal">(Peso ${sub.weight || 1})</span></h3>
+                        </div>
                         <div class="flex items-center space-x-2 text-xs text-zinc-400">
                             <span>${sub.hoursStudied || 0}h estudadas</span>
                             <button type="button" onclick="openSubjectModal(${sIndex})" class="text-blue-400 hover:text-blue-300" title="Editar Matéria"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
                             <button type="button" onclick="deleteSubject(${sIndex})" class="text-red-400 hover:text-red-300" title="Excluir Matéria"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
                         </div>
                     </div>
-                    <div class="space-y-1.5 pl-2 border-l border-zinc-800">
+                    <div class="space-y-1.5 pl-2 border-l border-zinc-800 ${isMin ? 'hidden' : ''}">
                         ${sub.topics && sub.topics.length > 0 ? sub.topics.map((top, tIndex) => `
                             <label class="flex items-center space-x-2 text-xs text-zinc-300 cursor-pointer">
                                 <input type="checkbox" ${top.done ? 'checked' : ''} onclick="event.preventDefault(); handleTopicCheck(${sIndex},${tIndex})" class="rounded bg-black border-zinc-700 text-blue-600 focus:ring-0">
@@ -654,19 +668,18 @@
                         `).join('') : '<p class="text-[11px] text-zinc-600">Nenhum tópico cadastrado.</p>'}
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
             lucide.createIcons();
         }
 
         function handleTopicCheck(sIndex, tIndex) {
             const topic = subjects[sIndex].topics[tIndex];
             if (topic.done) {
-                // Se já estava feito, permite desmarcar diretamente
                 topic.done = false;
                 saveUserData();
                 renderApp();
             } else {
-                // Se vai marcar como concluído, exige validação de 80% de aproveitamento
                 document.getElementById('pendingSubjectIndex').value = sIndex;
                 document.getElementById('pendingTopicIndex').value = tIndex;
                 document.getElementById('inputTotalQ').value = 10;
@@ -696,11 +709,8 @@
                 return;
             }
 
-            // Atualiza estatísticas globais de questões
             subjects[sIndex].questionsCount = (subjects[sIndex].questionsCount || 0) + total;
             subjects[sIndex].correctCount = (subjects[sIndex].correctCount || 0) + correct;
-
-            // Marca o tópico como concluído
             subjects[sIndex].topics[tIndex].done = true;
             
             saveUserData();
@@ -775,7 +785,7 @@
                 const linhaLimpa = linha.trim();
                 if (!linhaLimpa) return;
                 if (linhaLimpa === linhaLimpa.toUpperCase() && !linhaLimpa.startsWith('.')) {
-                    materiaAtual = { name: linhaLimpa, weight: 1, topics: [], hoursStudied: 0, questionsCount: 0, correctCount: 0, includeInPlan: true };
+                    materiaAtual = { name: linhaLimpa, weight: 1, topics: [], hoursStudied: 0, questionsCount: 0, correctCount: 0, includeInPlan: true, minimized: false };
                     subjects.push(materiaAtual);
                 } else if (materiaAtual) {
                     materiaAtual.topics.push({ name: linhaLimpa, done: false });
