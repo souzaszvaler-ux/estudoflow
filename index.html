@@ -36,7 +36,7 @@
                     <i data-lucide="shield" class="w-8 h-8"></i>
                 </div>
                 <h1 class="text-2xl font-black text-white">EstudoFlow <span class="text-blue-500">PRO</span></h1>
-                <p class="text-xs text-zinc-400" id="authSubtitle">Aceda para sincronizar em todos os dispositivos</p>
+                <p class="text-xs text-zinc-400" id="authSubtitle">Acesse para sincronizar em todos os dispositivos</p>
             </div>
 
             <!-- Botão de Login com Google -->
@@ -62,7 +62,7 @@
                     <input type="email" id="authEmail" required placeholder="seu@email.com" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs text-zinc-400 mb-1">Palavra-passe</label>
+                    <label class="block text-xs text-zinc-400 mb-1">Senha</label>
                     <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
 
@@ -73,7 +73,7 @@
 
             <div class="text-center pt-1">
                 <button onclick="toggleAuthMode()" id="btnToggleAuth" class="text-xs text-zinc-400 hover:text-white transition">
-                    Não tem conta? <span class="text-blue-400 font-bold">Registe-se</span>
+                    Não tem conta? <span class="text-blue-400 font-bold">Cadastre-se</span>
                 </button>
             </div>
         </div>
@@ -181,14 +181,14 @@
     </div>
 
     <script>
-       const firebaseConfig = {
-    apiKey: "AIzaSyBCM2cfdMsNCLUltoly066qglhZnMRI86I",
-    authDomain: "estudoflow-fef07.firebaseapp.com",
-    projectId: "estudoflow-fef07",
-    storageBucket: "estudoflow-fef07.firebasestorage.app",
-    messagingSenderId: "74901576739",
-    appId: "1:74901576739:web:41fb812867e19d7154e596"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyBCM2cfdMsNCLUltoly066qglhZnMRI86I",
+            authDomain: "estudoflow-fef07.firebaseapp.com",
+            projectId: "estudoflow-fef07",
+            storageBucket: "estudoflow-fef07.firebasestorage.app",
+            messagingSenderId: "74901576739",
+            appId: "1:74901576739:web:41fb812867e19d7154e596"
+        };
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -223,9 +223,9 @@
 
         function toggleAuthMode() {
             isSignUpMode = !isSignUpMode;
-            document.getElementById('authSubtitle').innerText = isSignUpMode ? "Crie a sua conta gratuita" : "Aceda para sincronizar em todos os dispositivos";
+            document.getElementById('authSubtitle').innerText = isSignUpMode ? "Crie a sua conta gratuita" : "Acesse para sincronizar em todos os dispositivos";
             document.getElementById('btnAuthSubmit').innerText = isSignUpMode ? "Cadastrar" : "Entrar";
-            document.getElementById('btnToggleAuth').innerHTML = isSignUpMode ? 'Já tem conta? <span class="text-blue-400 font-bold">Faça Login</span>' : 'Não tem conta? <span class="text-blue-400 font-bold">Registe-se</span>';
+            document.getElementById('btnToggleAuth').innerHTML = isSignUpMode ? 'Já tem conta? <span class="text-blue-400 font-bold">Faça Login</span>' : 'Não tem conta? <span class="text-blue-400 font-bold">Cadastre-se</span>';
         }
 
         async function handleAuth(e) {
