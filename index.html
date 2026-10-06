@@ -39,7 +39,6 @@
                 <p class="text-xs text-zinc-400" id="authSubtitle">Acesse para sincronizar em todos os dispositivos</p>
             </div>
 
-            <!-- Botão de Login com Google -->
             <button onclick="loginWithGoogle()" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-semibold py-3 px-4 rounded-xl text-sm border border-zinc-700 flex items-center justify-center space-x-2 transition shadow-md">
                 <svg class="w-4 h-4" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -108,11 +107,10 @@
             </div>
         </header>
 
-        <!-- Main Content -->
-        <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 pb-36 overflow-y-auto hide-scrollbar">
+        <!-- Main Content com pb-48 para garantir folga generosa no fim da página -->
+        <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 pb-48 overflow-y-auto hide-scrollbar">
             <!-- ABA 1: CRONOGRAMA DE ESTUDOS -->
             <section id="tab-cronograma" class="space-y-5 tab-content">
-                <!-- Dashboard Superior -->
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-1 shadow-md">
                         <div class="flex items-center justify-between text-zinc-400">
@@ -133,7 +131,6 @@
                     </div>
                 </div>
 
-                <!-- Barra de Progresso Geral -->
                 <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-2 shadow-md">
                     <div class="flex justify-between items-center text-xs">
                         <span class="font-bold text-zinc-300">Progresso Geral do Edital</span>
@@ -145,7 +142,6 @@
                     <p id="statWeeklyTopics" class="text-[10px] text-zinc-500 pt-0.5">0 / 0 tópicos concluídos nesta semana</p>
                 </div>
 
-                <!-- Ações e Título -->
                 <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
                     <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1.5">
                         <i data-lucide="list-checks" class="w-4 h-4 text-blue-500"></i>
@@ -167,7 +163,7 @@
                     </div>
                 </div>
 
-                <div id="scheduleContainer" class="space-y-4 mb-10"></div>
+                <div id="scheduleContainer" class="space-y-4 mb-20"></div>
             </section>
 
             <!-- ABA 2: HISTÓRICO SEMANA A SEMANA -->
@@ -192,47 +188,85 @@
                 </div>
             </section>
 
-            <!-- ABA 4: TIMER & POMODORO -->
+            <!-- ABA 4: DOIS AMBIENTES DE CRONÔMETRO -->
             <section id="tab-timer" class="space-y-6 tab-content hidden">
-                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 text-center max-w-md mx-auto space-y-5 shadow-2xl">
-                    <div class="flex justify-center space-x-2 bg-black p-1.5 rounded-2xl border border-zinc-800">
-                        <button id="modePomodoroBtn" onclick="setTimerMode('pomodoro')" class="flex-1 py-1.5 text-xs font-bold rounded-xl bg-blue-600 text-white transition">Pomodoro</button>
-                        <button id="modeLivreBtn" onclick="setTimerMode('livre')" class="flex-1 py-1.5 text-xs font-bold rounded-xl text-zinc-400 hover:text-white transition">Cronômetro Livre</button>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- POMODORO -->
+                    <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 text-center space-y-4 shadow-2xl flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-center space-x-2 mb-3">
+                                <i data-lucide="timer" class="w-5 h-5 text-blue-500"></i>
+                                <h3 class="text-base font-bold text-white">Ciclo Pomodoro</h3>
+                            </div>
 
-                    <div>
-                        <label class="block text-xs text-zinc-400 mb-2">Matéria Atual:</label>
-                        <select id="timerSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
-                            <option value="">-- Escolha uma matéria --</option>
-                        </select>
-                    </div>
+                            <div class="space-y-2 text-left">
+                                <label class="block text-[11px] text-zinc-400">Matéria para o Pomodoro:</label>
+                                <select id="pomoSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                                    <option value="">-- Selecione a matéria --</option>
+                                </select>
+                            </div>
 
-                    <!-- Ajustes do Pomodoro -->
-                    <div id="pomodoroConfig" class="grid grid-cols-2 gap-3 text-xs">
-                        <div class="bg-black p-3 border border-zinc-800 rounded-xl">
-                            <label class="block text-zinc-400 mb-1">Tempo Foco (min)</label>
-                            <input type="number" id="pomoWorkTime" value="25" min="1" max="120" onchange="resetTimer()" class="w-full bg-zinc-900 border border-zinc-700 rounded text-center text-white py-1 font-bold">
+                            <div class="grid grid-cols-2 gap-2 text-xs my-3">
+                                <div class="bg-black p-2 border border-zinc-800 rounded-xl">
+                                    <label class="block text-[10px] text-zinc-400 mb-1">Foco (min)</label>
+                                    <input type="number" id="pomoWorkTime" value="25" min="1" max="120" onchange="resetPomoTimer()" class="w-full bg-zinc-900 border border-zinc-700 rounded text-center text-white py-1 font-bold">
+                                </div>
+                                <div class="bg-black p-2 border border-zinc-800 rounded-xl">
+                                    <label class="block text-[10px] text-zinc-400 mb-1">Pausa (min)</label>
+                                    <input type="number" id="pomoBreakTime" value="5" min="1" max="60" class="w-full bg-zinc-900 border border-zinc-700 rounded text-center text-white py-1 font-bold">
+                                </div>
+                            </div>
+
+                            <div id="pomoStatus" class="text-[11px] font-bold text-blue-400 uppercase tracking-widest">Sessão de Foco</div>
+
+                            <div id="pomoDisplay" class="text-4xl font-black font-mono text-white tracking-wider my-3">
+                                25:00
+                            </div>
                         </div>
-                        <div class="bg-black p-3 border border-zinc-800 rounded-xl">
-                            <label class="block text-zinc-400 mb-1">Pausa (min)</label>
-                            <input type="number" id="pomoBreakTime" value="5" min="1" max="60" class="w-full bg-zinc-900 border border-zinc-700 rounded text-center text-white py-1 font-bold">
+
+                        <div class="flex space-x-2 pt-2">
+                            <button id="btnPomoStart" onclick="togglePomoTimer()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                                Iniciar Pomodoro
+                            </button>
+                            <button onclick="resetPomoTimer()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-zinc-800 px-3 py-2.5 rounded-xl text-xs transition">
+                                Zerar
+                            </button>
                         </div>
                     </div>
 
-                    <div id="pomodoroStatus" class="text-xs font-bold text-blue-400 uppercase tracking-widest">Sessão de Foco</div>
+                    <!-- CRONÔMETRO LIVRE -->
+                    <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 text-center space-y-4 shadow-2xl flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-center space-x-2 mb-3">
+                                <i data-lucide="play-circle" class="w-5 h-5 text-emerald-500"></i>
+                                <h3 class="text-base font-bold text-white">Cronômetro Livre</h3>
+                            </div>
 
-                    <div id="timerDisplay" class="text-5xl font-black font-mono text-white tracking-wider my-2">
-                        25:00
+                            <div class="space-y-2 text-left">
+                                <label class="block text-[11px] text-zinc-400">Matéria para o Cronômetro Livre:</label>
+                                <select id="freeSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                                    <option value="">-- Selecione a matéria --</option>
+                                </select>
+                            </div>
+
+                            <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-widest my-3">Contagem Progressiva</div>
+
+                            <div id="freeDisplay" class="text-4xl font-black font-mono text-white tracking-wider my-3">
+                                00:00:00
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-2 pt-2">
+                            <button id="btnFreeStart" onclick="toggleFreeTimer()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                                Iniciar Livre
+                            </button>
+                            <button onclick="resetFreeTimer()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-zinc-800 px-3 py-2.5 rounded-xl text-xs transition">
+                                Zerar
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="flex space-x-3">
-                        <button id="btnStartTimer" onclick="toggleTimer()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition">
-                            Iniciar
-                        </button>
-                        <button onclick="resetTimer()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-zinc-800 px-4 py-3 rounded-xl text-sm transition">
-                            Zerar
-                        </button>
-                    </div>
                 </div>
             </section>
         </main>
@@ -357,11 +391,12 @@
         let isSignUpMode = false;
         let state = { subjects: [], weeklyHours: 0, totalHours: 0, historyWeeks: [] };
         
-        // Variáveis do Timer / Pomodoro
-        let timerMode = 'pomodoro'; // 'pomodoro' ou 'livre'
-        let timerInterval = null;
-        let secondsLeft = 25 * 60;
-        let isBreak = false;
+        let pomoInterval = null;
+        let pomoSecondsLeft = 25 * 60;
+        let isPomoBreak = false;
+
+        let freeInterval = null;
+        let freeSecondsElapsed = 0;
 
         auth.onAuthStateChanged(user => {
             if (user) {
@@ -451,7 +486,6 @@
             if (!topic) return;
             
             topic[field] = Math.max(0, parseInt(val) || 0);
-
             if (topic.acertos > topic.total) topic.acertos = topic.total;
 
             const pct = topic.total >= 10 ? (topic.acertos / topic.total) * 100 : 0;
@@ -476,7 +510,6 @@
             saveData();
         }
 
-        // --- IMPORTAÇÃO DE EDITAL ---
         function abrirModalImportacao() { document.getElementById('importModal').classList.remove('hidden'); }
         function fecharModalImportacao() { document.getElementById('importModal').classList.add('hidden'); document.getElementById('editalText').value = ''; }
 
@@ -509,7 +542,6 @@
             showAlert("Edital importado com sucesso!");
         }
 
-        // --- PLANO DE ESTUDOS ---
         function abrirModalPlano() {
             if (state.subjects.length === 0) return showAlert("Adicione ou importe o edital antes de gerar o plano.");
             document.getElementById('planModal').classList.remove('hidden');
@@ -560,105 +592,104 @@
             }
         }
 
-        // --- TIMER E POMODORO ---
-        function setTimerMode(mode) {
-            timerMode = mode;
-            resetTimer();
-            if (mode === 'pomodoro') {
-                document.getElementById('modePomodoroBtn').className = "flex-1 py-1.5 text-xs font-bold rounded-xl bg-blue-600 text-white transition";
-                document.getElementById('modeLivreBtn').className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-zinc-400 hover:text-white transition";
-                document.getElementById('pomodoroConfig').classList.remove('hidden');
-                document.getElementById('pomodoroStatus').classList.remove('hidden');
+        function togglePomoTimer() {
+            const btn = document.getElementById('btnPomoStart');
+            const selectedSubjectId = document.getElementById('pomoSubjectSelect').value;
+
+            if (pomoInterval) {
+                clearInterval(pomoInterval);
+                pomoInterval = null;
+                btn.innerText = "Iniciar Pomodoro";
+                btn.className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
             } else {
-                document.getElementById('modeLivreBtn').className = "flex-1 py-1.5 text-xs font-bold rounded-xl bg-blue-600 text-white transition";
-                document.getElementById('modePomodoroBtn').className = "flex-1 py-1.5 text-xs font-bold rounded-xl text-zinc-400 hover:text-white transition";
-                document.getElementById('pomodoroConfig').classList.add('hidden');
-                document.getElementById('pomodoroStatus').classList.add('hidden');
-            }
-        }
+                if (!selectedSubjectId) return showAlert("Selecione uma matéria para o Pomodoro.");
 
-        function toggleTimer() {
-            const btn = document.getElementById('btnStartTimer');
-            const selectedSubjectId = document.getElementById('timerSubjectSelect').value;
+                pomoInterval = setInterval(() => {
+                    pomoSecondsLeft--;
+                    if (pomoSecondsLeft <= 0) {
+                        clearInterval(pomoInterval);
+                        pomoInterval = null;
+                        btn.innerText = "Iniciar Pomodoro";
 
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                btn.innerText = "Iniciar";
-                btn.className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition";
-            } else {
-                if (!selectedSubjectId) return showAlert("Selecione uma matéria antes de iniciar o tempo de estudo.");
-                
-                timerInterval = setInterval(() => {
-                    if (timerMode === 'pomodoro') {
-                        secondsLeft--;
-                        if (secondsLeft <= 0) {
-                            clearInterval(timerInterval);
-                            timerInterval = null;
-                            btn.innerText = "Iniciar";
-
-                            if (!isBreak) {
-                                // Concluiu sessão de estudo no Pomodoro
-                                const workMins = parseInt(document.getElementById('pomoWorkTime').value) || 25;
-                                const hoursStudied = workMins / 60;
-                                addHours(selectedSubjectId, hoursStudied);
-
-                                showAlert(`⏰ Parabéns! Sessão Pomodoro concluída. +${workMins} min registrados em seu estudo. Hora da pausa!`);
-                                isBreak = true;
-                                secondsLeft = (parseInt(document.getElementById('pomoBreakTime').value) || 5) * 60;
-                                document.getElementById('pomodoroStatus').innerText = "Pausa Ativa";
-                                document.getElementById('pomodoroStatus').className = "text-xs font-bold text-emerald-400 uppercase tracking-widest";
-                            } else {
-                                showAlert("🔔 Pausa finalizada! Pronto para iniciar o próximo ciclo de estudo?");
-                                isBreak = false;
-                                secondsLeft = (parseInt(document.getElementById('pomoWorkTime').value) || 25) * 60;
-                                document.getElementById('pomodoroStatus').innerText = "Sessão de Foco";
-                                document.getElementById('pomodoroStatus').className = "text-xs font-bold text-blue-400 uppercase tracking-widest";
-                            }
-                        }
-                    } else {
-                        // Modo Livre: soma a cada segundo
-                        secondsLeft++;
-                        if (secondsLeft % 3600 === 0) {
-                            addHours(selectedSubjectId, 1);
+                        if (!isPomoBreak) {
+                            const workMins = parseInt(document.getElementById('pomoWorkTime').value) || 25;
+                            addHours(selectedSubjectId, workMins / 60);
+                            showAlert(`⏰ Pomodoro concluído! +${workMins} min registrados em seu estudo. Hora da pausa!`);
+                            isPomoBreak = true;
+                            pomoSecondsLeft = (parseInt(document.getElementById('pomoBreakTime').value) || 5) * 60;
+                            document.getElementById('pomoStatus').innerText = "Pausa Ativa";
+                            document.getElementById('pomoStatus').className = "text-[11px] font-bold text-emerald-400 uppercase tracking-widest";
+                        } else {
+                            showAlert("🔔 Pausa finalizada! Pronto para a próxima sessão de foco?");
+                            isPomoBreak = false;
+                            pomoSecondsLeft = (parseInt(document.getElementById('pomoWorkTime').value) || 25) * 60;
+                            document.getElementById('pomoStatus').innerText = "Sessão de Foco";
+                            document.getElementById('pomoStatus').className = "text-[11px] font-bold text-blue-400 uppercase tracking-widest";
                         }
                     }
-                    updateTimerDisplay();
+                    updatePomoDisplay();
                 }, 1000);
 
                 btn.innerText = "Pausar";
-                btn.className = "flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-xl text-sm transition";
+                btn.className = "flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
             }
         }
 
-        function resetTimer() {
-            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-            document.getElementById('btnStartTimer').innerText = "Iniciar";
-            
-            if (timerMode === 'pomodoro') {
-                isBreak = false;
-                const workMins = parseInt(document.getElementById('pomoWorkTime').value) || 25;
-                secondsLeft = workMins * 60;
-                document.getElementById('pomodoroStatus').innerText = "Sessão de Foco";
-                document.getElementById('pomodoroStatus').className = "text-xs font-bold text-blue-400 uppercase tracking-widest";
-            } else {
-                secondsLeft = 0;
-            }
-            updateTimerDisplay();
+        function resetPomoTimer() {
+            if (pomoInterval) { clearInterval(pomoInterval); pomoInterval = null; }
+            document.getElementById('btnPomoStart').innerText = "Iniciar Pomodoro";
+            document.getElementById('btnPomoStart').className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
+            isPomoBreak = false;
+            pomoSecondsLeft = (parseInt(document.getElementById('pomoWorkTime').value) || 25) * 60;
+            document.getElementById('pomoStatus').innerText = "Sessão de Foco";
+            document.getElementById('pomoStatus').className = "text-[11px] font-bold text-blue-400 uppercase tracking-widest";
+            updatePomoDisplay();
         }
 
-        function updateTimerDisplay() {
-            const hrs = Math.floor(secondsLeft / 3600);
-            const mins = Math.floor((secondsLeft % 3600) / 60);
-            const secs = secondsLeft % 60;
+        function updatePomoDisplay() {
+            const mins = Math.floor((pomoSecondsLeft % 3600) / 60);
+            const secs = pomoSecondsLeft % 60;
+            document.getElementById('pomoDisplay').innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
 
-            if (timerMode === 'pomodoro') {
-                document.getElementById('timerDisplay').innerText = 
-                    `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        function toggleFreeTimer() {
+            const btn = document.getElementById('btnFreeStart');
+            const selectedSubjectId = document.getElementById('freeSubjectSelect').value;
+
+            if (freeInterval) {
+                clearInterval(freeInterval);
+                freeInterval = null;
+                btn.innerText = "Iniciar Livre";
+                btn.className = "flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
             } else {
-                document.getElementById('timerDisplay').innerText = 
-                    `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                if (!selectedSubjectId) return showAlert("Selecione uma matéria para o Cronômetro Livre.");
+
+                freeInterval = setInterval(() => {
+                    freeSecondsElapsed++;
+                    if (freeSecondsElapsed % 3600 === 0) {
+                        addHours(selectedSubjectId, 1);
+                    }
+                    updateFreeDisplay();
+                }, 1000);
+
+                btn.innerText = "Pausar";
+                btn.className = "flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
             }
+        }
+
+        function resetFreeTimer() {
+            if (freeInterval) { clearInterval(freeInterval); freeInterval = null; }
+            document.getElementById('btnFreeStart').innerText = "Iniciar Livre";
+            document.getElementById('btnFreeStart').className = "flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
+            freeSecondsElapsed = 0;
+            updateFreeDisplay();
+        }
+
+        function updateFreeDisplay() {
+            const hrs = Math.floor(freeSecondsElapsed / 3600);
+            const mins = Math.floor((freeSecondsElapsed % 3600) / 60);
+            const secs = freeSecondsElapsed % 60;
+            document.getElementById('freeDisplay').innerText = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
 
         function openSubjectModal(subjectId = null) {
@@ -721,7 +752,7 @@
         function render() {
             renderSchedule();
             renderHistoryWeeks();
-            renderTimerSelect();
+            renderTimerSelects();
             renderCadernoErros();
             lucide.createIcons();
         }
@@ -907,15 +938,30 @@
             if (count === 0) container.innerHTML = '<p class="text-zinc-500 italic">Nenhum erro registrado nos tópicos.</p>';
         }
 
-        function renderTimerSelect() {
-            const select = document.getElementById('timerSubjectSelect');
-            select.innerHTML = '<option value="">-- Escolha uma matéria --</option>';
+        function renderTimerSelects() {
+            const pomoSelect = document.getElementById('pomoSubjectSelect');
+            const freeSelect = document.getElementById('freeSubjectSelect');
+
+            const valPomo = pomoSelect.value;
+            const valFree = freeSelect.value;
+
+            pomoSelect.innerHTML = '<option value="">-- Selecione a matéria --</option>';
+            freeSelect.innerHTML = '<option value="">-- Selecione a matéria --</option>';
+
             state.subjects.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s.id;
-                opt.innerText = s.name;
-                select.appendChild(opt);
+                const opt1 = document.createElement('option');
+                opt1.value = s.id;
+                opt1.innerText = s.name;
+                pomoSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = s.id;
+                opt2.innerText = s.name;
+                freeSelect.appendChild(opt2);
             });
+
+            pomoSelect.value = valPomo;
+            freeSelect.value = valFree;
         }
 
         function showAlert(msg) {
