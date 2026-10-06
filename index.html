@@ -120,7 +120,7 @@
             </div>
         </header>
 
-        <!-- Main Content (espaçamento inferior ajustado para pb-64) -->
+        <!-- Main Content -->
         <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 pb-64 overflow-y-auto hide-scrollbar">
             <!-- ABA 1: CRONOGRAMA DE ESTUDOS -->
             <section id="tab-cronograma" class="space-y-5 tab-content">
@@ -232,7 +232,25 @@
                 </div>
             </section>
 
-            <!-- ABA 5: CRONÔMETRO -->
+            <!-- ABA 5: NOTAS (NOVO) -->
+            <section id="tab-notas" class="space-y-4 tab-content hidden">
+                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-base font-bold text-white flex items-center space-x-2">
+                            <i data-lucide="file-text" class="w-5 h-5 text-blue-500"></i>
+                            <span>Blocos de Notas</span>
+                        </h2>
+                        <button type="button" onclick="openNoteModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            <span>Nova Nota</span>
+                        </button>
+                    </div>
+                    <p class="text-xs text-zinc-400">Crie blocos de notas personalizados para resumos e anotações rápidas.</p>
+                    <div id="notasContainer" class="space-y-3"></div>
+                </div>
+            </section>
+
+            <!-- ABA 6: CRONÔMETRO -->
             <section id="tab-timer" class="space-y-6 tab-content hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- POMODORO -->
@@ -308,27 +326,31 @@
         </main>
 
         <!-- Navegação Inferior -->
-        <nav class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur border-t border-zinc-800 z-40 px-4 py-2">
+        <nav class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur border-t border-zinc-800 z-40 px-2 py-2">
             <div class="max-w-md mx-auto flex justify-around items-center">
                 <button type="button" onclick="switchTab('cronograma')" id="nav-cronograma" class="flex flex-col items-center space-y-1 text-blue-500 font-bold transition">
                     <i data-lucide="calendar" class="w-5 h-5"></i>
-                    <span class="text-[10px]">Cronograma</span>
+                    <span class="text-[9px]">Cronograma</span>
                 </button>
                 <button type="button" onclick="switchTab('plano')" id="nav-plano" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
                     <i data-lucide="sparkles" class="w-5 h-5"></i>
-                    <span class="text-[10px]">Plano</span>
+                    <span class="text-[9px]">Plano</span>
                 </button>
                 <button type="button" onclick="switchTab('historico')" id="nav-historico" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
                     <i data-lucide="history" class="w-5 h-5"></i>
-                    <span class="text-[10px]">Evolução</span>
+                    <span class="text-[9px]">Evolução</span>
                 </button>
                 <button type="button" onclick="switchTab('erros')" id="nav-erros" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
                     <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-                    <span class="text-[10px]">Erros</span>
+                    <span class="text-[9px]">Erros</span>
+                </button>
+                <button type="button" onclick="switchTab('notas')" id="nav-notas" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                    <span class="text-[9px]">Notas</span>
                 </button>
                 <button type="button" onclick="switchTab('timer')" id="nav-timer" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
                     <i data-lucide="timer" class="w-5 h-5"></i>
-                    <span class="text-[10px]">Timer</span>
+                    <span class="text-[9px]">Timer</span>
                 </button>
             </div>
         </nav>
@@ -364,39 +386,16 @@
                 <input type="number" id="dailySubjectsCount" value="2" min="1" max="6" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1.5 font-bold text-sm">
             </div>
 
-            <div id="planSubjectsList" class="space-y-2 max-h-40 overflow-y-auto pr-1">
-                <!-- Preenchido dinamicamente -->
-            </div>
+            <div id="planSubjectsList" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
 
             <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-zinc-800">
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between">
-                    <span class="text-zinc-300 font-bold">Segunda</span>
-                    <input type="number" id="day_seg" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
-                </div>
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between">
-                    <span class="text-zinc-300 font-bold">Terça</span>
-                    <input type="number" id="day_ter" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
-                </div>
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between">
-                    <span class="text-zinc-300 font-bold">Quarta</span>
-                    <input type="number" id="day_qua" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
-                </div>
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between">
-                    <span class="text-zinc-300 font-bold">Quinta</span>
-                    <input type="number" id="day_qui" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
-                </div>
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between">
-                    <span class="text-zinc-300 font-bold">Sexta</span>
-                    <input type="number" id="day_sex" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
-                </div>
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between">
-                    <span class="text-zinc-300 font-bold">Sábado</span>
-                    <input type="number" id="day_sab" value="4" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
-                </div>
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between col-span-2">
-                    <span class="text-zinc-300 font-bold">Domingo</span>
-                    <input type="number" id="day_dom" value="2" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
-                </div>
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Segunda</span><input type="number" id="day_seg" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Terça</span><input type="number" id="day_ter" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Quarta</span><input type="number" id="day_qua" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Quinta</span><input type="number" id="day_qui" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Sexta</span><input type="number" id="day_sex" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Sábado</span><input type="number" id="day_sab" value="4" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between col-span-2"><span class="text-zinc-300 font-bold">Domingo</span><input type="number" id="day_dom" value="2" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
             </div>
 
             <div class="flex space-x-2 pt-2">
@@ -464,12 +463,38 @@
 
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Descrição / Motivo do Erro</label>
-                <textarea id="errorDescription" rows="3" placeholder="Ex: Confundi o prazo do recurso com o mandado de segurança." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none resize-none"></textarea>
+                <textarea id="errorDescription" rows="3" placeholder="Ex: Confundi o prazo..." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none resize-none"></textarea>
             </div>
 
             <div class="flex space-x-2 pt-2">
                 <button type="button" onclick="closeErrorModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
                 <button type="button" onclick="saveErrorRecord()" class="flex-1 bg-amber-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Erro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL BLOCO DE NOTAS -->
+    <div id="noteModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+            <h3 id="noteModalTitle" class="text-base font-bold text-blue-500 flex items-center space-x-2">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                <span>Novo Bloco de Notas</span>
+            </h3>
+            <input type="hidden" id="editingNoteId" value="">
+
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Nome do Bloco de Notas</label>
+                <input type="text" id="modalNoteTitle" placeholder="Ex: Resumo de Constitucional" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Conteúdo</label>
+                <textarea id="modalNoteContent" rows="6" placeholder="Escreva suas anotações aqui..." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none resize-none font-mono"></textarea>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="closeNoteModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="saveNote()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Nota</button>
             </div>
         </div>
     </div>
@@ -513,15 +538,21 @@
         let historicoDiario = [];
         let historicoSemanal = [];
         let cadernoErros = [];
+        let userNotes = [];
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let dailySubjectsCount = 2;
         let planoGerado = false;
+        
         let pomoInterval = null;
         let pomoSeconds = 25 * 60;
         let pomoIsRunning = false;
+        
         let freeInterval = null;
         let freeSeconds = 0;
         let freeIsRunning = false;
+        
+        let freeStartTime = null; // Para computar o tempo exato decorrido
+
         let isSignUpMode = false;
 
         firebase.auth().onAuthStateChanged((user) => {
@@ -602,20 +633,15 @@
                 activeNav.classList.remove('text-zinc-500');
                 activeNav.classList.add('text-blue-500', 'font-bold');
             }
-            if (tabId === 'plano') {
-                renderSmartPlan();
-            }
-            if (tabId === 'historico') {
-                renderHistorico();
-            }
-            if (tabId === 'erros') {
-                renderCadernoErros();
-            }
+            if (tabId === 'plano') renderSmartPlan();
+            if (tabId === 'historico') renderHistorico();
+            if (tabId === 'erros') renderCadernoErros();
+            if (tabId === 'notas') renderNotas();
         }
 
         function saveUserData() {
             if (!currentUser) return;
-            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, weeklyHoursConfig, dailySubjectsCount, planoGerado };
+            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, userNotes, weeklyHoursConfig, dailySubjectsCount, planoGerado };
             firebase.firestore().collection('schedules').doc(currentUser.uid).set(data)
                 .catch(err => console.error("Erro ao salvar dados:", err));
         }
@@ -630,6 +656,7 @@
                         historicoDiario = data.historicoDiario || [];
                         historicoSemanal = data.historicoSemanal || [];
                         cadernoErros = data.cadernoErros || [];
+                        userNotes = data.userNotes || [];
                         if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
                         if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
                         if (data.planoGerado !== undefined) planoGerado = data.planoGerado;
@@ -648,6 +675,7 @@
             renderSmartPlan();
             renderHistorico();
             renderCadernoErros();
+            renderNotas();
             lucide.createIcons();
         }
 
@@ -764,7 +792,7 @@
                             <h3 class="font-bold text-sm text-white">${sub.name} <span class="text-[10px] text-zinc-500 font-normal">(Peso ${sub.weight || 1})</span></h3>
                         </div>
                         <div class="flex items-center space-x-2.5 text-xs text-zinc-400">
-                            <span>${sub.hoursStudied || 0}h estudadas</span>
+                            <span>${(sub.hoursStudied || 0).toFixed(1)}h estudadas</span>
                             <button type="button" onclick="zerarQuestoes(${sIndex})" class="text-amber-400 hover:text-amber-300" title="Zerar Questões"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i></button>
                             <button type="button" onclick="openSubjectModal(${sIndex})" class="text-blue-400 hover:text-blue-300" title="Editar Matéria"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
                             <button type="button" onclick="deleteSubject(${sIndex})" class="text-red-400 hover:text-red-300" title="Excluir Matéria"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
@@ -781,6 +809,94 @@
                 </div>
             `;
             }).join('');
+            lucide.createIcons();
+        }
+
+        // BLOCOS DE NOTAS
+        function openNoteModal(nIndex = null) {
+            if (nIndex !== null && userNotes[nIndex]) {
+                const note = userNotes[nIndex];
+                document.getElementById('editingNoteId').value = nIndex;
+                document.getElementById('modalNoteTitle').value = note.title;
+                document.getElementById('modalNoteContent').value = note.content;
+                document.getElementById('noteModalTitle').textContent = 'Editar Bloco de Notas';
+            } else {
+                document.getElementById('editingNoteId').value = '';
+                document.getElementById('modalNoteTitle').value = '';
+                document.getElementById('modalNoteContent').value = '';
+                document.getElementById('noteModalTitle').textContent = 'Novo Bloco de Notas';
+            }
+            document.getElementById('noteModal').classList.remove('hidden');
+        }
+
+        function closeNoteModal() {
+            document.getElementById('noteModal').classList.add('hidden');
+        }
+
+        function saveNote() {
+            const editingId = document.getElementById('editingNoteId').value;
+            const title = document.getElementById('modalNoteTitle').value.trim();
+            const content = document.getElementById('modalNoteContent').value.trim();
+
+            if (!title) {
+                alert("Digite o nome do bloco de notas.");
+                return;
+            }
+
+            if (editingId !== '') {
+                const idx = parseInt(editingId);
+                userNotes[idx].title = title;
+                userNotes[idx].content = content;
+                userNotes[idx].date = new Date().toLocaleDateString('pt-BR');
+            } else {
+                userNotes.unshift({
+                    title,
+                    content,
+                    date: new Date().toLocaleDateString('pt-BR')
+                });
+            }
+
+            saveUserData();
+            renderNotas();
+            closeNoteModal();
+        }
+
+        function deleteNote(nIndex) {
+            if (confirm("Deseja realmente excluir este bloco de notas?")) {
+                userNotes.splice(nIndex, 1);
+                saveUserData();
+                renderNotas();
+            }
+        }
+
+        function renderNotas() {
+            const container = document.getElementById('notasContainer');
+            if (!container) return;
+
+            if (!userNotes || userNotes.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum bloco de notas criado ainda.</p>`;
+                return;
+            }
+
+            container.innerHTML = userNotes.map((note, nIndex) => `
+                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2">
+                    <div class="flex items-center justify-between text-xs border-b border-zinc-900 pb-1.5">
+                        <span class="font-bold text-blue-400">${note.title}</span>
+                        <span class="text-[10px] text-zinc-500">${note.date}</span>
+                    </div>
+                    <p class="text-xs text-zinc-300 bg-zinc-900/50 p-2.5 rounded-xl border border-zinc-800/60 font-mono whitespace-pre-wrap">${note.content || 'Sem conteúdo.'}</p>
+                    <div class="flex justify-end space-x-3 pt-1">
+                        <button type="button" onclick="openNoteModal(${nIndex})" class="text-[11px] text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1">
+                            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                            <span>Editar</span>
+                        </button>
+                        <button type="button" onclick="deleteNote(${nIndex})" class="text-[11px] text-red-400 hover:text-red-300 font-semibold flex items-center space-x-1">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            <span>Excluir</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
             lucide.createIcons();
         }
 
@@ -1140,13 +1256,26 @@
             const percent = totalTopics > 0 ? Math.round((doneTopics / totalTopics) * 100) : 0;
             const accuracy = totalQ > 0 ? Math.round((totalC / totalQ) * 100) : 0;
 
-            document.getElementById('statTotalHours').textContent = totalHours + 'h';
-            document.getElementById('statWeeklyHours').textContent = totalHours + 'h nesta semana';
+            document.getElementById('statTotalHours').textContent = totalHours.toFixed(1) + 'h';
+            document.getElementById('statWeeklyHours').textContent = totalHours.toFixed(1) + 'h nesta semana';
             document.getElementById('statTotalQuestions').textContent = totalQ;
             document.getElementById('statAccuracy').textContent = accuracy + '% acertos no total';
             document.getElementById('globalPercent').textContent = percent + '%';
             document.getElementById('globalProgressBar').style.width = percent + '%';
             document.getElementById('statWeeklyTopics').textContent = `${doneTopics} / ${totalTopics} tópicos concluídos nesta semana`;
+        }
+
+        // COMPUTAR HORAS DE ESTUDO DO TIMER
+        function adicionarHorasEstudo(subjectIndex, minutos) {
+            if (subjectIndex === '' || subjectIndex === null || isNaN(subjectIndex)) return;
+            const sIdx = parseInt(subjectIndex);
+            if (subjects[sIdx]) {
+                const horasAdicionadas = minutos / 60;
+                subjects[sIdx].hoursStudied = (subjects[sIdx].hoursStudied || 0) + horasAdicionadas;
+                saveUserData();
+                updateStats();
+                renderSchedule();
+            }
         }
 
         function abrirModalImportacao() { document.getElementById('importModal').classList.remove('hidden'); }
@@ -1245,8 +1374,11 @@
             }
         }
 
+        // TIMER POMODORO
         function togglePomoTimer() {
             const btn = document.getElementById('btnPomoStart');
+            const subIdx = document.getElementById('pomoSubjectSelect').value;
+
             if (pomoIsRunning) {
                 clearInterval(pomoInterval);
                 pomoIsRunning = false;
@@ -1256,16 +1388,23 @@
                 pomoIsRunning = true;
                 btn.textContent = "Pausar";
                 btn.classList.replace('bg-blue-600', 'bg-amber-600');
+                
+                const workMins = parseInt(document.getElementById('pomoWorkTime').value) || 25;
+
                 pomoInterval = setInterval(() => {
                     if (pomoSeconds > 0) {
                         pomoSeconds--;
                         updatePomoDisplay();
                     } else {
                         clearInterval(pomoInterval);
-                        alert("Ciclo Pomodoro concluído!");
                         pomoIsRunning = false;
                         btn.textContent = "Iniciar Pomodoro";
                         btn.classList.replace('bg-amber-600', 'bg-blue-600');
+                        
+                        // Computar horas automaticamente
+                        adicionarHorasEstudo(subIdx, workMins);
+                        alert(`Ciclo Pomodoro de ${workMins} minutos concluído e computado nas horas da matéria!`);
+                        resetPomoTimer();
                     }
                 }, 1000);
             }
@@ -1286,17 +1425,31 @@
             document.getElementById('pomoDisplay').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
+        // CRONÔMETRO LIVRE
         function toggleFreeTimer() {
             const btn = document.getElementById('btnFreeStart');
+            const subIdx = document.getElementById('freeSubjectSelect').value;
+
             if (freeIsRunning) {
                 clearInterval(freeInterval);
                 freeIsRunning = false;
                 btn.textContent = "Iniciar Livre";
                 btn.classList.replace('bg-amber-600', 'bg-emerald-600');
+
+                // Computar o tempo acumulado ao pausar/parar
+                const minutosEstudados = Math.floor(freeSeconds / 60);
+                if (minutosEstudados > 0) {
+                    adicionarHorasEstudo(subIdx, minutosEstudados);
+                    alert(`Sessão livre encerrada! ${minutosEstudados} minutos computados na matéria.`);
+                }
+                freeSeconds = 0;
+                updateFreeDisplay();
             } else {
                 freeIsRunning = true;
-                btn.textContent = "Pausar";
+                btn.textContent = "Parar e Salvar";
                 btn.classList.replace('bg-emerald-600', 'bg-amber-600');
+                freeSeconds = 0;
+
                 freeInterval = setInterval(() => {
                     freeSeconds++;
                     updateFreeDisplay();
