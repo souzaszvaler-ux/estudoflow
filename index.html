@@ -589,7 +589,7 @@
         let historicoDiario = [];
         let historicoSemanal = [];
         let cadernoErros = [];
-        let userFolders = []; // Estrutura de Pastas e Notas
+        let userFolders = [];
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let dailySubjectsCount = 2;
         let planoGerado = false;
@@ -707,7 +707,6 @@
                         historicoSemanal = data.historicoSemanal || [];
                         cadernoErros = data.cadernoErros || [];
                         userFolders = data.userFolders || [];
-                        // Migração de dados antigos caso existam
                         if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
                             userFolders.push({ id: 'geral', name: 'Geral', notes: data.userNotes });
                         }
@@ -958,11 +957,9 @@
 
             if (editingId !== '') {
                 const [oldFIdx, oldNIdx] = editingId.split('_').map(Number);
-                // Remove a nota antiga
                 userFolders[oldFIdx].notes.splice(oldNIdx, 1);
             }
 
-            // Adiciona na pasta selecionada (atual ou nova)
             userFolders[targetFolderIdx].notes.unshift(newNote);
 
             saveUserData();
@@ -1076,7 +1073,7 @@
             html += `
                 <div class="bg-amber-950/30 border border-amber-900/40 rounded-xl p-3 space-y-1">
                     <div class="font-bold text-amber-400 text-xs">3. Revisão Programada</div>
-                    <div class="text-[11px] text-zinc-300">• 30 min de Revisão espaçada (24h/7d/30d)</div>
+                    <div class="text-[11px] text-zinc-300">• 30 min de Revisão espaçada dos tópicos anteriores</div>
                 </div>
             `;
 
@@ -1098,7 +1095,7 @@
             document.getElementById('notificationModal').classList.add('hidden');
         }
 
-        // PLANO INTELIGENTE
+        // PLANO INTELIGENTE (ATUALIZADO PARA PUXAR OS ASSUNTOS/TÓPICOS ESPECÍFICOS NAS REVISÕES)
         function renderSmartPlan() {
             const container = document.getElementById('smartPlanContainer');
             if (!container) return;
@@ -1148,7 +1145,7 @@
 
             let normPtr = 0;
             let activeDayCounter = 0;
-            let studyHistoryByDay = [];
+            let studyHistoryByDay = []; // Armazena { dayIndex, subjectName, topicName }
 
             container.innerHTML = days.map((day) => {
                 if (day.hours <= 0) {
@@ -1188,7 +1185,8 @@
                         }
                     }
 
-                    studyHistoryByDay.push({ dayIndex: activeDayCounter, subjectName: sub.name });
+                    // Registra o estudo do dia com o assunto exato para puxar nas revisões
+                    studyHistoryByDay.push({ dayIndex: activeDayCounter, subjectName: sub.name, topicName: currentTopicText });
 
                     return `
                         <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl space-y-1">
@@ -1204,48 +1202,59 @@
                     `;
                 }).join('');
 
-                let reviewItem = null;
+                // Lógica de Revisão Multidias com Assuntos Específicos
+                let reviewItems = [];
+                
+                // Verifica revisões de 1 dia atrás (24h)
                 if (activeDayCounter >= 1) {
-                    let candidateFor24h = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 1);
-                    if (candidateFor24h.length > 0) {
-                        reviewItem = { type: "Revisão de 24 horas", name: candidateFor24h[0].subjectName };
-                    }
+                    let candidates24 = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 1);
+                    candidates24.forEach(c => {
+                        reviewItems.push({ type: "Revisão 24h", subjectName: c.subjectName, topicName: c.topicName });
+                    });
                 }
-                if (!reviewItem && activeDayCounter >= 7) {
-                    let candidateFor7d = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 7);
-                    if (candidateFor7d.length > 0) {
-                        reviewItem = { type: "Revisão de 7 dias", name: candidateFor7d[0].subjectName };
-                    }
+                // Verifica revisões de 7 dias atrás
+                if (activeDayCounter >= 7) {
+                    let candidates7 = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 7);
+                    candidates7.forEach(c => {
+                        reviewItems.push({ type: "Revisão 7d", subjectName: c.subjectName, topicName: c.topicName });
+                    });
                 }
-                if (!reviewItem && activeDayCounter >= 30) {
-                    let candidateFor30d = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 30);
-                    if (candidateFor30d.length > 0) {
-                        reviewItem = { type: "Revisão de 30 dias", name: candidateFor30d[0].subjectName };
-                    }
+                // Verifica revisões de 30 dias atrás
+                if (activeDayCounter >= 30) {
+                    let candidates30 = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 30);
+                    candidates30.forEach(c => {
+                        reviewItems.push({ type: "Revisão 30d", subjectName: c.subjectName, topicName: c.topicName });
+                    });
                 }
 
                 activeDayCounter++;
 
                 let reviewHtml = '';
-                if (reviewItem) {
-                    reviewHtml = `
-                        <div class="flex items-center justify-between text-xs bg-amber-950/30 border border-amber-900/40 p-2.5 rounded-xl">
-                            <span class="font-bold text-amber-400">${dailySubjectsCount + 1}. ${reviewItem.type}: ${reviewItem.name}</span>
-                            <span class="text-[10px] font-bold text-amber-500 bg-amber-950/60 px-2 py-1 rounded-lg border border-amber-800/50">30 min</span>
+                if (reviewItems.length > 0) {
+                    reviewHtml = reviewItems.map((rev, rIdx) => `
+                        <div class="bg-amber-950/30 border border-amber-900/40 p-2.5 rounded-xl space-y-1">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-bold text-amber-400">${dailySubjectsCount + 1 + rIdx}. ${rev.type}: ${rev.subjectName}</span>
+                                <span class="text-[10px] font-bold text-amber-500 bg-amber-950/60 px-2 py-0.5 rounded-lg border border-amber-800/50">30 min</span>
+                            </div>
+                            <div class="text-[11px] text-zinc-300 pl-2 border-l-2 border-amber-600">
+                                <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Assunto a Revisar:</span>
+                                ${rev.topicName}
+                            </div>
                         </div>
-                    `;
+                    `).join('');
                 }
 
                 return `
                     <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
-                            <span class="text-xs font-bold text-zinc-300">${day.hours}h totais ${reviewItem ? '+ 30min Revisão' : ''}</span>
+                            <span class="text-xs font-bold text-zinc-300">${day.hours}h totais ${reviewItems.length > 0 ? `+ ${reviewItems.length * 30}min Revisões` : ''}</span>
                         </div>
                         <div class="space-y-2 pt-1">
                             ${normalHtml}
                             ${reviewHtml}
-                            ${!reviewItem ? '<div class="text-[10px] text-zinc-500 italic px-1 pt-0.5">* Dia inicial sem revisões acumuladas suficientes ainda.</div>' : ''}
+                            ${reviewItems.length === 0 ? '<div class="text-[10px] text-zinc-500 italic px-1 pt-0.5">* Sem histórico anterior suficiente para revisões neste dia inicial.</div>' : ''}
                         </div>
                     </div>
                 `;
