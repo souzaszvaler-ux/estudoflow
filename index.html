@@ -62,7 +62,10 @@
                     <input type="email" id="authEmail" required placeholder="seu@email.com" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs text-zinc-400 mb-1">Senha</label>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs text-zinc-400">Senha</label>
+                        <button type="button" onclick="resetPassword()" class="text-[10px] text-blue-400 hover:underline">Esqueceu / Criar senha?</button>
+                    </div>
                     <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
 
@@ -239,6 +242,20 @@
                 } else {
                     await auth.signInWithEmailAndPassword(email, password);
                 }
+            } catch (error) {
+                showAlert(error.message);
+            }
+        }
+
+        async function resetPassword() {
+            const email = document.getElementById('authEmail').value.trim();
+            if (!email) {
+                showAlert("Por favor, introduza o seu e-mail no campo de e-mail primeiro.");
+                return;
+            }
+            try {
+                await auth.sendPasswordResetEmail(email);
+                showAlert("Enviámos um e-mail com a hiperligação para definir/alterar a sua palavra-passe. Verifique a sua caixa de entrada.");
             } catch (error) {
                 showAlert(error.message);
             }
