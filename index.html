@@ -192,7 +192,7 @@
                             <span>Configurar Metas</span>
                         </button>
                     </div>
-                    <p class="text-xs text-zinc-400">Cronograma inteligente gerado com base nas suas metas e disciplinas cadastradas.</p>
+                    <p class="text-xs text-zinc-400">Cronograma inteligente gerado com horários ponderados por peso e tópicos dinâmicos do edital.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
             </section>
@@ -232,7 +232,7 @@
                 </div>
             </section>
 
-            <!-- ABA 5: NOTAS (NOVO) -->
+            <!-- ABA 5: NOTAS -->
             <section id="tab-notas" class="space-y-4 tab-content hidden">
                 <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4">
                     <div class="flex items-center justify-between">
@@ -473,9 +473,9 @@
         </div>
     </div>
 
-    <!-- MODAL BLOCO DE NOTAS -->
+    <!-- MODAL BLOCO DE NOTAS (MAIOR E MAIS AMPLO) -->
     <div id="noteModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
             <h3 id="noteModalTitle" class="text-base font-bold text-blue-500 flex items-center space-x-2">
                 <i data-lucide="file-text" class="w-5 h-5"></i>
                 <span>Novo Bloco de Notas</span>
@@ -484,17 +484,17 @@
 
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Nome do Bloco de Notas</label>
-                <input type="text" id="modalNoteTitle" placeholder="Ex: Resumo de Constitucional" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                <input type="text" id="modalNoteTitle" placeholder="Ex: Resumo de Constitucional" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
             </div>
 
             <div>
-                <label class="block text-xs text-zinc-400 mb-1">Conteúdo</label>
-                <textarea id="modalNoteContent" rows="6" placeholder="Escreva suas anotações aqui..." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none resize-none font-mono"></textarea>
+                <label class="block text-xs text-zinc-400 mb-1">Conteúdo Ampliado</label>
+                <textarea id="modalNoteContent" rows="12" placeholder="Escreva suas anotações aqui..." class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-y font-mono leading-relaxed"></textarea>
             </div>
 
-            <div class="flex space-x-2 pt-2">
-                <button type="button" onclick="closeNoteModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="saveNote()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Nota</button>
+            <div class="flex space-x-3 pt-2">
+                <button type="button" onclick="closeNoteModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-3 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="saveNote()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl text-sm font-semibold transition">Salvar Nota</button>
             </div>
         </div>
     </div>
@@ -550,8 +550,6 @@
         let freeInterval = null;
         let freeSeconds = 0;
         let freeIsRunning = false;
-        
-        let freeStartTime = null; // Para computar o tempo exato decorrido
 
         let isSignUpMode = false;
 
@@ -745,7 +743,7 @@
                 subjects[idx].hoursStudied = hoursStudied;
                 subjects[idx].topics = newTopics;
             } else {
-                subjects.push({ name, weight, hoursStudied, topics: newTopics, questionsCount: 0, correctCount: 0, includeInPlan: true, minimized: false });
+                subjects.push({ name, weight, hoursStudied, topics: newTopics, questionsCount: 0, correctCount: 0, includeInPlan: true, topicPointer: 0, minimized: false });
             }
 
             saveUserData();
@@ -900,6 +898,7 @@
             lucide.createIcons();
         }
 
+        // PLANO INTELIGENTE COM HORAS PONDERADAS E TÓPICOS DO EDITAL
         function renderSmartPlan() {
             const container = document.getElementById('smartPlanContainer');
             if (!container) return;
@@ -962,12 +961,50 @@
                 }
 
                 let normalsForDay = [];
+                let totalWeightOfDay = 0;
                 for (let i = 0; i < dailySubjectsCount; i++) {
                     let sub = scoredSubjects[normPtr % scoredSubjects.length];
                     normalsForDay.push(sub);
-                    studyHistoryByDay.push({ dayIndex: activeDayCounter, subjectName: sub.name });
+                    totalWeightOfDay += (sub.weight || 1);
                     normPtr++;
                 }
+
+                // Ponderação proporcional de horas por peso da matéria
+                let allocatedHours = normalsForDay.map(sub => {
+                    let weight = sub.weight || 1;
+                    let proportion = weight / totalWeightOfDay;
+                    let h = (day.hours * proportion).toFixed(1);
+                    return { sub, hours: h };
+                });
+
+                // Selecionar próximo tópico do edital para cada matéria do dia
+                const normalHtml = allocatedHours.map((item, idx) => {
+                    let sub = item.sub;
+                    let currentTopicText = "Nenhum tópico pendente no edital";
+                    if (sub.topics && sub.topics.length > 0) {
+                        let uncompleted = sub.topics.filter(t => !t.done);
+                        if (uncompleted.length > 0) {
+                            currentTopicText = uncompleted[0].name;
+                        } else {
+                            currentTopicText = sub.topics[0].name; // Ciclo concluído, reinicia
+                        }
+                    }
+
+                    studyHistoryByDay.push({ dayIndex: activeDayCounter, subjectName: sub.name });
+
+                    return `
+                        <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl space-y-1">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-bold text-white">${idx + 1}. Estudo: ${sub.name} <span class="text-[10px] text-zinc-400 font-normal">(Peso ${sub.weight || 1})</span></span>
+                                <span class="text-[10px] font-bold text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded-lg border border-blue-800/50">${item.hours}h</span>
+                            </div>
+                            <div class="text-[11px] text-zinc-300 pl-2 border-l-2 border-blue-600">
+                                <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Tópico do Edital:</span>
+                                ${currentTopicText}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
 
                 let reviewItem = null;
                 if (activeDayCounter >= 1) {
@@ -991,13 +1028,6 @@
 
                 activeDayCounter++;
 
-                const normalHtml = normalsForDay.map((sub, idx) => `
-                    <div class="flex items-center justify-between text-xs bg-zinc-900/60 border border-zinc-800/80 p-2.5 rounded-xl">
-                        <span class="font-bold text-white">${idx + 1}. Estudo Normal: ${sub.name}</span>
-                        <span class="text-[10px] text-zinc-400">${day.hours}h</span>
-                    </div>
-                `).join('');
-
                 let reviewHtml = '';
                 if (reviewItem) {
                     reviewHtml = `
@@ -1012,9 +1042,9 @@
                     <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
-                            <span class="text-xs font-bold text-zinc-300">${day.hours}h livres ${reviewItem ? '+ 30min Revisão' : ''}</span>
+                            <span class="text-xs font-bold text-zinc-300">${day.hours}h totais ${reviewItem ? '+ 30min Revisão' : ''}</span>
                         </div>
-                        <div class="space-y-1.5 pt-1">
+                        <div class="space-y-2 pt-1">
                             ${normalHtml}
                             ${reviewHtml}
                             ${!reviewItem ? '<div class="text-[10px] text-zinc-500 italic px-1 pt-0.5">* Dia inicial sem revisões acumuladas suficientes ainda.</div>' : ''}
@@ -1265,7 +1295,6 @@
             document.getElementById('statWeeklyTopics').textContent = `${doneTopics} / ${totalTopics} tópicos concluídos nesta semana`;
         }
 
-        // COMPUTAR HORAS DE ESTUDO DO TIMER
         function adicionarHorasEstudo(subjectIndex, minutos) {
             if (subjectIndex === '' || subjectIndex === null || isNaN(subjectIndex)) return;
             const sIdx = parseInt(subjectIndex);
@@ -1374,7 +1403,6 @@
             }
         }
 
-        // TIMER POMODORO
         function togglePomoTimer() {
             const btn = document.getElementById('btnPomoStart');
             const subIdx = document.getElementById('pomoSubjectSelect').value;
@@ -1401,7 +1429,6 @@
                         btn.textContent = "Iniciar Pomodoro";
                         btn.classList.replace('bg-amber-600', 'bg-blue-600');
                         
-                        // Computar horas automaticamente
                         adicionarHorasEstudo(subIdx, workMins);
                         alert(`Ciclo Pomodoro de ${workMins} minutos concluído e computado nas horas da matéria!`);
                         resetPomoTimer();
@@ -1425,7 +1452,6 @@
             document.getElementById('pomoDisplay').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
-        // CRONÔMETRO LIVRE
         function toggleFreeTimer() {
             const btn = document.getElementById('btnFreeStart');
             const subIdx = document.getElementById('freeSubjectSelect').value;
@@ -1436,7 +1462,6 @@
                 btn.textContent = "Iniciar Livre";
                 btn.classList.replace('bg-amber-600', 'bg-emerald-600');
 
-                // Computar o tempo acumulado ao pausar/parar
                 const minutosEstudados = Math.floor(freeSeconds / 60);
                 if (minutosEstudados > 0) {
                     adicionarHorasEstudo(subIdx, minutosEstudados);
