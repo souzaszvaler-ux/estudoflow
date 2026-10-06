@@ -97,7 +97,10 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <span id="userEmailDisplay" class="text-xs text-zinc-400 hidden sm:inline"></span>
+                    <button onclick="fecharSemana()" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800 text-emerald-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                        <span>Fechar Semana</span>
+                    </button>
                     <button onclick="logout()" class="p-2 text-zinc-400 hover:text-red-400 transition border border-zinc-800 rounded-xl bg-zinc-950" title="Sair da Conta">
                         <i data-lucide="log-out" class="w-4 h-4"></i>
                     </button>
@@ -106,57 +109,96 @@
         </header>
 
         <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 pb-28 overflow-y-auto hide-scrollbar">
-            <!-- ABA 1: EDITAL VERTICALIZADO -->
-            <section id="tab-edital" class="space-y-6 tab-content">
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <!-- ABA 1: CRONOGRAMA DE ESTUDOS -->
+            <section id="tab-cronograma" class="space-y-5 tab-content">
+                <!-- Dashboard Superior -->
+                <div class="grid grid-cols-2 gap-3">
                     <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-1 shadow-md">
                         <div class="flex items-center justify-between text-zinc-400">
                             <span class="text-[10px] font-bold uppercase tracking-wider">Horas Totais</span>
                             <i data-lucide="clock" class="w-4 h-4 text-blue-400"></i>
                         </div>
-                        <div id="statTotalHours" class="text-2xl font-black text-white">0h 0m</div>
+                        <div id="statTotalHours" class="text-2xl font-black text-white">0h</div>
+                        <p class="text-[10px] text-zinc-500" id="statWeeklyHours">0h nesta semana</p>
                     </div>
-                    <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-2 col-span-2 lg:col-span-3 shadow-md">
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="font-bold text-zinc-300">Progresso Geral do Edital</span>
-                            <span id="globalPercent" class="font-black text-blue-500 text-base">0%</span>
+
+                    <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-1 shadow-md">
+                        <div class="flex items-center justify-between text-zinc-400">
+                            <span class="text-[10px] font-bold uppercase tracking-wider">Questões Finais</span>
+                            <i data-lucide="target" class="w-4 h-4 text-emerald-400"></i>
                         </div>
-                        <div class="w-full bg-zinc-900 h-3 rounded-full overflow-hidden border border-zinc-800">
-                            <div id="globalProgressBar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
-                        </div>
+                        <div id="statTotalQuestions" class="text-2xl font-black text-white">0</div>
+                        <p class="text-[10px] text-zinc-500" id="statAccuracy">0% acertos no total</p>
                     </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1.5">
+                <!-- Barra de Progresso Geral -->
+                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-2 shadow-md">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-zinc-300">Progresso Geral do Edital</span>
+                        <span id="globalPercent" class="font-black text-blue-500 text-sm">0%</span>
+                    </div>
+                    <div class="w-full bg-zinc-900 h-2.5 rounded-full overflow-hidden border border-zinc-800">
+                        <div id="globalProgressBar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <p id="statWeeklyTopics" class="text-[10px] text-zinc-500 pt-0.5">0 / 0 tópicos concluídos nesta semana</p>
+                </div>
+
+                <!-- Ações e Título -->
+                <div class="flex items-center justify-between pt-1">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1.5">
                         <i data-lucide="list-checks" class="w-4 h-4 text-blue-500"></i>
                         <span>Disciplinas</span>
                     </h2>
-                    <div class="flex space-x-2 w-full sm:w-auto">
-                        <button onclick="abrirModalImportacao()" class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition">
-                            <i data-lucide="sparkles" class="w-4 h-4"></i>
-                            <span>Importar Edital</span>
+                    <div class="flex space-x-2">
+                        <button onclick="gerarPlano()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                            <span>Gerar Plano</span>
                         </button>
-                        <button onclick="openSubjectModal()" class="flex-1 sm:flex-none bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition">
-                            <i data-lucide="plus" class="w-4 h-4"></i>
-                            <span>Adicionar Matéria</span>
+                        <button onclick="openSubjectModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            <span>Add Matéria</span>
                         </button>
                     </div>
                 </div>
 
-                <div id="scheduleContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                <div id="scheduleContainer" class="space-y-4"></div>
             </section>
 
-            <!-- ABA 2: TIMER DE ESTUDOS -->
+            <!-- ABA 2: HISTÓRICO -->
+            <section id="tab-historico" class="space-y-4 tab-content hidden">
+                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-3">
+                    <h2 class="text-base font-bold text-white flex items-center space-x-2">
+                        <i data-lucide="history" class="w-5 h-5 text-blue-500"></i>
+                        <span>Histórico de Estudo</span>
+                    </h2>
+                    <div id="historicoList" class="space-y-2 text-xs text-zinc-400">
+                        <p class="text-zinc-500 italic">Nenhuma sessão registrada ainda.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ABA 3: ERROS -->
+            <section id="tab-erros" class="space-y-4 tab-content hidden">
+                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-3">
+                    <h2 class="text-base font-bold text-white flex items-center space-x-2">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-500"></i>
+                        <span>Caderno de Erros</span>
+                    </h2>
+                    <div id="cadernoErrosList" class="space-y-2 text-xs"></div>
+                </div>
+            </section>
+
+            <!-- ABA 4: TIMER -->
             <section id="tab-timer" class="space-y-6 tab-content hidden">
-                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 text-center max-w-md mx-auto space-y-6 shadow-2xl">
+                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 text-center max-w-md mx-auto space-y-5 shadow-2xl">
                     <h2 class="text-lg font-bold text-white flex items-center justify-center space-x-2">
                         <i data-lucide="timer" class="w-5 h-5 text-blue-500"></i>
                         <span>Cronômetro de Estudos</span>
                     </h2>
 
                     <div>
-                        <label class="block text-xs text-zinc-400 mb-2">Selecione a matéria para registrar o tempo:</label>
+                        <label class="block text-xs text-zinc-400 mb-2">Selecione a matéria:</label>
                         <select id="timerSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
                             <option value="">-- Escolha uma matéria --</option>
                         </select>
@@ -176,58 +218,52 @@
                     </div>
                 </div>
             </section>
-
-            <!-- ABA 3: ESTATÍSTICAS -->
-            <section id="tab-stats" class="space-y-6 tab-content hidden">
-                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 space-y-4 shadow-2xl">
-                    <h2 class="text-lg font-bold text-white flex items-center space-x-2">
-                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-blue-500"></i>
-                        <span>Desempenho por Matéria</span>
-                    </h2>
-                    <div id="statsContainer" class="space-y-3"></div>
-                </div>
-            </section>
         </main>
 
-        <!-- Barra de Navegação Inferior -->
+        <!-- Navegação Inferior -->
         <nav class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur border-t border-zinc-800 z-40 px-4 py-2">
             <div class="max-w-md mx-auto flex justify-around items-center">
-                <button onclick="switchTab('edital')" id="nav-edital" class="flex flex-col items-center space-y-1 text-blue-500 font-bold transition">
-                    <i data-lucide="list-checks" class="w-5 h-5"></i>
-                    <span class="text-[10px]">Edital</span>
+                <button onclick="switchTab('cronograma')" id="nav-cronograma" class="flex flex-col items-center space-y-1 text-blue-500 font-bold transition">
+                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                    <span class="text-[10px]">Cronograma</span>
+                </button>
+                <button onclick="switchTab('historico')" id="nav-historico" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                    <i data-lucide="history" class="w-5 h-5"></i>
+                    <span class="text-[10px]">Histórico</span>
+                </button>
+                <button onclick="switchTab('erros')" id="nav-erros" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    <span class="text-[10px]">Erros</span>
                 </button>
                 <button onclick="switchTab('timer')" id="nav-timer" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
                     <i data-lucide="timer" class="w-5 h-5"></i>
                     <span class="text-[10px]">Timer</span>
                 </button>
-                <button onclick="switchTab('stats')" id="nav-stats" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
-                    <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
-                    <span class="text-[10px]">Estatísticas</span>
-                </button>
             </div>
         </nav>
     </div>
 
-    <!-- Modais -->
-    <div id="importModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
-            <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
-                <i data-lucide="sparkles" class="w-5 h-5"></i>
-                <span>Importar Edital Verticalizado</span>
-            </h3>
-            <textarea id="editalText" rows="10" placeholder="PORTUGUÊS&#10;1. Compreensão de texto&#10;2. Ortografia&#10;&#10;DIREITO CONSTITUCIONAL&#10;1. Direitos e Garantias Fundamentais" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none font-mono"></textarea>
-            <div class="flex space-x-2 pt-2">
-                <button onclick="fecharModalImportacao()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button onclick="processarEditalLocal()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Adicionar</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Modal de Criar / Editar Matéria -->
     <div id="subjectModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <h3 id="subjectModalTitle" class="text-base font-bold text-white">Adicionar Matéria</h3>
-            <input type="text" id="modalSubjectName" placeholder="Nome da Matéria" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white">
-            <textarea id="modalSubjectTopics" rows="4" placeholder="Tópicos (um por linha)" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white font-mono"></textarea>
+            <input type="hidden" id="editingSubjectId" value="">
+            
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Nome da Matéria</label>
+                <input type="text" id="modalSubjectName" placeholder="Ex: Matemática" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Peso / Importância (1 a 5)</label>
+                <input type="number" id="modalSubjectWeight" min="1" max="5" value="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Tópicos (um por linha)</label>
+                <textarea id="modalSubjectTopics" rows="4" placeholder="Álgebra Básica&#10;Equações do 2º Grau" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-blue-500"></textarea>
+            </div>
+
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeSubjectModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
                 <button onclick="saveSubject()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar</button>
@@ -259,7 +295,7 @@
 
         let currentUser = null;
         let isSignUpMode = false;
-        let state = { subjects: [], totalSeconds: 0 };
+        let state = { subjects: [], weeklyHours: 0, totalHours: 0, historico: [] };
         let timerInterval = null;
         let secondsElapsed = 0;
 
@@ -268,7 +304,6 @@
                 currentUser = user;
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('appInterface').classList.remove('hidden');
-                document.getElementById('userEmailDisplay').innerText = user.email;
                 loadUserData();
             } else {
                 currentUser = null;
@@ -279,11 +314,7 @@
 
         async function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            try {
-                await auth.signInWithPopup(provider);
-            } catch (error) {
-                showAlert(error.message);
-            }
+            try { await auth.signInWithPopup(provider); } catch (e) { showAlert(e.message); }
         }
 
         function toggleAuthMode() {
@@ -297,30 +328,19 @@
             e.preventDefault();
             const email = document.getElementById('authEmail').value.trim();
             const password = document.getElementById('authPassword').value.trim();
-
             try {
-                if (isSignUpMode) {
-                    await auth.createUserWithEmailAndPassword(email, password);
-                } else {
-                    await auth.signInWithEmailAndPassword(email, password);
-                }
-            } catch (error) {
-                showAlert(error.message);
-            }
+                if (isSignUpMode) await auth.createUserWithEmailAndPassword(email, password);
+                else await auth.signInWithEmailAndPassword(email, password);
+            } catch (e) { showAlert(e.message); }
         }
 
         async function resetPassword() {
             const email = document.getElementById('authEmail').value.trim();
-            if (!email) {
-                showAlert("Por favor, digite seu e-mail no campo correspondente primeiro.");
-                return;
-            }
+            if (!email) return showAlert("Por favor, digite o e-mail primeiro.");
             try {
                 await auth.sendPasswordResetEmail(email);
-                showAlert("Enviamos um link de redefinição de senha para o seu e-mail.");
-            } catch (error) {
-                showAlert(error.message);
-            }
+                showAlert("E-mail de redefinição enviado!");
+            } catch (e) { showAlert(e.message); }
         }
 
         function logout() { auth.signOut(); }
@@ -328,75 +348,165 @@
         function loadUserData() {
             if (!currentUser) return;
             db.collection('schedules').doc(currentUser.uid).onSnapshot(doc => {
-                if (doc.exists) {
-                    state = Object.assign({ subjects: [], totalSeconds: 0 }, doc.data());
-                } else {
-                    saveData();
-                }
+                if (doc.exists) state = Object.assign({ subjects: [], totalHours: 18, weeklyHours: 9, historico: [] }, doc.data());
+                else saveData();
                 render();
             });
         }
 
         async function saveData() {
             if (!currentUser) return;
-            try {
-                await db.collection('schedules').doc(currentUser.uid).set(state);
-            } catch (e) {
-                console.error("Erro ao salvar dados: ", e);
-            }
+            try { await db.collection('schedules').doc(currentUser.uid).set(state); } catch (e) { console.error(e); }
         }
 
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
 
-            ['edital', 'timer', 'stats'].forEach(t => {
+            ['cronograma', 'historico', 'erros', 'timer'].forEach(t => {
                 const btn = document.getElementById(`nav-${t}`);
-                if (t === tab) {
-                    btn.className = "flex flex-col items-center space-y-1 text-blue-500 font-bold transition";
-                } else {
-                    btn.className = "flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition";
-                }
+                if (t === tab) btn.className = "flex flex-col items-center space-y-1 text-blue-500 font-bold transition";
+                else btn.className = "flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition";
             });
         }
 
-        function toggleTimer() {
-            const btn = document.getElementById('btnStartTimer');
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                btn.innerText = "Iniciar";
-                btn.className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition";
-                state.totalSeconds = (state.totalSeconds || 0) + secondsElapsed;
-                secondsElapsed = 0;
+        function addHours(subjectId) {
+            const subject = state.subjects.find(s => s.id === subjectId);
+            if (subject) {
+                subject.studiedHours = (subject.studiedHours || 0) + 1;
+                state.totalHours = (state.totalHours || 0) + 1;
+                state.weeklyHours = (state.weeklyHours || 0) + 1;
                 saveData();
+            }
+        }
+
+        function updateQuestions(subjectId, topicId, field, val) {
+            const subject = state.subjects.find(s => s.id === subjectId);
+            if (!subject) return;
+            const topic = subject.topics.find(t => t.id === topicId);
+            if (!topic) return;
+            
+            topic[field] = Math.max(0, parseInt(val) || 0);
+
+            // Garante que acertos não seja maior que total
+            if (topic.acertos > topic.total) {
+                topic.acertos = topic.total;
+            }
+
+            // Regra: Exige no mínimo 10 questões e 80% de aproveitamento
+            const pct = topic.total >= 10 ? (topic.acertos / topic.total) * 100 : 0;
+            if (pct < 80 || topic.total < 10) {
+                topic.completed = false;
+            }
+
+            saveData();
+        }
+
+        function toggleTopic(subjectId, topicId) {
+            const subject = state.subjects.find(s => s.id === subjectId);
+            if (!subject) return;
+            const topic = subject.topics.find(t => t.id === topicId);
+            if (!topic) return;
+
+            const totalQ = topic.total || 0;
+            const pct = totalQ > 0 ? (topic.acertos / totalQ) * 100 : 0;
+
+            if (totalQ < 10) {
+                showAlert(`Você precisa resolver no mínimo 10 questões neste tópico (atualmente tem ${totalQ}).`);
+                return;
+            }
+
+            if (pct < 80) {
+                showAlert(`Para concluir o tópico, você precisa de no mínimo 80% de aproveitamento (atualmente tem ${Math.round(pct)}%).`);
+                return;
+            }
+
+            topic.completed = !topic.completed;
+            saveData();
+        }
+
+        function gerarPlano() {
+            if (state.subjects.length === 0) return showAlert("Adicione pelo menos uma matéria para gerar o plano.");
+            
+            let totalWeights = 0;
+            state.subjects.forEach(s => totalWeights += (parseInt(s.weight) || 1));
+
+            const totalHoursGoal = 20;
+
+            state.subjects.forEach(s => {
+                const peso = parseInt(s.weight) || 1;
+                s.targetHours = Math.round((peso / totalWeights) * totalHoursGoal);
+            });
+
+            saveData();
+            showAlert("Plano de estudos gerado com sucesso com base no peso de cada matéria!");
+        }
+
+        function fecharSemana() {
+            if (confirm("Deseja fechar a semana atual e reiniciar as metas de estudo?")) {
+                state.weeklyHours = 0;
+                saveData();
+                showAlert("Semana concluída com sucesso! Metas renovadas.");
+            }
+        }
+
+        function openSubjectModal(subjectId = null) {
+            if (subjectId) {
+                const subject = state.subjects.find(s => s.id === subjectId);
+                if (subject) {
+                    document.getElementById('subjectModalTitle').innerText = "Editar Matéria";
+                    document.getElementById('editingSubjectId').value = subject.id;
+                    document.getElementById('modalSubjectName').value = subject.name;
+                    document.getElementById('modalSubjectWeight').value = subject.weight || 1;
+                    document.getElementById('modalSubjectTopics').value = subject.topics.map(t => t.title).join('\n');
+                }
             } else {
-                timerInterval = setInterval(() => {
-                    secondsElapsed++;
-                    updateTimerDisplay();
-                }, 1000);
-                btn.innerText = "Pausar";
-                btn.className = "flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-xl text-sm transition";
+                document.getElementById('subjectModalTitle').innerText = "Adicionar Matéria";
+                document.getElementById('editingSubjectId').value = "";
+                document.getElementById('modalSubjectName').value = "";
+                document.getElementById('modalSubjectWeight').value = "1";
+                document.getElementById('modalSubjectTopics').value = "";
             }
+            document.getElementById('subjectModal').classList.remove('hidden');
         }
 
-        function resetTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                document.getElementById('btnStartTimer').innerText = "Iniciar";
-                document.getElementById('btnStartTimer').className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition";
-            }
-            secondsElapsed = 0;
-            updateTimerDisplay();
+        function closeSubjectModal() { 
+            document.getElementById('subjectModal').classList.add('hidden'); 
         }
 
-        function updateTimerDisplay() {
-            const hrs = Math.floor(secondsElapsed / 3600);
-            const mins = Math.floor((secondsElapsed % 3600) / 60);
-            const secs = secondsElapsed % 60;
-            document.getElementById('timerDisplay').innerText = 
-                `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        function saveSubject() {
+            const editId = document.getElementById('editingSubjectId').value;
+            const name = document.getElementById('modalSubjectName').value.trim();
+            const weight = parseInt(document.getElementById('modalSubjectWeight').value) || 1;
+            const rawTopics = document.getElementById('modalSubjectTopics').value.split('\n').filter(t => t.trim() !== '');
+            
+            if (!name) return showAlert("Digite o nome da matéria.");
+
+            if (editId) {
+                const subject = state.subjects.find(s => s.id === editId);
+                if (subject) {
+                    subject.name = name;
+                    subject.weight = weight;
+                    
+                    const existingTopicsMap = new Map(subject.topics.map(t => [t.title, t]));
+                    subject.topics = rawTopics.map((tTitle, idx) => {
+                        if (existingTopicsMap.has(tTitle)) {
+                            return existingTopicsMap.get(tTitle);
+                        } else {
+                            return { id: 't_' + Date.now() + '_' + idx, title: tTitle, completed: false, acertos: 0, total: 0 };
+                        }
+                    });
+                }
+            } else {
+                state.subjects.push({
+                    id: Date.now().toString(),
+                    name, weight, targetHours: weight * 4, studiedHours: 0,
+                    topics: rawTopics.map((t, idx) => ({ id: 't_' + Date.now() + '_' + idx, title: t, completed: false, acertos: 0, total: 0 }))
+                });
+            }
+
+            saveData();
+            closeSubjectModal();
         }
 
         function deleteSubject(subjectId) {
@@ -406,54 +516,18 @@
             }
         }
 
-        function showAlert(mensagem) {
-            document.getElementById('customAlertMessage').innerText = mensagem;
-            document.getElementById('customAlert').classList.remove('hidden');
-        }
-
-        function closeCustomAlert() { document.getElementById('customAlert').classList.add('hidden'); }
-        function abrirModalImportacao() { document.getElementById('importModal').classList.remove('hidden'); }
-        function fecharModalImportacao() { document.getElementById('importModal').classList.add('hidden'); document.getElementById('editalText').value = ''; }
-
-        function processarEditalLocal() {
-            const rawText = document.getElementById('editalText').value.trim();
-            if (!rawText) return;
-
-            const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            let currentSubject = null;
-
-            lines.forEach((line) => {
-                const isHeading = line === line.toUpperCase() && !/^\d+[\.\)]/.test(line) && line.length < 50;
-                if (isHeading || !currentSubject) {
-                    currentSubject = {
-                        id: Date.now().toString() + Math.random().toString(36).substr(2, 4),
-                        name: line.replace(/^\d+[\.\)]\s*/, ''),
-                        topics: []
-                    };
-                    state.subjects.push(currentSubject);
-                } else {
-                    currentSubject.topics.push({
-                        id: 't_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-                        title: line, completed: false
-                    });
-                }
-            });
-
-            saveData();
-            fecharModalImportacao();
-        }
-
         function render() {
             renderSchedule();
             renderTimerSelect();
-            renderStats();
+            renderCadernoErros();
             lucide.createIcons();
         }
 
         function renderSchedule() {
             const container = document.getElementById('scheduleContainer');
             container.innerHTML = '';
-            let totalTopics = 0, completedTopics = 0;
+
+            let totalTopics = 0, completedTopics = 0, totalQuestions = 0, totalCorrect = 0;
 
             state.subjects.forEach(subject => {
                 const subCompleted = subject.topics.filter(t => t.completed).length;
@@ -461,38 +535,122 @@
                 totalTopics += subTotal;
                 completedTopics += subCompleted;
 
+                const targetHrs = subject.targetHours || (subject.weight || 1) * 4;
+                const studiedHrs = subject.studiedHours || 0;
+                const subPct = subTotal > 0 ? Math.round((subCompleted / subTotal) * 100) : 0;
+
                 let topicsHtml = '';
                 subject.topics.forEach(topic => {
+                    const acertos = topic.acertos || 0;
+                    const totalQ = topic.total || 0;
+                    totalQuestions += totalQ;
+                    totalCorrect += acertos;
+
+                    const pct = totalQ > 0 ? Math.round((acertos / totalQ) * 100) : 0;
+                    const hasMinQuestions = totalQ >= 10;
+                    const hasMinPct = pct >= 80;
+                    const canProgress = hasMinQuestions && hasMinPct;
+
+                    let badgeHtml = '<span class="text-[10px] text-zinc-500">Mínimo 10 questões</span>';
+                    if (totalQ > 0) {
+                        badgeHtml = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${canProgress ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-red-950 text-red-400 border border-red-800'}">${pct}% aproveitamento (${totalQ}/10 q)</span>`;
+                    }
+
                     topicsHtml += `
-                        <div class="p-3 rounded-xl bg-black border border-zinc-800 flex items-center justify-between">
-                            <label class="flex items-center space-x-2 cursor-pointer flex-1">
-                                <input type="checkbox" ${topic.completed ? 'checked' : ''} onchange="toggleTopic('${subject.id}', '${topic.id}')" class="rounded bg-zinc-900 border-zinc-700 text-blue-600 w-4 h-4">
-                                <span class="text-xs font-semibold ${topic.completed ? 'line-through text-zinc-600' : 'text-zinc-200'}">${topic.title}</span>
-                            </label>
+                        <div class="p-3 rounded-xl bg-black border border-zinc-800 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" ${topic.completed ? 'checked' : ''} ${!canProgress ? 'disabled' : ''} onchange="toggleTopic('${subject.id}', '${topic.id}')" class="rounded bg-zinc-900 border-zinc-700 text-blue-600 w-4 h-4 disabled:opacity-30 disabled:cursor-not-allowed">
+                                    <span class="text-xs font-bold ${topic.completed ? 'line-through text-zinc-500' : 'text-zinc-100'}">${topic.title}</span>
+                                </label>
+                                ${badgeHtml}
+                            </div>
+                            <div class="flex items-center space-x-3 text-[10px] text-zinc-400 pt-1">
+                                <span>Questões:</span>
+                                <div class="flex items-center space-x-1">
+                                    <span>Acertos:</span>
+                                    <input type="number" value="${acertos}" onchange="updateQuestions('${subject.id}', '${topic.id}', 'acertos', this.value)" class="w-10 bg-zinc-900 border border-zinc-700 rounded text-center text-white py-0.5 text-xs font-bold">
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <span>Total:</span>
+                                    <input type="number" value="${totalQ}" onchange="updateQuestions('${subject.id}', '${topic.id}', 'total', this.value)" class="w-10 bg-zinc-900 border border-zinc-700 rounded text-center text-white py-0.5 text-xs font-bold">
+                                </div>
+                            </div>
                         </div>`;
                 });
 
                 const card = document.createElement('div');
                 card.className = "bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3 shadow-md";
                 card.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <h3 class="text-base font-bold text-white">${subject.name}</h3>
-                        <button onclick="deleteSubject('${subject.id}')" class="text-zinc-500 hover:text-red-400 p-1">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="text-base font-bold text-white">${subject.name}</h3>
+                                <span class="bg-blue-950 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-md border border-blue-800">Peso ${subject.weight || 1}</span>
+                            </div>
+                            <p class="text-[11px] text-zinc-400 mt-0.5">Meta: ${targetHrs}h / ${studiedHrs}h estudadas</p>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button onclick="addHours('${subject.id}')" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 p-1.5 rounded-lg text-xs font-bold flex items-center space-x-1" title="Adicionar 1 hora estudada">
+                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                <span>+1h</span>
+                            </button>
+                            <button onclick="openSubjectModal('${subject.id}')" class="text-zinc-400 hover:text-white p-1.5" title="Editar Matéria">
+                                <i data-lucide="pencil" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteSubject('${subject.id}')" class="text-zinc-500 hover:text-red-400 p-1.5" title="Excluir Matéria">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] font-bold">
+                            <span class="text-zinc-400">Progresso dos Tópicos</span>
+                            <span class="text-white">${subPct}%</span>
+                        </div>
+                        <div class="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-zinc-800">
+                            <div class="bg-blue-600 h-full" style="width: ${subPct}%"></div>
+                        </div>
                     </div>
                     <div class="space-y-2 pt-1">${topicsHtml}</div>`;
                 container.appendChild(card);
             });
 
             const globalPercent = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
+            const accuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+
             document.getElementById('globalPercent').innerText = `${globalPercent}%`;
             document.getElementById('globalProgressBar').style.width = `${globalPercent}%`;
+            document.getElementById('statTotalHours').innerText = `${state.totalHours || 0}h`;
+            document.getElementById('statWeeklyHours').innerText = `${state.weeklyHours || 0}h nesta semana`;
+            document.getElementById('statTotalQuestions').innerText = totalQuestions;
+            document.getElementById('statAccuracy').innerText = `${accuracy}% acertos no total`;
+            document.getElementById('statWeeklyTopics').innerText = `${completedTopics} / ${totalTopics} tópicos concluídos nesta semana`;
+        }
 
-            const totalSecs = state.totalSeconds || 0;
-            const h = Math.floor(totalSecs / 3600);
-            const m = Math.floor((totalSecs % 3600) / 60);
-            document.getElementById('statTotalHours').innerText = `${h}h ${m}m`;
+        function renderCadernoErros() {
+            const container = document.getElementById('cadernoErrosList');
+            container.innerHTML = '';
+            let count = 0;
+
+            state.subjects.forEach(s => {
+                s.topics.forEach(t => {
+                    if (t.total > 0 && (t.total - (t.acertos || 0)) > 0) {
+                        count++;
+                        const erros = t.total - (t.acertos || 0);
+                        container.innerHTML += `
+                            <div class="p-3 bg-black border border-zinc-800 rounded-xl flex justify-between items-center">
+                                <div>
+                                    <span class="text-xs font-bold text-white">${s.name}</span>
+                                    <p class="text-[11px] text-zinc-400">${t.title}</p>
+                                </div>
+                                <span class="bg-red-950 text-red-400 border border-red-800 text-[10px] font-bold px-2 py-1 rounded-lg">${erros} erros</span>
+                            </div>`;
+                    }
+                });
+            });
+
+            if (count === 0) container.innerHTML = '<p class="text-zinc-500 italic">Nenhum erro registrado nos tópicos.</p>';
         }
 
         function renderTimerSelect() {
@@ -506,59 +664,39 @@
             });
         }
 
-        function renderStats() {
-            const container = document.getElementById('statsContainer');
-            container.innerHTML = '';
-
-            if (state.subjects.length === 0) {
-                container.innerHTML = '<p class="text-xs text-zinc-500">Nenhuma matéria cadastrada.</p>';
-                return;
+        function toggleTimer() {
+            const btn = document.getElementById('btnStartTimer');
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                btn.innerText = "Iniciar";
+                btn.className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition";
+            } else {
+                timerInterval = setInterval(() => {
+                    secondsElapsed++;
+                    const hrs = Math.floor(secondsElapsed / 3600);
+                    const mins = Math.floor((secondsElapsed % 3600) / 60);
+                    const secs = secondsElapsed % 60;
+                    document.getElementById('timerDisplay').innerText = 
+                        `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                }, 1000);
+                btn.innerText = "Pausar";
+                btn.className = "flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-xl text-sm transition";
             }
-
-            state.subjects.forEach(subject => {
-                const completed = subject.topics.filter(t => t.completed).length;
-                const total = subject.topics.length;
-                const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-                container.innerHTML += `
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-xs font-semibold">
-                            <span class="text-zinc-300">${subject.name}</span>
-                            <span class="text-blue-400">${completed}/${total} (${pct}%)</span>
-                        </div>
-                        <div class="w-full bg-zinc-900 h-2 rounded-full overflow-hidden border border-zinc-800">
-                            <div class="bg-blue-600 h-full transition-all duration-300" style="width: ${pct}%"></div>
-                        </div>
-                    </div>`;
-            });
         }
 
-        function toggleTopic(subjectId, topicId) {
-            const subject = state.subjects.find(s => s.id === subjectId);
-            if (!subject) return;
-            const topic = subject.topics.find(t => t.id === topicId);
-            if (!topic) return;
-            topic.completed = !topic.completed;
-            saveData();
+        function resetTimer() {
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            secondsElapsed = 0;
+            document.getElementById('timerDisplay').innerText = "00:00:00";
+            document.getElementById('btnStartTimer').innerText = "Iniciar";
         }
 
-        function openSubjectModal() { document.getElementById('subjectModal').classList.remove('hidden'); }
-        function closeSubjectModal() { document.getElementById('subjectModal').classList.add('hidden'); }
-
-        function saveSubject() {
-            const name = document.getElementById('modalSubjectName').value.trim();
-            const rawTopics = document.getElementById('modalSubjectTopics').value.split('\n').filter(t => t.trim() !== '');
-            if (!name) return;
-
-            state.subjects.push({
-                id: Date.now().toString(),
-                name,
-                topics: rawTopics.map((t, idx) => ({ id: 't_' + Date.now() + '_' + idx, title: t, completed: false }))
-            });
-
-            saveData();
-            closeSubjectModal();
+        function showAlert(msg) {
+            document.getElementById('customAlertMessage').innerText = msg;
+            document.getElementById('customAlert').classList.remove('hidden');
         }
+        function closeCustomAlert() { document.getElementById('customAlert').classList.add('hidden'); }
     </script>
 </body>
 </html>
