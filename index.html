@@ -109,6 +109,10 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
+                    <button type="button" onclick="dispararNotificacaoDiaria()" class="bg-blue-950/80 hover:bg-blue-900 border border-blue-800 text-blue-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-lg" title="Ver Resumo e Notificação do Dia">
+                        <i data-lucide="bell" class="w-4 h-4"></i>
+                        <span>Aviso Diário</span>
+                    </button>
                     <button type="button" onclick="fecharSemana()" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800 text-emerald-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-lg">
                         <i data-lucide="check-circle-2" class="w-4 h-4"></i>
                         <span>Fechar Semana</span>
@@ -232,21 +236,27 @@
                 </div>
             </section>
 
-            <!-- ABA 5: NOTAS -->
+            <!-- ABA 5: NOTAS EM PASTAS -->
             <section id="tab-notas" class="space-y-4 tab-content hidden">
                 <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4">
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
-                            <i data-lucide="file-text" class="w-5 h-5 text-blue-500"></i>
-                            <span>Blocos de Notas</span>
+                            <i data-lucide="folder" class="w-5 h-5 text-blue-500"></i>
+                            <span>Pastas e Blocos de Notas</span>
                         </h2>
-                        <button type="button" onclick="openNoteModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
-                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                            <span>Nova Nota</span>
-                        </button>
+                        <div class="flex space-x-2">
+                            <button type="button" onclick="openFolderModal()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                                <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i>
+                                <span>Nova Pasta</span>
+                            </button>
+                            <button type="button" onclick="openNoteModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>Nova Nota</span>
+                            </button>
+                        </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Crie blocos de notas personalizados para resumos e anotações rápidas.</p>
-                    <div id="notasContainer" class="space-y-3"></div>
+                    <p class="text-xs text-zinc-400">Organize suas anotações em pastas temáticas (Ex: Português, Constitucional).</p>
+                    <div id="foldersContainer" class="space-y-4"></div>
                 </div>
             </section>
 
@@ -275,7 +285,7 @@
                                 </div>
                                 <div class="bg-black p-2 border border-zinc-800 rounded-xl">
                                     <label class="block text-[10px] text-zinc-400 mb-1">Pausa (min)</label>
-                                    <input type="number" id="pomoBreakTime" value="5" min="1" max="60" class="w-full bg-zinc-900 border border-zinc-700 rounded text-center text-white py-1 font-bold">
+                                    <input type="number" id="pomoBreakTime" value="5" min="1" max="60" onchange="resetPomoTimer()" class="w-full bg-zinc-900 border border-zinc-700 rounded text-center text-white py-1 font-bold">
                                 </div>
                             </div>
 
@@ -285,7 +295,7 @@
 
                         <div class="flex space-x-2 pt-2">
                             <button type="button" id="btnPomoStart" onclick="togglePomoTimer()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
-                                Iniciar Pomodoro
+                                Iniciar Foco
                             </button>
                             <button type="button" onclick="resetPomoTimer()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-zinc-800 px-3 py-2.5 rounded-xl text-xs transition">
                                 Zerar
@@ -345,7 +355,7 @@
                     <span class="text-[9px]">Erros</span>
                 </button>
                 <button type="button" onclick="switchTab('notas')" id="nav-notas" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
-                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                    <i data-lucide="folder" class="w-5 h-5"></i>
                     <span class="text-[9px]">Notas</span>
                 </button>
                 <button type="button" onclick="switchTab('timer')" id="nav-timer" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
@@ -354,6 +364,73 @@
                 </button>
             </div>
         </nav>
+    </div>
+
+    <!-- MODAL CRIAR/EDITAR PASTA -->
+    <div id="folderModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
+                <i data-lucide="folder-plus" class="w-5 h-5"></i>
+                <span>Nova Pasta de Notas</span>
+            </h3>
+            <input type="hidden" id="editingFolderId" value="">
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Nome da Pasta</label>
+                <input type="text" id="modalFolderName" placeholder="Ex: Direito Constitucional" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="closeFolderModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="saveFolder()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Salvar Pasta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CRIAR/EDITAR NOTA -->
+    <div id="noteModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+            <h3 id="noteModalTitle" class="text-base font-bold text-blue-500 flex items-center space-x-2">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                <span>Novo Bloco de Notas</span>
+            </h3>
+            <input type="hidden" id="editingNoteId" value="">
+
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Pasta Destino</label>
+                <select id="modalNoteFolderSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                    <option value="">-- Selecione a Pasta --</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Título da Nota</label>
+                <input type="text" id="modalNoteTitle" placeholder="Ex: Resumo de Direitos Fundamentais" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Conteúdo Ampliado</label>
+                <textarea id="modalNoteContent" rows="10" placeholder="Escreva suas anotações aqui..." class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-y font-mono leading-relaxed"></textarea>
+            </div>
+
+            <div class="flex space-x-3 pt-2">
+                <button type="button" onclick="closeNoteModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-3 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="saveNote()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl text-sm font-semibold transition">Salvar Nota</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NOTIFICAÇÃO DIÁRIA -->
+    <div id="notificationModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center space-x-3 text-blue-400">
+                <i data-lucide="bell" class="w-6 h-6"></i>
+                <h3 class="text-base font-bold text-white">Resumo e Notificação Diária</h3>
+            </div>
+            <p class="text-xs text-zinc-400">Aqui está o seu planejamento de estudo normal e revisões para hoje:</p>
+            <div id="dailyNotificationContent" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+            <div class="pt-2">
+                <button type="button" onclick="fecharModalNotificacao()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Entendido</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL IMPORTAR EDITAL -->
@@ -473,32 +550,6 @@
         </div>
     </div>
 
-    <!-- MODAL BLOCO DE NOTAS (MAIOR E MAIS AMPLO) -->
-    <div id="noteModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
-            <h3 id="noteModalTitle" class="text-base font-bold text-blue-500 flex items-center space-x-2">
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span>Novo Bloco de Notas</span>
-            </h3>
-            <input type="hidden" id="editingNoteId" value="">
-
-            <div>
-                <label class="block text-xs text-zinc-400 mb-1">Nome do Bloco de Notas</label>
-                <input type="text" id="modalNoteTitle" placeholder="Ex: Resumo de Constitucional" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
-            </div>
-
-            <div>
-                <label class="block text-xs text-zinc-400 mb-1">Conteúdo Ampliado</label>
-                <textarea id="modalNoteContent" rows="12" placeholder="Escreva suas anotações aqui..." class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-y font-mono leading-relaxed"></textarea>
-            </div>
-
-            <div class="flex space-x-3 pt-2">
-                <button type="button" onclick="closeNoteModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-3 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="saveNote()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl text-sm font-semibold transition">Salvar Nota</button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL APROVEITAMENTO PARA TÓPICO -->
     <div id="approvalModal" class="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl text-center">
@@ -538,7 +589,7 @@
         let historicoDiario = [];
         let historicoSemanal = [];
         let cadernoErros = [];
-        let userNotes = [];
+        let userFolders = []; // Estrutura de Pastas e Notas
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let dailySubjectsCount = 2;
         let planoGerado = false;
@@ -546,6 +597,7 @@
         let pomoInterval = null;
         let pomoSeconds = 25 * 60;
         let pomoIsRunning = false;
+        let pomoMode = 'work';
         
         let freeInterval = null;
         let freeSeconds = 0;
@@ -639,7 +691,7 @@
 
         function saveUserData() {
             if (!currentUser) return;
-            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, userNotes, weeklyHoursConfig, dailySubjectsCount, planoGerado };
+            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, userFolders, weeklyHoursConfig, dailySubjectsCount, planoGerado };
             firebase.firestore().collection('schedules').doc(currentUser.uid).set(data)
                 .catch(err => console.error("Erro ao salvar dados:", err));
         }
@@ -654,12 +706,17 @@
                         historicoDiario = data.historicoDiario || [];
                         historicoSemanal = data.historicoSemanal || [];
                         cadernoErros = data.cadernoErros || [];
-                        userNotes = data.userNotes || [];
+                        userFolders = data.userFolders || [];
+                        // Migração de dados antigos caso existam
+                        if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
+                            userFolders.push({ id: 'geral', name: 'Geral', notes: data.userNotes });
+                        }
                         if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
                         if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
                         if (data.planoGerado !== undefined) planoGerado = data.planoGerado;
                     } else {
                         subjects = [];
+                        userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
                     }
                     renderApp();
                 })
@@ -743,7 +800,7 @@
                 subjects[idx].hoursStudied = hoursStudied;
                 subjects[idx].topics = newTopics;
             } else {
-                subjects.push({ name, weight, hoursStudied, topics: newTopics, questionsCount: 0, correctCount: 0, includeInPlan: true, topicPointer: 0, minimized: false });
+                subjects.push({ name, weight, hoursStudied, topics: newTopics, questionsCount: 0, correctCount: 0, includeInPlan: true, minimized: false });
             }
 
             saveUserData();
@@ -810,16 +867,62 @@
             lucide.createIcons();
         }
 
-        // BLOCOS DE NOTAS
-        function openNoteModal(nIndex = null) {
-            if (nIndex !== null && userNotes[nIndex]) {
-                const note = userNotes[nIndex];
-                document.getElementById('editingNoteId').value = nIndex;
+        // PASTAS E BLOCOS DE NOTAS
+        function openFolderModal() {
+            document.getElementById('editingFolderId').value = '';
+            document.getElementById('modalFolderName').value = '';
+            document.getElementById('folderModal').classList.remove('hidden');
+        }
+
+        function closeFolderModal() {
+            document.getElementById('folderModal').classList.add('hidden');
+        }
+
+        function saveFolder() {
+            const folderName = document.getElementById('modalFolderName').value.trim();
+            if (!folderName) {
+                alert("Digite o nome da pasta.");
+                return;
+            }
+
+            if (!userFolders) userFolders = [];
+            userFolders.push({
+                id: 'folder_' + Date.now(),
+                name: folderName,
+                notes: []
+            });
+
+            saveUserData();
+            renderNotas();
+            closeFolderModal();
+        }
+
+        function deleteFolder(fIndex) {
+            if (confirm("Deseja realmente excluir esta pasta e todas as notas contidas nela?")) {
+                userFolders.splice(fIndex, 1);
+                saveUserData();
+                renderNotas();
+            }
+        }
+
+        function openNoteModal(fIndex = null, nIndex = null) {
+            if (!userFolders || userFolders.length === 0) {
+                userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
+            }
+
+            const select = document.getElementById('modalNoteFolderSelect');
+            select.innerHTML = userFolders.map((f, idx) => `<option value="${idx}">${f.name}</option>`).join('');
+
+            if (fIndex !== null && nIndex !== null && userFolders[fIndex] && userFolders[fIndex].notes[nIndex]) {
+                const note = userFolders[fIndex].notes[nIndex];
+                document.getElementById('editingNoteId').value = `${fIndex}_${nIndex}`;
+                select.value = fIndex;
                 document.getElementById('modalNoteTitle').value = note.title;
                 document.getElementById('modalNoteContent').value = note.content;
                 document.getElementById('noteModalTitle').textContent = 'Editar Bloco de Notas';
             } else {
                 document.getElementById('editingNoteId').value = '';
+                if (fIndex !== null) select.value = fIndex;
                 document.getElementById('modalNoteTitle').value = '';
                 document.getElementById('modalNoteContent').value = '';
                 document.getElementById('noteModalTitle').textContent = 'Novo Bloco de Notas';
@@ -833,72 +936,169 @@
 
         function saveNote() {
             const editingId = document.getElementById('editingNoteId').value;
+            const targetFolderIdx = parseInt(document.getElementById('modalNoteFolderSelect').value);
             const title = document.getElementById('modalNoteTitle').value.trim();
             const content = document.getElementById('modalNoteContent').value.trim();
 
             if (!title) {
-                alert("Digite o nome do bloco de notas.");
+                alert("Digite o título da nota.");
                 return;
             }
 
-            if (editingId !== '') {
-                const idx = parseInt(editingId);
-                userNotes[idx].title = title;
-                userNotes[idx].content = content;
-                userNotes[idx].date = new Date().toLocaleDateString('pt-BR');
-            } else {
-                userNotes.unshift({
-                    title,
-                    content,
-                    date: new Date().toLocaleDateString('pt-BR')
-                });
+            if (isNaN(targetFolderIdx) || !userFolders[targetFolderIdx]) {
+                alert("Selecione uma pasta válida.");
+                return;
             }
+
+            const newNote = {
+                title,
+                content,
+                date: new Date().toLocaleDateString('pt-BR')
+            };
+
+            if (editingId !== '') {
+                const [oldFIdx, oldNIdx] = editingId.split('_').map(Number);
+                // Remove a nota antiga
+                userFolders[oldFIdx].notes.splice(oldNIdx, 1);
+            }
+
+            // Adiciona na pasta selecionada (atual ou nova)
+            userFolders[targetFolderIdx].notes.unshift(newNote);
 
             saveUserData();
             renderNotas();
             closeNoteModal();
         }
 
-        function deleteNote(nIndex) {
+        function deleteNote(fIndex, nIndex) {
             if (confirm("Deseja realmente excluir este bloco de notas?")) {
-                userNotes.splice(nIndex, 1);
+                userFolders[fIndex].notes.splice(nIndex, 1);
                 saveUserData();
                 renderNotas();
             }
         }
 
         function renderNotas() {
-            const container = document.getElementById('notasContainer');
+            const container = document.getElementById('foldersContainer');
             if (!container) return;
 
-            if (!userNotes || userNotes.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum bloco de notas criado ainda.</p>`;
-                return;
+            if (!userFolders || userFolders.length === 0) {
+                userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
             }
 
-            container.innerHTML = userNotes.map((note, nIndex) => `
-                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2">
-                    <div class="flex items-center justify-between text-xs border-b border-zinc-900 pb-1.5">
-                        <span class="font-bold text-blue-400">${note.title}</span>
-                        <span class="text-[10px] text-zinc-500">${note.date}</span>
+            container.innerHTML = userFolders.map((folder, fIndex) => `
+                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="folder" class="w-4 h-4 text-blue-400"></i>
+                            <h3 class="font-bold text-sm text-white">${folder.name} <span class="text-[10px] text-zinc-500 font-normal">(${folder.notes ? folder.notes.length : 0} notas)</span></h3>
+                        </div>
+                        <div class="flex items-center space-x-3 text-xs">
+                            <button type="button" onclick="openNoteModal(${fIndex})" class="text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1" title="Adicionar nota nesta pasta">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>Nota</span>
+                            </button>
+                            ${userFolders.length > 1 ? `
+                            <button type="button" onclick="deleteFolder(${fIndex})" class="text-red-400 hover:text-red-300" title="Excluir Pasta">
+                                <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                            </button>` : ''}
+                        </div>
                     </div>
-                    <p class="text-xs text-zinc-300 bg-zinc-900/50 p-2.5 rounded-xl border border-zinc-800/60 font-mono whitespace-pre-wrap">${note.content || 'Sem conteúdo.'}</p>
-                    <div class="flex justify-end space-x-3 pt-1">
-                        <button type="button" onclick="openNoteModal(${nIndex})" class="text-[11px] text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1">
-                            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                            <span>Editar</span>
-                        </button>
-                        <button type="button" onclick="deleteNote(${nIndex})" class="text-[11px] text-red-400 hover:text-red-300 font-semibold flex items-center space-x-1">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                            <span>Excluir</span>
-                        </button>
+
+                    <div class="space-y-2 pl-2">
+                        ${folder.notes && folder.notes.length > 0 ? folder.notes.map((note, nIndex) => `
+                            <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl space-y-1.5">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-bold text-white">• ${note.title}</span>
+                                    <span class="text-[10px] text-zinc-500">${note.date}</span>
+                                </div>
+                                <p class="text-xs text-zinc-300 font-mono whitespace-pre-wrap bg-black/40 p-2 rounded-lg border border-zinc-800/50">${note.content || 'Sem conteúdo.'}</p>
+                                <div class="flex justify-end space-x-3 pt-1">
+                                    <button type="button" onclick="openNoteModal(${fIndex}, ${nIndex})" class="text-[11px] text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1">
+                                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                        <span>Editar</span>
+                                    </button>
+                                    <button type="button" onclick="deleteNote(${fIndex}, ${nIndex})" class="text-[11px] text-red-400 hover:text-red-300 font-semibold flex items-center space-x-1">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        <span>Excluir</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('') : '<p class="text-[11px] text-zinc-600 italic">Nenhuma nota nesta pasta.</p>'}
                     </div>
                 </div>
             `).join('');
             lucide.createIcons();
         }
 
-        // PLANO INTELIGENTE COM HORAS PONDERADAS E TÓPICOS DO EDITAL
+        // NOTIFICAÇÃO DIÁRIA DO ESTUDO E REVISÕES
+        function dispararNotificacaoDiaria() {
+            const container = document.getElementById('dailyNotificationContent');
+            if (!container) return;
+
+            if (!planoGerado || subjects.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Gere um plano de estudos e cadastre matérias para visualizar o resumo diário.</p>`;
+                document.getElementById('notificationModal').classList.remove('hidden');
+                return;
+            }
+
+            const dayMap = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
+            const todayKey = dayMap[new Date().getDay()];
+            const dayNames = { seg: 'Segunda-feira', ter: 'Terça-feira', qua: 'Quarta-feira', qui: 'Quinta-feira', sex: 'Sexta-feira', sab: 'Sábado', dom: 'Domingo' };
+            const hoursVal = weeklyHoursConfig[todayKey] || 0;
+
+            if (hoursVal <= 0) {
+                container.innerHTML = `<div class="bg-black border border-zinc-800 rounded-xl p-3 text-center text-xs text-zinc-400">Hoje é dia de descanso (${dayNames[todayKey]})! Aproveite para recarregar as energias.</div>`;
+                document.getElementById('notificationModal').classList.remove('hidden');
+                return;
+            }
+
+            const activeSubjects = subjects.filter(sub => sub.includeInPlan !== false);
+            if (activeSubjects.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Nenhuma matéria ativa no plano.</p>`;
+                document.getElementById('notificationModal').classList.remove('hidden');
+                return;
+            }
+
+            let html = `<div class="text-xs font-bold text-blue-400 mb-2">📅 Cronograma para hoje (${dayNames[todayKey]}):</div>`;
+            
+            activeSubjects.slice(0, dailySubjectsCount).forEach((sub, idx) => {
+                let uncompleted = sub.topics ? sub.topics.filter(t => !t.done) : [];
+                let topText = uncompleted.length > 0 ? uncompleted[0].name : (sub.topics && sub.topics.length > 0 ? sub.topics[0].name : 'Sem tópicos');
+                html += `
+                    <div class="bg-black border border-zinc-800 rounded-xl p-3 space-y-1">
+                        <div class="font-bold text-white text-xs">${idx + 1}. Estudo Normal: ${sub.name}</div>
+                        <div class="text-[11px] text-zinc-300">• Tópico: ${topText}</div>
+                    </div>
+                `;
+            });
+
+            html += `
+                <div class="bg-amber-950/30 border border-amber-900/40 rounded-xl p-3 space-y-1">
+                    <div class="font-bold text-amber-400 text-xs">3. Revisão Programada</div>
+                    <div class="text-[11px] text-zinc-300">• 30 min de Revisão espaçada (24h/7d/30d)</div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+            document.getElementById('notificationModal').classList.remove('hidden');
+
+            if ("Notification" in window) {
+                if (Notification.permission === "granted") {
+                    new Notification("EstudoFlow PRO - Estudo do Dia", {
+                        body: `Você tem ${hoursVal}h de estudos programados para hoje (${dayNames[todayKey]}). Foco na aprovação!`
+                    });
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission();
+                }
+            }
+        }
+
+        function fecharModalNotificacao() {
+            document.getElementById('notificationModal').classList.add('hidden');
+        }
+
+        // PLANO INTELIGENTE
         function renderSmartPlan() {
             const container = document.getElementById('smartPlanContainer');
             if (!container) return;
@@ -969,7 +1169,6 @@
                     normPtr++;
                 }
 
-                // Ponderação proporcional de horas por peso da matéria
                 let allocatedHours = normalsForDay.map(sub => {
                     let weight = sub.weight || 1;
                     let proportion = weight / totalWeightOfDay;
@@ -977,7 +1176,6 @@
                     return { sub, hours: h };
                 });
 
-                // Selecionar próximo tópico do edital para cada matéria do dia
                 const normalHtml = allocatedHours.map((item, idx) => {
                     let sub = item.sub;
                     let currentTopicText = "Nenhum tópico pendente no edital";
@@ -986,7 +1184,7 @@
                         if (uncompleted.length > 0) {
                             currentTopicText = uncompleted[0].name;
                         } else {
-                            currentTopicText = sub.topics[0].name; // Ciclo concluído, reinicia
+                            currentTopicText = sub.topics[0].name;
                         }
                     }
 
@@ -1296,9 +1494,12 @@
         }
 
         function adicionarHorasEstudo(subjectIndex, minutos) {
-            if (subjectIndex === '' || subjectIndex === null || isNaN(subjectIndex)) return;
+            if (subjectIndex === '' || subjectIndex === null || subjectIndex === undefined) {
+                alert("Selecione uma matéria antes de computar as horas!");
+                return;
+            }
             const sIdx = parseInt(subjectIndex);
-            if (subjects[sIdx]) {
+            if (!isNaN(sIdx) && subjects[sIdx]) {
                 const horasAdicionadas = minutos / 60;
                 subjects[sIdx].hoursStudied = (subjects[sIdx].hoursStudied || 0) + horasAdicionadas;
                 saveUserData();
@@ -1403,6 +1604,7 @@
             }
         }
 
+        // TIMER POMODORO
         function togglePomoTimer() {
             const btn = document.getElementById('btnPomoStart');
             const subIdx = document.getElementById('pomoSubjectSelect').value;
@@ -1410,14 +1612,15 @@
             if (pomoIsRunning) {
                 clearInterval(pomoInterval);
                 pomoIsRunning = false;
-                btn.textContent = "Iniciar Pomodoro";
-                btn.classList.replace('bg-amber-600', 'bg-blue-600');
+                btn.textContent = pomoMode === 'work' ? "Iniciar Foco" : "Iniciar Pausa";
+                btn.classList.replace('bg-amber-600', pomoMode === 'work' ? 'bg-blue-600' : 'bg-emerald-600');
             } else {
                 pomoIsRunning = true;
                 btn.textContent = "Pausar";
-                btn.classList.replace('bg-blue-600', 'bg-amber-600');
+                btn.classList.replace(pomoMode === 'work' ? 'bg-blue-600' : 'bg-emerald-600', 'bg-amber-600');
                 
                 const workMins = parseInt(document.getElementById('pomoWorkTime').value) || 25;
+                const breakMins = parseInt(document.getElementById('pomoBreakTime').value) || 5;
 
                 pomoInterval = setInterval(() => {
                     if (pomoSeconds > 0) {
@@ -1426,12 +1629,29 @@
                     } else {
                         clearInterval(pomoInterval);
                         pomoIsRunning = false;
-                        btn.textContent = "Iniciar Pomodoro";
-                        btn.classList.replace('bg-amber-600', 'bg-blue-600');
-                        
-                        adicionarHorasEstudo(subIdx, workMins);
-                        alert(`Ciclo Pomodoro de ${workMins} minutos concluído e computado nas horas da matéria!`);
-                        resetPomoTimer();
+
+                        if (pomoMode === 'work') {
+                            adicionarHorasEstudo(subIdx, workMins);
+                            alert(`Foco de ${workMins} minutos concluído e computado! Hora da pausa.`);
+                            
+                            pomoMode = 'break';
+                            pomoSeconds = breakMins * 60;
+                            document.getElementById('pomoStatus').textContent = "Ciclo de Pausa";
+                            document.getElementById('pomoStatus').className = "text-[11px] font-bold text-emerald-400 uppercase tracking-widest";
+                            btn.textContent = "Iniciar Pausa";
+                            btn.classList.replace('bg-amber-600', 'bg-emerald-600');
+                            updatePomoDisplay();
+                        } else {
+                            alert(`Pausa de ${breakMins} minutos concluída! Pronto para voltar ao foco.`);
+                            
+                            pomoMode = 'work';
+                            pomoSeconds = workMins * 60;
+                            document.getElementById('pomoStatus').textContent = "Sessão de Foco";
+                            document.getElementById('pomoStatus').className = "text-[11px] font-bold text-blue-400 uppercase tracking-widest";
+                            btn.textContent = "Iniciar Foco";
+                            btn.classList.replace('bg-amber-600', 'bg-blue-600');
+                            updatePomoDisplay();
+                        }
                     }
                 }, 1000);
             }
@@ -1440,10 +1660,14 @@
         function resetPomoTimer() {
             clearInterval(pomoInterval);
             pomoIsRunning = false;
+            pomoMode = 'work';
             const workMins = parseInt(document.getElementById('pomoWorkTime').value) || 25;
             pomoSeconds = workMins * 60;
+            document.getElementById('pomoStatus').textContent = "Sessão de Foco";
+            document.getElementById('pomoStatus').className = "text-[11px] font-bold text-blue-400 uppercase tracking-widest";
             updatePomoDisplay();
-            document.getElementById('btnPomoStart').textContent = "Iniciar Pomodoro";
+            document.getElementById('btnPomoStart').textContent = "Iniciar Foco";
+            document.getElementById('btnPomoStart').className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
         }
 
         function updatePomoDisplay() {
@@ -1452,6 +1676,7 @@
             document.getElementById('pomoDisplay').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
+        // TIMER LIVRE
         function toggleFreeTimer() {
             const btn = document.getElementById('btnFreeStart');
             const subIdx = document.getElementById('freeSubjectSelect').value;
@@ -1463,13 +1688,21 @@
                 btn.classList.replace('bg-amber-600', 'bg-emerald-600');
 
                 const minutosEstudados = Math.floor(freeSeconds / 60);
-                if (minutosEstudados > 0) {
-                    adicionarHorasEstudo(subIdx, minutosEstudados);
-                    alert(`Sessão livre encerrada! ${minutosEstudados} minutos computados na matéria.`);
+                const minutosComputados = minutosEstudados > 0 ? minutosEstudados : (freeSeconds > 0 ? 1 : 0);
+
+                if (minutosComputados > 0) {
+                    adicionarHorasEstudo(subIdx, minutosComputados);
+                    alert(`Sessão livre encerrada! ${minutosComputados} minuto(s) computados na matéria.`);
+                } else {
+                    alert("Nenhum tempo significativo foi registrado.");
                 }
                 freeSeconds = 0;
                 updateFreeDisplay();
             } else {
+                if (subIdx === '') {
+                    alert("Por favor, selecione uma matéria antes de iniciar o cronômetro livre.");
+                    return;
+                }
                 freeIsRunning = true;
                 btn.textContent = "Parar e Salvar";
                 btn.classList.replace('bg-emerald-600', 'bg-amber-600');
@@ -1488,6 +1721,7 @@
             freeSeconds = 0;
             updateFreeDisplay();
             document.getElementById('btnFreeStart').textContent = "Iniciar Livre";
+            document.getElementById('btnFreeStart').className = "flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
         }
 
         function updateFreeDisplay() {
