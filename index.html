@@ -316,23 +316,44 @@
         </div>
     </div>
 
-    <!-- MODAL PLANO SEMANAL -->
+    <!-- MODAL PLANO SEMANAL DINÂMICO POR DIA -->
     <div id="planModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
                 <i data-lucide="sparkles" class="w-5 h-5"></i>
-                <span>Gerar Plano de Estudos Semanal</span>
+                <span>Metas de Estudo por Dia da Semana</span>
             </h3>
-            <p class="text-xs text-zinc-400">Informe suas metas de tempo. O plano será gerado automaticamente com base no peso das matérias e no seu histórico de estudo.</p>
+            <p class="text-xs text-zinc-400">Defina quantas horas você tem livres em cada dia específico. O total semanal será calculado automaticamente.</p>
 
-            <div>
-                <label class="block text-xs text-zinc-400 mb-1">Horas disponíveis na SEMANA</label>
-                <input type="number" id="planWeeklyHours" value="20" min="1" max="100" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-            </div>
-
-            <div>
-                <label class="block text-xs text-zinc-400 mb-1">Horas de estudo por DIA</label>
-                <input type="number" id="planDailyHours" value="3" min="1" max="24" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between">
+                    <span class="text-zinc-300 font-bold">Segunda</span>
+                    <input type="number" id="day_seg" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
+                </div>
+                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between">
+                    <span class="text-zinc-300 font-bold">Terça</span>
+                    <input type="number" id="day_ter" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
+                </div>
+                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between">
+                    <span class="text-zinc-300 font-bold">Quarta</span>
+                    <input type="number" id="day_qua" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
+                </div>
+                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between">
+                    <span class="text-zinc-300 font-bold">Quinta</span>
+                    <input type="number" id="day_qui" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
+                </div>
+                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between">
+                    <span class="text-zinc-300 font-bold">Sexta</span>
+                    <input type="number" id="day_sex" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
+                </div>
+                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between">
+                    <span class="text-zinc-300 font-bold">Sábado</span>
+                    <input type="number" id="day_sab" value="4" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
+                </div>
+                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between col-span-2">
+                    <span class="text-zinc-300 font-bold">Domingo</span>
+                    <input type="number" id="day_dom" value="2" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
+                </div>
             </div>
 
             <div class="flex space-x-2 pt-2">
@@ -395,7 +416,7 @@
 
         let currentUser = null;
         let isSignUpMode = false;
-        let state = { subjects: [], weeklyHours: 0, totalHours: 0, historyWeeks: [] };
+        let state = { subjects: [], weeklyHours: 0, totalHours: 0, historyWeeks: [], dailyAvailability: { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 } };
         
         let pomoInterval = null;
         let pomoSecondsLeft = 25 * 60;
@@ -453,8 +474,11 @@
         function loadUserData() {
             if (!currentUser) return;
             db.collection('schedules').doc(currentUser.uid).onSnapshot(doc => {
-                if (doc.exists) state = Object.assign({ subjects: [], totalHours: 0, weeklyHours: 0, historyWeeks: [] }, doc.data());
-                else saveData();
+                if (doc.exists) {
+                    state = Object.assign({ subjects: [], totalHours: 0, weeklyHours: 0, historyWeeks: [], dailyAvailability: { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 } }, doc.data());
+                } else {
+                    saveData();
+                }
                 render();
             });
         }
@@ -550,24 +574,44 @@
 
         function abrirModalPlano() {
             if (state.subjects.length === 0) return showAlert("Adicione ou importe o edital antes de gerar o plano.");
+            
+            // Carrega os valores salvos se existirem
+            if (state.dailyAvailability) {
+                ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom'].forEach(d => {
+                    const el = document.getElementById(`day_${d}`);
+                    if (el && state.dailyAvailability[d] !== undefined) {
+                        el.value = state.dailyAvailability[d];
+                    }
+                });
+            }
+
             document.getElementById('planModal').classList.remove('hidden');
         }
 
         function fecharModalPlano() { document.getElementById('planModal').classList.add('hidden'); }
 
         function gerarPlanoInteligente() {
-            const weeklyGoal = parseInt(document.getElementById('planWeeklyHours').value) || 20;
+            const days = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom'];
+            let totalWeeklyHours = 0;
+            state.dailyAvailability = {};
+
+            days.forEach(d => {
+                const val = parseInt(document.getElementById(`day_${d}`).value) || 0;
+                state.dailyAvailability[d] = val;
+                totalWeeklyHours += val;
+            });
+
             let totalWeights = 0;
             state.subjects.forEach(s => totalWeights += (parseInt(s.weight) || 1));
 
             state.subjects.forEach(s => {
                 const peso = parseInt(s.weight) || 1;
-                s.targetHours = Math.round((peso / totalWeights) * weeklyGoal);
+                s.targetHours = totalWeights > 0 ? Math.round((peso / totalWeights) * totalWeeklyHours) : 0;
             });
 
             saveData();
             fecharModalPlano();
-            showAlert(`Plano semanal ajustado para ${weeklyGoal}h com sucesso!`);
+            showAlert(`Plano semanal recalculado com sucesso! Total disponível: ${totalWeeklyHours}h.`);
         }
 
         function fecharSemana() {
