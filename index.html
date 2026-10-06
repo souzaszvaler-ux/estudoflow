@@ -764,8 +764,8 @@
             ];
 
             let normPtr = 0;
-            let revPtr = 0;
             let activeDayCounter = 0;
+            let studyHistoryByDay = [];
 
             container.innerHTML = days.map((day) => {
                 if (day.hours <= 0) {
@@ -779,25 +779,33 @@
 
                 let normalsForDay = [];
                 for (let i = 0; i < dailySubjectsCount; i++) {
-                    normalsForDay.push(scoredSubjects[normPtr % scoredSubjects.length]);
+                    let sub = scoredSubjects[normPtr % scoredSubjects.length];
+                    normalsForDay.push(sub);
+                    studyHistoryByDay.push({ dayIndex: activeDayCounter, subjectName: sub.name });
                     normPtr++;
                 }
 
-                // Apenas o primeiro dia ativo absoluto do ciclo não terá revisão
-                const hasReview = activeDayCounter > 0;
-                activeDayCounter++;
-
-                let reviewSub = null;
-                let revType = "";
-
-                if (hasReview) {
-                    reviewSub = scoredSubjects[revPtr % scoredSubjects.length];
-                    revPtr++;
-                    const reviewIndex = activeDayCounter - 1;
-                    if (reviewIndex % 3 === 1) revType = "Revisão de 7 dias";
-                    else if (reviewIndex % 3 === 2) revType = "Revisão de 30 dias";
-                    else revType = "Revisão de 24 horas";
+                let reviewItem = null;
+                if (activeDayCounter >= 1) {
+                    let candidateFor24h = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 1);
+                    if (candidateFor24h.length > 0) {
+                        reviewItem = { type: "Revisão de 24 horas", name: candidateFor24h[0].subjectName };
+                    }
                 }
+                if (!reviewItem && activeDayCounter >= 7) {
+                    let candidateFor7d = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 7);
+                    if (candidateFor7d.length > 0) {
+                        reviewItem = { type: "Revisão de 7 dias", name: candidateFor7d[0].subjectName };
+                    }
+                }
+                if (!reviewItem && activeDayCounter >= 30) {
+                    let candidateFor30d = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 30);
+                    if (candidateFor30d.length > 0) {
+                        reviewItem = { type: "Revisão de 30 dias", name: candidateFor30d[0].subjectName };
+                    }
+                }
+
+                activeDayCounter++;
 
                 const normalHtml = normalsForDay.map((sub, idx) => `
                     <div class="flex items-center justify-between text-xs bg-zinc-900/60 border border-zinc-800/80 p-2.5 rounded-xl">
@@ -807,10 +815,10 @@
                 `).join('');
 
                 let reviewHtml = '';
-                if (hasReview) {
+                if (reviewItem) {
                     reviewHtml = `
                         <div class="flex items-center justify-between text-xs bg-amber-950/30 border border-amber-900/40 p-2.5 rounded-xl">
-                            <span class="font-bold text-amber-400">${dailySubjectsCount + 1}. ${revType}: ${reviewSub.name}</span>
+                            <span class="font-bold text-amber-400">${dailySubjectsCount + 1}. ${reviewItem.type}: ${reviewItem.name}</span>
                             <span class="text-[10px] font-bold text-amber-500 bg-amber-950/60 px-2 py-1 rounded-lg border border-amber-800/50">30 min</span>
                         </div>
                     `;
@@ -820,12 +828,12 @@
                     <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
-                            <span class="text-xs font-bold text-zinc-300">${day.hours}h livres ${hasReview ? '+ 30min Revisão' : ''}</span>
+                            <span class="text-xs font-bold text-zinc-300">${day.hours}h livres ${reviewItem ? '+ 30min Revisão' : ''}</span>
                         </div>
                         <div class="space-y-1.5 pt-1">
                             ${normalHtml}
                             ${reviewHtml}
-                            ${!hasReview ? '<div class="text-[10px] text-zinc-500 italic px-1 pt-0.5">* Primeiro dia do ciclo dedicado exclusivamente ao estudo base (sem revisões prévias).</div>' : ''}
+                            ${!reviewItem ? '<div class="text-[10px] text-zinc-500 italic px-1 pt-0.5">* Dia inicial sem revisões acumuladas suficientes ainda.</div>' : ''}
                         </div>
                     </div>
                 `;
