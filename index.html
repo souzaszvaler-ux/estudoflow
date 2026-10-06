@@ -737,8 +737,9 @@
 
             let normPtr = 0;
             let revPtr = 0;
+            let activeDayCounter = 0;
 
-            container.innerHTML = days.map((day, dIdx) => {
+            container.innerHTML = days.map((day) => {
                 if (day.hours <= 0) {
                     return `
                         <div class="bg-black border border-zinc-800 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
@@ -754,15 +755,18 @@
                     normPtr++;
                 }
 
-                const hasReview = dIdx > 0;
+                // O primeiro dia ativo da semana (onde activeDayCounter === 0) não tem revisão
+                const hasReview = activeDayCounter > 0;
+                activeDayCounter++;
+
                 let reviewSub = null;
                 let revType = "";
 
                 if (hasReview) {
                     reviewSub = scoredSubjects[revPtr % scoredSubjects.length];
                     revPtr++;
-                    if (dIdx % 3 === 1) revType = "Revisão de 7 dias";
-                    else if (dIdx % 3 === 2) revType = "Revisão de 30 dias";
+                    if (activeDayCounter % 3 === 2) revType = "Revisão de 7 dias";
+                    else if (activeDayCounter % 3 === 0) revType = "Revisão de 30 dias";
                     else revType = "Revisão de 24 horas";
                 }
 
@@ -804,7 +808,7 @@
                         <div class="space-y-1.5 pt-1">
                             ${normalHtml}
                             ${reviewHtml}
-                            ${!hasReview ? '<div class="text-[10px] text-zinc-500 italic px-1 pt-0.5">* Primeiro dia do ciclo dedicado exclusivamente ao estudo base (sem revisões prévias).</div>' : ''}
+                            ${!hasReview ? '<div class="text-[10px] text-zinc-500 italic px-1 pt-0.5">* Primeiro dia ativo do ciclo dedicado exclusivamente ao estudo base (sem revisões prévias).</div>' : ''}
                         </div>
                     </div>
                 `;
