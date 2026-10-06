@@ -326,36 +326,40 @@
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
                 <i data-lucide="sparkles" class="w-5 h-5"></i>
-                <span>Metas de Estudo por Dia da Semana</span>
+                <span>Gerar Plano e Selecionar Matérias</span>
             </h3>
-            <p class="text-xs text-zinc-400">Defina quantas horas você tem livres em cada dia específico.</p>
+            <p class="text-xs text-zinc-400">Desmarque as matérias que deseja excluir temporariamente da geração de estudo desta semana.</p>
 
-            <div class="grid grid-cols-2 gap-2 text-xs">
-                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between">
+            <div id="planSubjectsList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                <!-- Preenchido dinamicamente -->
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-zinc-800">
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between">
                     <span class="text-zinc-300 font-bold">Segunda</span>
                     <input type="number" id="day_seg" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
                 </div>
-                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between">
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between">
                     <span class="text-zinc-300 font-bold">Terça</span>
                     <input type="number" id="day_ter" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
                 </div>
-                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between">
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between">
                     <span class="text-zinc-300 font-bold">Quarta</span>
                     <input type="number" id="day_qua" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
                 </div>
-                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between">
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between">
                     <span class="text-zinc-300 font-bold">Quinta</span>
                     <input type="number" id="day_qui" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
                 </div>
-                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between">
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between">
                     <span class="text-zinc-300 font-bold">Sexta</span>
                     <input type="number" id="day_sex" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
                 </div>
-                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between">
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between">
                     <span class="text-zinc-300 font-bold">Sábado</span>
                     <input type="number" id="day_sab" value="4" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
                 </div>
-                <div class="bg-black p-2.5 border border-zinc-800 rounded-xl flex items-center justify-between col-span-2">
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between col-span-2">
                     <span class="text-zinc-300 font-bold">Domingo</span>
                     <input type="number" id="day_dom" value="2" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold">
                 </div>
@@ -363,7 +367,7 @@
 
             <div class="flex space-x-2 pt-2">
                 <button type="button" onclick="fecharModalPlano()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Calcular Plano</button>
+                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Plano</button>
             </div>
         </div>
     </div>
@@ -392,6 +396,36 @@
             <div class="flex space-x-2 pt-2">
                 <button type="button" onclick="closeSubjectModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
                 <button type="button" onclick="saveSubject()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL APROVEITAMENTO PARA TÓPICO -->
+    <div id="approvalModal" class="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl text-center">
+            <div class="inline-flex p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-400 mb-1">
+                <i data-lucide="award" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-base font-bold text-white">Validação de Aproveitamento</h3>
+            <p class="text-xs text-zinc-400">Para concluir este tópico, informe o resultado dos seus exercícios de fixação (Mínimo de 80% exigido).</p>
+            
+            <input type="hidden" id="pendingSubjectIndex" value="">
+            <input type="hidden" id="pendingTopicIndex" value="">
+
+            <div class="grid grid-cols-2 gap-3 text-left">
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1">Total de Questões</label>
+                    <input type="number" id="inputTotalQ" min="1" value="10" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white text-center font-bold focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1">Acertos</label>
+                    <input type="number" id="inputCorrectQ" min="0" value="8" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white text-center font-bold focus:outline-none focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="cancelTopicApproval()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="confirmTopicApproval()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Validar e Concluir</button>
             </div>
         </div>
     </div>
@@ -539,12 +573,21 @@
             });
         }
 
-        function openSubjectModal() {
-            document.getElementById('editingSubjectId').value = '';
-            document.getElementById('modalSubjectName').value = '';
-            document.getElementById('modalSubjectWeight').value = '1';
-            document.getElementById('modalSubjectTopics').value = '';
-            document.getElementById('subjectModalTitle').textContent = 'Adicionar Matéria';
+        function openSubjectModal(sIndex = null) {
+            if (sIndex !== null && subjects[sIndex]) {
+                const sub = subjects[sIndex];
+                document.getElementById('editingSubjectId').value = sIndex;
+                document.getElementById('modalSubjectName').value = sub.name;
+                document.getElementById('modalSubjectWeight').value = sub.weight || 1;
+                document.getElementById('modalSubjectTopics').value = sub.topics ? sub.topics.map(t => t.name).join('\n') : '';
+                document.getElementById('subjectModalTitle').textContent = 'Editar Matéria';
+            } else {
+                document.getElementById('editingSubjectId').value = '';
+                document.getElementById('modalSubjectName').value = '';
+                document.getElementById('modalSubjectWeight').value = '1';
+                document.getElementById('modalSubjectTopics').value = '';
+                document.getElementById('subjectModalTitle').textContent = 'Adicionar Matéria';
+            }
             document.getElementById('subjectModal').classList.remove('hidden');
         }
 
@@ -553,6 +596,7 @@
         }
 
         function saveSubject() {
+            const editingId = document.getElementById('editingSubjectId').value;
             const name = document.getElementById('modalSubjectName').value.trim();
             const weight = parseInt(document.getElementById('modalSubjectWeight').value) || 1;
             const topicsRaw = document.getElementById('modalSubjectTopics').value.trim();
@@ -562,9 +606,22 @@
                 return;
             }
 
-            const topics = topicsRaw ? topicsRaw.split('\n').map(t => ({ name: t.trim(), done: false })).filter(t => t.name) : [];
-            
-            subjects.push({ name, weight, topics, hoursStudied: 0, questionsCount: 0, correctCount: 0 });
+            const newTopics = topicsRaw ? topicsRaw.split('\n').map(t => ({ name: t.trim(), done: false })).filter(t => t.name) : [];
+
+            if (editingId !== '') {
+                const idx = parseInt(editingId);
+                const oldTopics = subjects[idx].topics || [];
+                newTopics.forEach(nt => {
+                    const found = oldTopics.find(ot => ot.name === nt.name);
+                    if (found) nt.done = found.done;
+                });
+                subjects[idx].name = name;
+                subjects[idx].weight = weight;
+                subjects[idx].topics = newTopics;
+            } else {
+                subjects.push({ name, weight, topics: newTopics, hoursStudied: 0, questionsCount: 0, correctCount: 0, includeInPlan: true });
+            }
+
             saveUserData();
             renderApp();
             closeSubjectModal();
@@ -581,16 +638,17 @@
             container.innerHTML = subjects.map((sub, sIndex) => `
                 <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3">
                     <div class="flex items-center justify-between">
-                        <h3 class="font-bold text-sm text-white">${sub.name} <span class="text-[10px] text-zinc-500 font-normal">(Peso ${sub.weight})</span></h3>
+                        <h3 class="font-bold text-sm text-white">${sub.name} <span class="text-[10px] text-zinc-500 font-normal">(Peso ${sub.weight || 1})</span></h3>
                         <div class="flex items-center space-x-2 text-xs text-zinc-400">
                             <span>${sub.hoursStudied || 0}h estudadas</span>
-                            <button type="button" onclick="deleteSubject(${sIndex})" class="text-red-400 hover:text-red-300"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
+                            <button type="button" onclick="openSubjectModal(${sIndex})" class="text-blue-400 hover:text-blue-300" title="Editar Matéria"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                            <button type="button" onclick="deleteSubject(${sIndex})" class="text-red-400 hover:text-red-300" title="Excluir Matéria"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
                         </div>
                     </div>
                     <div class="space-y-1.5 pl-2 border-l border-zinc-800">
                         ${sub.topics && sub.topics.length > 0 ? sub.topics.map((top, tIndex) => `
                             <label class="flex items-center space-x-2 text-xs text-zinc-300 cursor-pointer">
-                                <input type="checkbox" ${top.done ? 'checked' : ''} onchange="toggleTopic(${sIndex},${tIndex})" class="rounded bg-black border-zinc-700 text-blue-600 focus:ring-0">
+                                <input type="checkbox" ${top.done ? 'checked' : ''} onclick="event.preventDefault(); handleTopicCheck(${sIndex},${tIndex})" class="rounded bg-black border-zinc-700 text-blue-600 focus:ring-0">
                                 <span class="${top.done ? 'line-through text-zinc-500' : ''}">${top.name}</span>
                             </label>
                         `).join('') : '<p class="text-[11px] text-zinc-600">Nenhum tópico cadastrado.</p>'}
@@ -600,10 +658,55 @@
             lucide.createIcons();
         }
 
-        function toggleTopic(sIndex, tIndex) {
-            subjects[sIndex].topics[tIndex].done = !subjects[sIndex].topics[tIndex].done;
+        function handleTopicCheck(sIndex, tIndex) {
+            const topic = subjects[sIndex].topics[tIndex];
+            if (topic.done) {
+                // Se já estava feito, permite desmarcar diretamente
+                topic.done = false;
+                saveUserData();
+                renderApp();
+            } else {
+                // Se vai marcar como concluído, exige validação de 80% de aproveitamento
+                document.getElementById('pendingSubjectIndex').value = sIndex;
+                document.getElementById('pendingTopicIndex').value = tIndex;
+                document.getElementById('inputTotalQ').value = 10;
+                document.getElementById('inputCorrectQ').value = 8;
+                document.getElementById('approvalModal').classList.remove('hidden');
+            }
+        }
+
+        function cancelTopicApproval() {
+            document.getElementById('approvalModal').classList.add('hidden');
+        }
+
+        function confirmTopicApproval() {
+            const sIndex = parseInt(document.getElementById('pendingSubjectIndex').value);
+            const tIndex = parseInt(document.getElementById('pendingTopicIndex').value);
+            const total = parseInt(document.getElementById('inputTotalQ').value) || 0;
+            const correct = parseInt(document.getElementById('inputCorrectQ').value) || 0;
+
+            if (total <= 0 || correct < 0 || correct > total) {
+                alert("Por favor, insira valores válidos de questões.");
+                return;
+            }
+
+            const percent = (correct / total) * 100;
+            if (percent < 80) {
+                alert(`Aproveitamento de ${percent.toFixed(1)}%. Você precisa de pelo menos 80% de acertos para avançar e concluir este tópico.`);
+                return;
+            }
+
+            // Atualiza estatísticas globais de questões
+            subjects[sIndex].questionsCount = (subjects[sIndex].questionsCount || 0) + total;
+            subjects[sIndex].correctCount = (subjects[sIndex].correctCount || 0) + correct;
+
+            // Marca o tópico como concluído
+            subjects[sIndex].topics[tIndex].done = true;
+            
             saveUserData();
             renderApp();
+            document.getElementById('approvalModal').classList.add('hidden');
+            alert(`Tópico concluído com sucesso! Aproveitamento de ${percent.toFixed(1)}%.`);
         }
 
         function deleteSubject(sIndex) {
@@ -645,7 +748,21 @@
 
         function abrirModalImportacao() { document.getElementById('importModal').classList.remove('hidden'); }
         function fecharModalImportacao() { document.getElementById('importModal').classList.add('hidden'); }
-        function abrirModalPlano() { document.getElementById('planModal').classList.remove('hidden'); }
+        
+        function abrirModalPlano() { 
+            const listContainer = document.getElementById('planSubjectsList');
+            if (subjects.length === 0) {
+                listContainer.innerHTML = '<p class="text-xs text-zinc-500 text-center py-2">Cadastre matérias primeiro.</p>';
+            } else {
+                listContainer.innerHTML = subjects.map((sub, idx) => `
+                    <label class="flex items-center justify-between bg-black p-2.5 border border-zinc-800 rounded-xl cursor-pointer">
+                        <span class="text-xs text-zinc-300 font-bold">${sub.name}</span>
+                        <input type="checkbox" data-sub-index="${idx}" ${sub.includeInPlan !== false ? 'checked' : ''} class="rounded bg-zinc-900 border-zinc-700 text-blue-600 focus:ring-0">
+                    </label>
+                `).join('');
+            }
+            document.getElementById('planModal').classList.remove('hidden'); 
+        }
         function fecharModalPlano() { document.getElementById('planModal').classList.add('hidden'); }
 
         function processarEditalLocal() {
@@ -658,7 +775,7 @@
                 const linhaLimpa = linha.trim();
                 if (!linhaLimpa) return;
                 if (linhaLimpa === linhaLimpa.toUpperCase() && !linhaLimpa.startsWith('.')) {
-                    materiaAtual = { name: linhaLimpa, weight: 1, topics: [], hoursStudied: 0, questionsCount: 0, correctCount: 0 };
+                    materiaAtual = { name: linhaLimpa, weight: 1, topics: [], hoursStudied: 0, questionsCount: 0, correctCount: 0, includeInPlan: true };
                     subjects.push(materiaAtual);
                 } else if (materiaAtual) {
                     materiaAtual.topics.push({ name: linhaLimpa, done: false });
@@ -671,8 +788,16 @@
         }
 
         function gerarPlanoInteligente() {
+            const checkboxes = document.querySelectorAll('#planSubjectsList input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                const idx = parseInt(cb.getAttribute('data-sub-index'));
+                if (!isNaN(idx) && subjects[idx]) {
+                    subjects[idx].includeInPlan = cb.checked;
+                }
+            });
+            saveUserData();
             fecharModalPlano();
-            alert("Metas semanais atualizadas com sucesso!");
+            alert("Metas e inclusão de matérias no plano atualizadas com sucesso!");
         }
 
         function fecharSemana() {
