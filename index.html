@@ -179,31 +179,31 @@
                 <div id="scheduleContainer" class="space-y-4 mb-20"></div>
             </section>
 
-            <!-- ABA 2: PLANO INTELIGENTE COM CURVA DO ESQUECIMENTO -->
+            <!-- ABA 2: PLANO INTELIGENTE -->
             <section id="tab-plano" class="space-y-4 tab-content hidden">
                 <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4">
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="sparkles" class="w-5 h-5 text-blue-500"></i>
-                            <span>Plano da Próxima Semana (Com Revisões Estratégicas)</span>
+                            <span>Plano da Próxima Semana</span>
                         </h2>
                         <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="settings" class="w-3.5 h-3.5"></i>
                             <span>Configurar Metas</span>
                         </button>
                     </div>
-                    <p class="text-xs text-zinc-400">Contém 2 disciplinas de estudo normal por dia, um bloco rápido de **24h (20-30 min)** para consolidação diária, e ciclos programados de **7 e 30 dias** contra a curva do esquecimento.</p>
+                    <p class="text-xs text-zinc-400">Distribui as disciplinas diárias de estudo normal e programa um bloco de exatamente 30 minutos para a revisão do dia.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
             </section>
 
-            <!-- ABA 3: HISTÓRICO SEMANA A SEMANA -->
+            <!-- ABA 3: EVOLUÇÃO / HISTÓRICO -->
             <section id="tab-historico" class="space-y-4 tab-content hidden">
                 <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4">
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="history" class="w-5 h-5 text-blue-500"></i>
-                            <span>Evolução Semana a Semana</span>
+                            <span>Evolução Diária e Semanal</span>
                         </h2>
                         <button type="button" onclick="limparHistorico()" class="bg-red-950/80 hover:bg-red-900 border border-red-800 text-red-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
@@ -313,7 +313,7 @@
                 </button>
                 <button type="button" onclick="switchTab('historico')" id="nav-historico" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
                     <i data-lucide="history" class="w-5 h-5"></i>
-                    <span class="text-[10px]">Histórico</span>
+                    <span class="text-[10px]">Evolução</span>
                 </button>
                 <button type="button" onclick="switchTab('erros')" id="nav-erros" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
                     <i data-lucide="alert-triangle" class="w-5 h-5"></i>
@@ -350,9 +350,14 @@
                 <i data-lucide="sparkles" class="w-5 h-5"></i>
                 <span>Gerar Plano e Selecionar Matérias</span>
             </h3>
-            <p class="text-xs text-zinc-400">Desmarque as matérias que deseja excluir temporariamente da geração de estudo desta semana e ajuste suas horas livres diárias.</p>
+            <p class="text-xs text-zinc-400">Defina quantas disciplinas de estudo normal deseja por dia e ajuste as horas e matérias ativas.</p>
 
-            <div id="planSubjectsList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <div class="bg-black p-3 border border-zinc-800 rounded-xl space-y-2">
+                <label class="block text-xs text-zinc-300 font-bold">Disciplinas Normais por Dia:</label>
+                <input type="number" id="dailySubjectsCount" value="2" min="1" max="6" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1.5 font-bold text-sm">
+            </div>
+
+            <div id="planSubjectsList" class="space-y-2 max-h-40 overflow-y-auto pr-1">
                 <!-- Preenchido dinamicamente -->
             </div>
 
@@ -458,9 +463,11 @@
 
         let currentUser = null;
         let subjects = [];
+        let historicoDiario = [];
         let historicoSemanal = [];
         let cadernoErros = [];
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
+        let dailySubjectsCount = 2;
         let pomoInterval = null;
         let pomoSeconds = 25 * 60;
         let pomoIsRunning = false;
@@ -550,11 +557,14 @@
             if (tabId === 'plano') {
                 renderSmartPlan();
             }
+            if (tabId === 'historico') {
+                renderHistorico();
+            }
         }
 
         function saveUserData() {
             if (!currentUser) return;
-            const data = { subjects, historicoSemanal, cadernoErros, weeklyHoursConfig };
+            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, weeklyHoursConfig, dailySubjectsCount };
             firebase.firestore().collection('schedules').doc(currentUser.uid).set(data)
                 .catch(err => console.error("Erro ao salvar dados:", err));
         }
@@ -566,9 +576,11 @@
                     if (doc.exists) {
                         const data = doc.data();
                         subjects = data.subjects || [];
+                        historicoDiario = data.historicoDiario || [];
                         historicoSemanal = data.historicoSemanal || [];
                         cadernoErros = data.cadernoErros || [];
                         if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
+                        if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
                     } else {
                         subjects = [];
                     }
@@ -582,6 +594,7 @@
             updateSelects();
             updateStats();
             renderSmartPlan();
+            renderHistorico();
             lucide.createIcons();
         }
 
@@ -634,7 +647,7 @@
                 return;
             }
 
-            const newTopics = topicsRaw ? topicsRaw.split('\n').map(t => ({ name: t.trim(), done: false })) .filter(t => t.name) : [];
+            const newTopics = topicsRaw ? topicsRaw.split('\n').map(t => ({ name: t.trim(), done: false })).filter(t => t.name) : [];
 
             if (editingId !== '') {
                 const idx = parseInt(editingId);
@@ -745,46 +758,52 @@
                     `;
                 }
 
-                // 2 Disciplinas de Estudo Normal
-                const normal1 = scoredSubjects[normPtr % scoredSubjects.length];
-                normPtr++;
-                const normal2 = scoredSubjects[normPtr % scoredSubjects.length];
-                normPtr++;
+                let normalsForDay = [];
+                for (let i = 0; i < dailySubjectsCount; i++) {
+                    normalsForDay.push(scoredSubjects[normPtr % scoredSubjects.length]);
+                    normPtr++;
+                }
 
-                // Revisão de 24h / 7d / 30d estratégica
-                const reviewSub = scoredSubjects[revPtr % scoredSubjects.length];
-                revPtr++;
+                const hasReview = dIdx > 0;
+                let reviewSub = null;
+                let revType = "";
 
-                let revType = "Revisão 24h (20-30 min) - Active Recall";
-                if (dIdx % 3 === 1) revType = "Revisão de 7 dias - Mapas / Resumos";
-                if (dIdx % 3 === 2) revType = "Revisão de 30 dias - Curva do Esquecimento";
+                if (hasReview) {
+                    reviewSub = scoredSubjects[revPtr % scoredSubjects.length];
+                    revPtr++;
+                    if (dIdx % 3 === 1) revType = "Revisão de 7 dias";
+                    else if (dIdx % 3 === 2) revType = "Revisão de 30 dias";
+                    else revType = "Revisão de 24 horas";
+                }
+
+                const normalHtml = normalsForDay.map((sub, idx) => `
+                    <div class="flex items-center justify-between text-xs bg-zinc-900/60 border border-zinc-800/80 p-2 rounded-xl">
+                        <div>
+                            <span class="font-bold text-white">${idx + 1}. Estudo Normal: ${sub.name}</span>
+                        </div>
+                    </div>
+                `).join('');
 
                 return `
                     <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
-                            <span class="text-xs font-bold text-zinc-300">${day.hours}h livres + 30min Revisão</span>
+                            <span class="text-xs font-bold text-zinc-300">${day.hours}h livres ${hasReview ? '+ 30min Revisão' : ''}</span>
                         </div>
                         <div class="space-y-1.5 pt-1">
-                            <div class="flex items-center justify-between text-xs bg-zinc-900/60 border border-zinc-800/80 p-2 rounded-xl">
-                                <div>
-                                    <span class="font-bold text-white">1. Estudo Normal: ${normal1.name}</span>
-                                    <span class="block text-[10px] text-zinc-500">Teoria e novos tópicos</span>
+                            ${normalHtml}
+                            ${hasReview ? `
+                                <div class="flex items-center justify-between text-xs bg-amber-950/30 border border-amber-900/40 p-2 rounded-xl">
+                                    <div>
+                                        <span class="font-bold text-amber-400">${dailySubjectsCount + 1}. ${revType}:${reviewSub.name}</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-amber-500 bg-amber-950/60 px-2 py-1 rounded-lg border border-amber-800/50">30 min</span>
                                 </div>
-                            </div>
-                            <div class="flex items-center justify-between text-xs bg-zinc-900/60 border border-zinc-800/80 p-2 rounded-xl">
-                                <div>
-                                    <span class="font-bold text-white">2. Estudo Normal: ${normal2.name}</span>
-                                    <span class="block text-[10px] text-zinc-500">Teoria e novos tópicos</span>
+                            ` : `
+                                <div class="text-[10px] text-zinc-500 italic px-1 pt-0.5">
+                                    * Primeiro dia do ciclo dedicado exclusivamente ao estudo base (sem carga de revisão prévia).
                                 </div>
-                            </div>
-                            <div class="flex items-center justify-between text-xs bg-amber-950/30 border border-amber-900/40 p-2 rounded-xl">
-                                <div>
-                                    <span class="font-bold text-amber-400">3. ${revType}: ${reviewSub.name}</span>
-                                    <span class="block text-[10px] text-zinc-400">Bloco focado de 30 minutos</span>
-                                </div>
-                                <span class="text-[10px] font-bold text-amber-500 bg-amber-950/60 px-2 py-1 rounded-lg border border-amber-800/50">30 min</span>
-                            </div>
+                            `}
                         </div>
                     </div>
                 `;
@@ -831,10 +850,73 @@
             subjects[sIndex].correctCount = (subjects[sIndex].correctCount || 0) + correct;
             subjects[sIndex].topics[tIndex].done = true;
             
+            // Registrar no histórico diário automaticamente
+            registrarEvolucioDiaria(subjects[sIndex].name, subjects[sIndex].topics[tIndex].name, percent);
+
             saveUserData();
             renderApp();
             document.getElementById('approvalModal').classList.add('hidden');
             alert(`Tópico concluído com sucesso! Aproveitamento de ${percent.toFixed(1)}%.`);
+        }
+
+        function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
+            const hojeStr = new Date().toLocaleDateString('pt-BR');
+            let registroHoje = historicoDiario.find(h => h.date === hojeStr);
+            if (!registroHoje) {
+                registroHoje = { date: hojeStr, itens: [] };
+                historicoDiario.unshift(registroHoje);
+            }
+            registroHoje.itens.push({ subject: subjectName, topic: topicName, accuracy: accuracy.toFixed(0) });
+        }
+
+        function renderHistorico() {
+            const container = document.getElementById('historicoSemanalList');
+            if (!container) return;
+
+            let htmlContent = '';
+
+            // Renderizar Histórico Diário (Evolução por Tópicos)
+            if (historicoDiario && historicoDiario.length > 0) {
+                htmlContent += `<h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Evolução por Tópicos (Diário)</h3>`;
+                htmlContent += historicoDiario.map(dia => `
+                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2 mb-3">
+                        <div class="flex items-center justify-between text-xs font-bold text-blue-400 border-b border-zinc-900 pb-1.5">
+                            <span>Data: ${dia.date}</span>
+                            <span class="text-[10px] text-zinc-500">${dia.itens.length} tópicos concluídos</span>
+                        </div>
+                        <div class="space-y-1.5 pt-1">
+                            ${dia.itens.map(item => `
+                                <div class="flex items-center justify-between text-xs bg-zinc-900/50 p-2 rounded-xl border border-zinc-800/60">
+                                    <div>
+                                        <span class="font-bold text-white">${item.subject}</span>
+                                        <span class="block text-[11px] text-zinc-400">• ${item.topic}</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-1 rounded-lg border border-emerald-800/50">${item.accuracy}% acertos</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Renderizar Histórico Fechado de Semanas
+            if (historicoSemanal && historicoSemanal.length > 0) {
+                htmlContent += `<h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mt-5 mb-2">Semanas Arquivadas</h3>`;
+                htmlContent += historicoSemanal.map((sem, sIdx) => `
+                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2 mb-3">
+                        <div class="flex items-center justify-between text-xs font-bold text-emerald-400 border-b border-zinc-900 pb-1.5">
+                            <span>Semana Arquivada (${sem.date})</span>
+                        </div>
+                        <p class="text-xs text-zinc-400">Ciclo concluído e arquivado com sucesso.</p>
+                    </div>
+                `).join('');
+            }
+
+            if (!historicoDiario.length && !historicoSemanal.length) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum registro no histórico ainda. Conclua tópicos no cronograma para registrar sua evolução.</p>`;
+            } else {
+                container.innerHTML = htmlContent;
+            }
         }
 
         function deleteSubject(sIndex) {
@@ -889,6 +971,7 @@
                     </label>
                 `).join('');
             }
+            document.getElementById('dailySubjectsCount').value = dailySubjectsCount;
             document.getElementById('day_seg').value = weeklyHoursConfig.seg;
             document.getElementById('day_ter').value = weeklyHoursConfig.ter;
             document.getElementById('day_qua').value = weeklyHoursConfig.qua;
@@ -932,6 +1015,7 @@
                 }
             });
 
+            dailySubjectsCount = parseInt(document.getElementById('dailySubjectsCount').value) || 2;
             weeklyHoursConfig.seg = parseInt(document.getElementById('day_seg').value) || 0;
             weeklyHoursConfig.ter = parseInt(document.getElementById('day_ter').value) || 0;
             weeklyHoursConfig.qua = parseInt(document.getElementById('day_qua').value) || 0;
@@ -943,7 +1027,7 @@
             saveUserData();
             fecharModalPlano();
             renderSmartPlan();
-            alert("Plano inteligente com curvas do esquecimento atualizado com sucesso!");
+            alert("Plano inteligente atualizado com sucesso!");
         }
 
         function fecharSemana() {
@@ -958,8 +1042,10 @@
 
         function limparHistorico() {
             if (confirm("Deseja limpar todo o histórico?")) {
+                historicoDiario = [];
                 historicoSemanal = [];
                 saveUserData();
+                renderHistorico();
             }
         }
 
