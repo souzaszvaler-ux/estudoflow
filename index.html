@@ -204,7 +204,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano é estático e permanente. Ele só é atualizado/substituído quando você finaliza a semana ("Fechar Semana") e configura um novo plano.</p>
+                    <p class="text-xs text-zinc-400">Este plano é 100% estático. Marcar tópicos no edital altera apenas a porcentagem geral e não altera o plano semanal.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -695,6 +695,7 @@
 
         function saveUserData() {
             if (!currentUser) return;
+            // Salva os dados preservando o savedSmartPlan atual intacto
             const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, userFolders, planosSemanaisArquivados, savedSmartPlan, weeklyHoursConfig, dailySubjectsCount, planoGerado };
             firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
                 .catch(err => console.error("Erro ao salvar dados:", err));
@@ -1197,6 +1198,7 @@
         function handleTopicCheck(sIndex, tIndex) {
             const topic = subjects[sIndex].topics[tIndex];
             if (topic.done) {
+                // Se já estiver concluído, apenas desmarca e atualiza estatísticas do edital
                 topic.done = false;
                 saveUserData();
                 renderSchedule();
@@ -1231,18 +1233,20 @@
                 return;
             }
 
+            // Atualiza dados estritamente do edital e questões
             subjects[sIndex].questionsCount = (subjects[sIndex].questionsCount || 0) + total;
             subjects[sIndex].correctCount = (subjects[sIndex].correctCount || 0) + correct;
             subjects[sIndex].topics[tIndex].done = true;
             
             registrarEvolucioDiaria(subjects[sIndex].name, subjects[sIndex].topics[tIndex].name, percent);
 
+            // Salva e atualiza apenas a interface do edital e estatísticas (O plano semanal NÃO É MEXIDO)
             saveUserData();
             renderSchedule();
             updateStats();
             
             document.getElementById('approvalModal').classList.add('hidden');
-            alert("Tópico concluído! O progresso do edital foi atualizado.");
+            alert("Tópico concluído! Apenas o progresso do edital foi atualizado.");
         }
 
         function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
