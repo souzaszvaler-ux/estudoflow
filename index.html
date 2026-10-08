@@ -171,6 +171,10 @@
                             <i data-lucide="file-up" class="w-3.5 h-3.5"></i>
                             <span>Importar Edital</span>
                         </button>
+                        <button type="button" onclick="abrirModalBackupEdital()" class="bg-zinc-900 hover:bg-zinc-800 text-emerald-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Backup e Histórico do Edital">
+                            <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                            <span>Backup Edital</span>
+                        </button>
                         <button type="button" onclick="abrirModalPlano()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                             <span>Gerar Plano</span>
@@ -204,7 +208,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano é 100% estático. Marcar tópicos no edital altera apenas a porcentagem geral e não altera o plano semanal.</p>
+                    <p class="text-xs text-zinc-400">Este plano é 100% estático. Marcar tópicos no edital não altera o plano. O plano só muda ao finalizar a semana ("Fechar Semana") ou gerar novas metas.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -388,6 +392,33 @@
     </div>
 
     <!-- MODAIS -->
+    <!-- Modal de Backup e Histórico do Edital -->
+    <div id="backupEditalModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 class="text-base font-bold text-emerald-400 flex items-center space-x-2">
+                <i data-lucide="save" class="w-5 h-5"></i>
+                <span>Backup e Restauração do Edital</span>
+            </h3>
+            <p class="text-xs text-zinc-400">Aqui você pode gerar um backup manual do seu edital atual para salvá-lo com segurança ou restaurar versões anteriores guardadas na nuvem.</p>
+            
+            <div class="space-y-3 pt-2">
+                <button type="button" onclick="salvarBackupEdital()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold transition">
+                    Criar Novo Ponto de Backup na Nuvem
+                </button>
+                <div class="border-t border-zinc-800 pt-3">
+                    <span class="block text-xs font-bold text-zinc-300 mb-2">Backups Anteriores Salvos:</span>
+                    <div id="listaBackupsEdital" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        <p class="text-xs text-zinc-500 italic">Nenhum backup encontrado.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex pt-2">
+                <button type="button" onclick="fecharModalBackupEdital()" class="w-full bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="folderModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
@@ -585,6 +616,7 @@
         let userFolders = [];
         let planosSemanaisArquivados = [];
         let savedSmartPlan = null;
+        let editalBackups = []; // Novo array para armazenar backups do edital
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let dailySubjectsCount = 2;
         let planoGerado = false;
@@ -695,8 +727,7 @@
 
         function saveUserData() {
             if (!currentUser) return;
-            // Salva os dados preservando o savedSmartPlan atual intacto
-            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, userFolders, planosSemanaisArquivados, savedSmartPlan, weeklyHoursConfig, dailySubjectsCount, planoGerado };
+            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, userFolders, planosSemanaisArquivados, editalBackups, savedSmartPlan, weeklyHoursConfig, dailySubjectsCount, planoGerado };
             firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
                 .catch(err => console.error("Erro ao salvar dados:", err));
         }
@@ -713,6 +744,7 @@
                         cadernoErros = data.cadernoErros || [];
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
+                        editalBackups = data.editalBackups || [];
                         savedSmartPlan = data.savedSmartPlan || null;
                         
                         if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
@@ -729,6 +761,7 @@
                         subjects = [];
                         userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
                         planosSemanaisArquivados = [];
+                        editalBackups = [];
                         savedSmartPlan = null;
                     }
                     renderApp();
@@ -882,7 +915,7 @@
         }
 
         function reiniciarNovoEdital() {
-            if (confirm("ATENÇÃO: Deseja apagar todas as matérias atuais e reiniciar os dados para um novo edital?")) {
+            if (confirm("ATENÇÃO: Deseja apagar todas as matérias atuais e reiniciar os dados para um novo edital? (Recomendamos fazer um 'Backup Edital' antes)")) {
                 subjects = [];
                 historicoDiario = [];
                 historicoSemanal = [];
@@ -894,6 +927,66 @@
                 renderApp();
                 alert("Dados reiniciados com sucesso!");
             }
+        }
+
+        /* Funções de Backup do Edital */
+        function abrirModalBackupEdital() {
+            renderizarListaBackups();
+            document.getElementById('backupEditalModal').classList.remove('hidden');
+        }
+
+        function fecharModalBackupEdital() {
+            document.getElementById('backupEditalModal').classList.add('hidden');
+        }
+
+        function salvarBackupEdital() {
+            if (subjects.length === 0) {
+                alert("Não há matérias no edital para salvar.");
+                return;
+            }
+            if (!editalBackups) editalBackups = [];
+            const dataStr = new Date().toLocaleString('pt-BR');
+            editalBackups.unshift({
+                id: 'backup_' + Date.now(),
+                date: dataStr,
+                subjects: JSON.parse(JSON.stringify(subjects))
+            });
+            if (editalBackups.length > 10) editalBackups.pop(); // Mantém até 10 backups
+            saveUserData();
+            renderizarListaBackups();
+            alert("Backup do edital salvo com sucesso na nuvem!");
+        }
+
+        function restaurarBackupEdital(backupId) {
+            const backup = editalBackups.find(b => b.id === backupId);
+            if (!backup) return;
+            if (confirm(`Deseja restaurar o edital salvo em ${backup.date}? Isso substituirá o edital atual.`)) {
+                subjects = JSON.parse(JSON.stringify(backup.subjects));
+                saveUserData();
+                renderApp();
+                fecharModalBackupEdital();
+                alert("Edital restaurado com sucesso!");
+            }
+        }
+
+        function renderizarListaBackups() {
+            const container = document.getElementById('listaBackupsEdital');
+            if (!container) return;
+            if (!editalBackups || editalBackups.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic">Nenhum backup encontrado.</p>`;
+                return;
+            }
+            container.innerHTML = editalBackups.map(b => `
+                <div class="bg-black border border-zinc-800 p-3 rounded-xl flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-white block">📅 Backup: ${b.date}</span>
+                        <span class="text-[10px] text-zinc-400">${b.subjects.length} matérias cadastradas</span>
+                    </div>
+                    <button type="button" onclick="restaurarBackupEdital('${b.id}')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                        Restaurar
+                    </button>
+                </div>
+            `).join('');
         }
 
         function openFolderModal() {
@@ -1198,7 +1291,6 @@
         function handleTopicCheck(sIndex, tIndex) {
             const topic = subjects[sIndex].topics[tIndex];
             if (topic.done) {
-                // Se já estiver concluído, apenas desmarca e atualiza estatísticas do edital
                 topic.done = false;
                 saveUserData();
                 renderSchedule();
@@ -1233,14 +1325,13 @@
                 return;
             }
 
-            // Atualiza dados estritamente do edital e questões
             subjects[sIndex].questionsCount = (subjects[sIndex].questionsCount || 0) + total;
             subjects[sIndex].correctCount = (subjects[sIndex].correctCount || 0) + correct;
             subjects[sIndex].topics[tIndex].done = true;
             
             registrarEvolucioDiaria(subjects[sIndex].name, subjects[sIndex].topics[tIndex].name, percent);
 
-            // Salva e atualiza apenas a interface do edital e estatísticas (O plano semanal NÃO É MEXIDO)
+            // Salva e atualiza estatísticas do edital (Plano semanal permanece estático)
             saveUserData();
             renderSchedule();
             updateStats();
