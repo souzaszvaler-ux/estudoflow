@@ -203,7 +203,7 @@
                             <span>Plano da Semana Atual (Estático)</span>
                         </h2>
                         <div class="flex space-x-2">
-                            <button type="button" onclick="reiniciarNovoEdital()" class="bg-red-950/80 hover:bg-red-900 text-red-400 border border-red-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Limpar tudo e iniciar novo edital">
+                            <button type="button" onclick="reiniciarNovoEdital()" class="bg-red-950/80 hover:bg-red-900 text-red-400 border border-red-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Arquivar edital atual e iniciar novo">
                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                 <span>Zerar Edital</span>
                             </button>
@@ -237,14 +237,28 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="history" class="w-5 h-5 text-blue-500"></i>
-                            <span>Evolução Diária e Semanal</span>
+                            <span>Evolução Diária e Editais Anteriores</span>
                         </h2>
                         <button type="button" onclick="limparHistorico()" class="bg-red-950/80 hover:bg-red-900 border border-red-800 text-red-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                             <span>Limpar Histórico</span>
                         </button>
                     </div>
-                    <div id="historicoSemanalList" class="space-y-3"></div>
+                    
+                    <div class="space-y-3 pt-1">
+                        <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center space-x-1.5 pt-2">
+                            <i data-lucide="folder-archive" class="w-4 h-4"></i>
+                            <span>Editais Anteriores Arquivados</span>
+                        </h3>
+                        <div id="editaisArquivadosList" class="space-y-3">
+                            <p class="text-xs text-zinc-500 italic">Nenhum edital anterior arquivado ainda.</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-zinc-900">
+                        <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">Evolução Diária</h3>
+                        <div id="historicoSemanalList" class="space-y-3"></div>
+                    </div>
                 </div>
             </section>
 
@@ -590,6 +604,7 @@
         let subjects = [];
         let historicoDiario = [];
         let historicoSemanal = [];
+        let editaisArquivados = [];
         let cadernoErros = [];
         let userFolders = [];
         let planosSemanaisArquivados = [];
@@ -697,18 +712,21 @@
                 renderSmartPlan();
                 renderPlanosArquivados();
             }
-            if (tabId === 'historico') renderHistorico();
+            if (tabId === 'historico') {
+                renderHistorico();
+                renderEditaisArquivados();
+            }
             if (tabId === 'erros') renderCadernoErros();
             if (tabId === 'notas') renderNotas();
         }
 
         function saveUserData() {
             if (!currentUser) return;
-            // Salva os dados preservando integralmente o savedSmartPlan atual e o edital
             const data = { 
                 subjects, 
                 historicoDiario, 
                 historicoSemanal, 
+                editaisArquivados,
                 cadernoErros, 
                 userFolders, 
                 planosSemanaisArquivados, 
@@ -730,11 +748,11 @@
                         subjects = data.subjects || [];
                         historicoDiario = data.historicoDiario || [];
                         historicoSemanal = data.historicoSemanal || [];
+                        editaisArquivados = data.editaisArquivados || [];
                         cadernoErros = data.cadernoErros || [];
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
                         
-                        // Garante carregamento estrito do plano salvo sem sobrescritas indevidas
                         savedSmartPlan = data.savedSmartPlan || null;
                         
                         if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
@@ -751,6 +769,7 @@
                         subjects = [];
                         userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
                         planosSemanaisArquivados = [];
+                        editaisArquivados = [];
                         savedSmartPlan = null;
                     }
                     renderApp();
@@ -765,6 +784,7 @@
             renderSmartPlan();
             renderPlanosArquivados();
             renderHistorico();
+            renderEditaisArquivados();
             renderCadernoErros();
             renderNotas();
             lucide.createIcons();
@@ -904,21 +924,68 @@
         }
 
         function reiniciarNovoEdital() {
-            if (confirm("ATENÇÃO: Deseja apagar todas as matérias atuais e reiniciar os dados para um novo edital? (Recomendamos salvar um arquivo JSON antes)")) {
+            if (confirm("ATENÇÃO: Deseja arquivar o edital atual no histórico e iniciar um novo edital em branco?")) {
+                if (subjects && subjects.length > 0) {
+                    if (!editaisArquivados) editaisArquivados = [];
+                    editaisArquivados.unshift({
+                        date: new Date().toLocaleDateString('pt-BR'),
+                        subjects: JSON.parse(JSON.stringify(subjects))
+                    });
+                }
+
                 subjects = [];
-                historicoDiario = [];
-                historicoSemanal = [];
-                cadernoErros = [];
-                planosSemanaisArquivados = [];
                 savedSmartPlan = null;
                 planoGerado = false;
+                
                 saveUserData();
                 renderApp();
-                alert("Dados reiniciados com sucesso!");
+                alert("Edital anterior arquivado com sucesso! Pronto para um novo edital.");
             }
         }
 
-        // Funções de Exportação e Importação de Backup Local do Edital (.JSON)
+        function renderEditaisArquivados() {
+            const container = document.getElementById('editaisArquivadosList');
+            if (!container) return;
+            if (!editaisArquivados || editaisArquivados.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic">Nenhum edital anterior arquivado ainda.</p>`;
+                return;
+            }
+
+            container.innerHTML = editaisArquivados.map((editalObj, idx) => `
+                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2">
+                    <div class="flex items-center justify-between text-xs font-bold text-amber-400 border-b border-zinc-900 pb-1.5">
+                        <span>Edital Arquivado em: ${editalObj.date}</span>
+                        <button type="button" onclick="excluirEditalArquivado(${idx})" class="text-red-400 hover:text-red-300 text-[10px]">Excluir do Histórico</button>
+                    </div>
+                    <div class="space-y-1.5 pt-1">
+                        ${editalObj.subjects.map(sub => {
+                            const totalT = sub.topics ? sub.topics.length : 0;
+                            const doneT = sub.topics ? sub.topics.filter(t => t.done).length : 0;
+                            const pct = totalT > 0 ? Math.round((doneT / totalT) * 100) : 0;
+                            return `
+                                <div class="bg-zinc-900/50 p-2.5 rounded-xl border border-zinc-800/60 text-xs flex items-center justify-between">
+                                    <div>
+                                        <span class="font-bold text-white">${sub.name}</span>
+                                        <span class="block text-[10px] text-zinc-400">${doneT} / ${totalT} tópicos (${pct}%)</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-blue-400">${(sub.hoursStudied || 0).toFixed(1)}h</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function excluirEditalArquivado(idx) {
+            if (confirm("Deseja excluir permanentemente este edital arquivado?")) {
+                editaisArquivados.splice(idx, 1);
+                saveUserData();
+                renderEditaisArquivados();
+            }
+        }
+
         function exportarBackupJSON() {
             if (subjects.length === 0) {
                 alert("Não há dados no edital para exportar.");
@@ -967,7 +1034,7 @@
                 }
             };
             reader.readAsText(file);
-            event.target.value = ''; // Reseta input
+            event.target.value = '';
         }
 
         function openFolderModal() {
@@ -1306,14 +1373,12 @@
                 return;
             }
 
-            // Atualiza estritamente as questões e o status do tópico no edital
             subjects[sIndex].questionsCount = (subjects[sIndex].questionsCount || 0) + total;
             subjects[sIndex].correctCount = (subjects[sIndex].correctCount || 0) + correct;
             subjects[sIndex].topics[tIndex].done = true;
             
             registrarEvolucioDiaria(subjects[sIndex].name, subjects[sIndex].topics[tIndex].name, percent);
 
-            // Salva as alterações preservando o plano semanal intacto
             saveUserData();
             renderSchedule();
             updateStats();
@@ -1339,7 +1404,7 @@
             const container = document.getElementById('historicoSemanalList');
             if (!container) return;
             if (!historicoDiario || historicoDiario.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum registro no histórico ainda.</p>`;
+                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-4">Nenhum registro no histórico diário ainda.</p>`;
                 return;
             }
             container.innerHTML = historicoDiario.map(dia => `
@@ -1637,9 +1702,10 @@
         }
 
         function limparHistorico() {
-            if (confirm("Deseja limpar todo o histórico e planos arquivados?")) {
+            if (confirm("Deseja limpar todo o histórico e editais arquivados?")) {
                 historicoDiario = [];
                 historicoSemanal = [];
+                editaisArquivados = [];
                 planosSemanaisArquivados = [];
                 savedSmartPlan = null;
                 planoGerado = false;
@@ -1647,6 +1713,7 @@
                 renderSmartPlan();
                 renderPlanosArquivados();
                 renderHistorico();
+                renderEditaisArquivados();
             }
         }
 
