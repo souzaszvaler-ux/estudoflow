@@ -421,7 +421,7 @@
             </div>
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Título da Nota</label>
-                <input type="text" id="modalNoteTitle" placeholder="Ex: Resumo de Direitos Fundamentais" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                <input type="text" id="modalNoteTitle" placeholder="Ex: Estado, governo e administração pública" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
             </div>
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Conteúdo Ampliado</label>
@@ -712,9 +712,14 @@
                         cadernoErros = data.cadernoErros || [];
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
+                        
                         if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
                             userFolders.push({ id: 'geral', name: 'Geral', notes: data.userNotes });
                         }
+                        if (userFolders.length === 0) {
+                            userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
+                        }
+
                         if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
                         if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
                         if (data.planoGerado !== undefined) planoGerado = data.planoGerado;
@@ -965,9 +970,16 @@
 
             if (editingId !== '') {
                 const [oldFIdx, oldNIdx] = editingId.split('_').map(Number);
-                userFolders[oldFIdx].notes.splice(oldNIdx, 1);
+                if (userFolders[oldFIdx] && userFolders[oldFIdx].notes[oldNIdx]) {
+                    userFolders[oldFIdx].notes.splice(oldNIdx, 1);
+                }
+            }
+            
+            if (!userFolders[targetFolderIdx].notes) {
+                userFolders[targetFolderIdx].notes = [];
             }
             userFolders[targetFolderIdx].notes.unshift(newNote);
+            
             saveUserData();
             renderNotas();
             closeNoteModal();
@@ -1220,7 +1232,8 @@
             if (topic.done) {
                 topic.done = false;
                 saveUserData();
-                renderApp();
+                renderSchedule();
+                updateStats();
             } else {
                 document.getElementById('pendingSubjectIndex').value = sIndex;
                 document.getElementById('pendingTopicIndex').value = tIndex;
@@ -1258,9 +1271,11 @@
             registrarEvolucioDiaria(subjects[sIndex].name, subjects[sIndex].topics[tIndex].name, percent);
 
             saveUserData();
-            renderApp();
+            renderSchedule();
+            updateStats();
+            
             document.getElementById('approvalModal').classList.add('hidden');
-            alert(`Tópico concluído! O plano semanal foi atualizado.`);
+            alert(`Tópico concluído com sucesso!`);
         }
 
         function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
