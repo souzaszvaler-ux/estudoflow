@@ -526,4 +526,1310 @@
 
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Tópicos (um por linha)</label>
-                <textarea id="modalSubjectTopics" rows="4" placeholder="Álgebra Básica&#10;Equações do 2º Grau" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none
+                <textarea id="modalSubjectTopics" rows="4" placeholder="Álgebra Básica&#10;Equações do 2º Grau" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-blue-500"></textarea>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="closeSubjectModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="saveSubject()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL REGISTRAR ERRO -->
+    <div id="errorModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-amber-500 flex items-center space-x-2">
+                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                <span>Registrar Erro no Caderno</span>
+            </h3>
+            
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Matéria</label>
+                <select id="errorSubjectSelect" onchange="updateErrorTopicsSelect()" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                    <option value="">-- Selecione a matéria --</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Assunto / Tópico</label>
+                <select id="errorTopicSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                    <option value="">-- Selecione o tópico --</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Descrição / Motivo do Erro</label>
+                <textarea id="errorDescription" rows="3" placeholder="Ex: Confundi o prazo..." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none resize-none"></textarea>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="closeErrorModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="saveErrorRecord()" class="flex-1 bg-amber-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Erro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL APROVEITAMENTO PARA TÓPICO -->
+    <div id="approvalModal" class="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl text-center">
+            <div class="inline-flex p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-400 mb-1">
+                <i data-lucide="award" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-base font-bold text-white">Validação de Aproveitamento</h3>
+            <p class="text-xs text-zinc-400">Para concluir este tópico, informe o resultado dos seus exercícios de fixação (Mínimo de 80% exigido).</p>
+            
+            <input type="hidden" id="pendingSubjectIndex" value="">
+            <input type="hidden" id="pendingTopicIndex" value="">
+
+            <div class="grid grid-cols-2 gap-3 text-left">
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1">Total de Questões</label>
+                    <input type="number" id="inputTotalQ" min="1" value="10" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white text-center font-bold focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1">Acertos</label>
+                    <input type="number" id="inputCorrectQ" min="0" value="8" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white text-center font-bold focus:outline-none focus:border-blue-500">
+                </div>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="cancelTopicApproval()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="confirmTopicApproval()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Validar e Concluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT PRINCIPAL -->
+    <script>
+        lucide.createIcons();
+
+        let currentUser = null;
+        let subjects = [];
+        let historicoDiario = [];
+        let historicoSemanal = [];
+        let cadernoErros = [];
+        let userFolders = [];
+        let planosSemanaisArquivados = [];
+        let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
+        let dailySubjectsCount = 2;
+        let planoGerado = false;
+        
+        let pomoInterval = null;
+        let pomoSeconds = 25 * 60;
+        let pomoIsRunning = false;
+        let pomoMode = 'work';
+        
+        let freeInterval = null;
+        let freeSeconds = 0;
+        let freeIsRunning = false;
+
+        let isSignUpMode = false;
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+            });
+        }
+
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('appInterface').classList.remove('hidden');
+                loadUserData();
+            } else {
+                currentUser = null;
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('appInterface').classList.add('hidden');
+            }
+        });
+
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            const subtitle = document.getElementById('authSubtitle');
+            const btnSubmit = document.getElementById('btnAuthSubmit');
+            const btnToggle = document.getElementById('btnToggleAuth');
+
+            if (isSignUpMode) {
+                subtitle.textContent = "Crie sua conta para começar a estudar";
+                btnSubmit.textContent = "Cadastrar";
+                btnToggle.innerHTML = 'Já tem conta? <span class="text-blue-400 font-bold">Faça login</span>';
+            } else {
+                subtitle.textContent = "Acesse para sincronizar em todos os dispositivos";
+                btnSubmit.textContent = "Entrar";
+                btnToggle.innerHTML = 'Não tem conta? <span class="text-blue-400 font-bold">Cadastre-se</span>';
+            }
+        }
+
+        function handleAuth(event) {
+            event.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+
+            if (isSignUpMode) {
+                firebase.auth().createUserWithEmailAndPassword(email, password)
+                    .catch((error) => alert("Erro ao cadastrar: " + error.message));
+            } else {
+                firebase.auth().signInWithEmailAndPassword(email, password)
+                    .catch((error) => alert("Erro ao entrar: " + error.message));
+            }
+        }
+
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .catch((error) => alert("Erro no login com Google: " + error.message));
+        }
+
+        function resetPassword() {
+            const email = document.getElementById('authEmail').value;
+            if (!email) {
+                alert("Digite seu e-mail no campo acima para recuperar a senha.");
+                return;
+            }
+            firebase.auth().sendPasswordResetEmail(email)
+                .then(() => alert("E-mail de recuperação enviado com sucesso!"))
+                .catch((error) => alert("Erro ao enviar e-mail: " + error.message));
+        }
+
+        function logout() {
+            firebase.auth().signOut();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('text-blue-500', 'font-bold');
+                btn.classList.add('text-zinc-500');
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.remove('text-zinc-500');
+                activeNav.classList.add('text-blue-500', 'font-bold');
+            }
+            if (tabId === 'plano') {
+                renderSmartPlan();
+                renderPlanosArquivados();
+            }
+            if (tabId === 'historico') renderHistorico();
+            if (tabId === 'erros') renderCadernoErros();
+            if (tabId === 'notas') renderNotas();
+        }
+
+        function saveUserData() {
+            if (!currentUser) return;
+            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, userFolders, planosSemanaisArquivados, weeklyHoursConfig, dailySubjectsCount, planoGerado };
+            firebase.firestore().collection('schedules').doc(currentUser.uid).set(data)
+                .catch(err => console.error("Erro ao salvar dados:", err));
+        }
+
+        function loadUserData() {
+            if (!currentUser) return;
+            firebase.firestore().collection('schedules').doc(currentUser.uid).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        subjects = data.subjects || [];
+                        historicoDiario = data.historicoDiario || [];
+                        historicoSemanal = data.historicoSemanal || [];
+                        cadernoErros = data.cadernoErros || [];
+                        userFolders = data.userFolders || [];
+                        planosSemanaisArquivados = data.planosSemanaisArquivados || [];
+                        if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
+                            userFolders.push({ id: 'geral', name: 'Geral', notes: data.userNotes });
+                        }
+                        if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
+                        if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
+                        if (data.planoGerado !== undefined) planoGerado = data.planoGerado;
+                    } else {
+                        subjects = [];
+                        userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
+                        planosSemanaisArquivados = [];
+                    }
+                    renderApp();
+                })
+                .catch(err => console.error("Erro ao carregar dados:", err));
+        }
+
+        function renderApp() {
+            renderSchedule();
+            updateSelects();
+            updateStats();
+            renderSmartPlan();
+            renderPlanosArquivados();
+            renderHistorico();
+            renderCadernoErros();
+            renderNotas();
+            lucide.createIcons();
+        }
+
+        function updateSelects() {
+            const selects = [document.getElementById('pomoSubjectSelect'), document.getElementById('freeSubjectSelect')];
+            selects.forEach(select => {
+                if (!select) return;
+                const currentVal = select.value;
+                select.innerHTML = '<option value="">-- Selecione a matéria --</option>';
+                subjects.forEach((sub, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    opt.textContent = sub.name;
+                    select.appendChild(opt);
+                });
+                select.value = currentVal;
+            });
+        }
+
+        function openSubjectModal(sIndex = null) {
+            if (sIndex !== null && subjects[sIndex]) {
+                const sub = subjects[sIndex];
+                document.getElementById('editingSubjectId').value = sIndex;
+                document.getElementById('modalSubjectName').value = sub.name;
+                document.getElementById('modalSubjectWeight').value = sub.weight || 1;
+                document.getElementById('modalSubjectHours').value = sub.hoursStudied || 0;
+                document.getElementById('modalSubjectTopics').value = sub.topics ? sub.topics.map(t => t.name).join('\n') : '';
+                document.getElementById('subjectModalTitle').textContent = 'Editar Matéria';
+            } else {
+                document.getElementById('editingSubjectId').value = '';
+                document.getElementById('modalSubjectName').value = '';
+                document.getElementById('modalSubjectWeight').value = '1';
+                document.getElementById('modalSubjectHours').value = '0';
+                document.getElementById('modalSubjectTopics').value = '';
+                document.getElementById('subjectModalTitle').textContent = 'Adicionar Matéria';
+            }
+            document.getElementById('subjectModal').classList.remove('hidden');
+        }
+
+        function closeSubjectModal() {
+            document.getElementById('subjectModal').classList.add('hidden');
+        }
+
+        function saveSubject() {
+            const editingId = document.getElementById('editingSubjectId').value;
+            const name = document.getElementById('modalSubjectName').value.trim();
+            const weight = parseInt(document.getElementById('modalSubjectWeight').value) || 1;
+            const hoursStudied = parseFloat(document.getElementById('modalSubjectHours').value) || 0;
+            const topicsRaw = document.getElementById('modalSubjectTopics').value.trim();
+
+            if (!name) {
+                alert("Digite o nome da matéria.");
+                return;
+            }
+
+            const newTopics = topicsRaw ? topicsRaw.split('\n').map(t => ({ name: t.trim(), done: false })).filter(t => t.name) : [];
+
+            if (editingId !== '') {
+                const idx = parseInt(editingId);
+                const oldTopics = subjects[idx].topics || [];
+                newTopics.forEach(nt => {
+                    const found = oldTopics.find(ot => ot.name === nt.name);
+                    if (found) nt.done = found.done;
+                });
+                subjects[idx].name = name;
+                subjects[idx].weight = weight;
+                subjects[idx].hoursStudied = hoursStudied;
+                subjects[idx].topics = newTopics;
+            } else {
+                subjects.push({ name, weight, hoursStudied, topics: newTopics, questionsCount: 0, correctCount: 0, includeInPlan: true, minimized: false });
+            }
+
+            saveUserData();
+            renderApp();
+            closeSubjectModal();
+        }
+
+        function toggleMinimize(sIndex) {
+            if (subjects[sIndex]) {
+                subjects[sIndex].minimized = !subjects[sIndex].minimized;
+                renderSchedule();
+            }
+        }
+
+        function zerarQuestoes(sIndex) {
+            if (subjects[sIndex]) {
+                if (confirm(`Deseja zerar as questões contabilizadas de "${subjects[sIndex].name}"?`)) {
+                    subjects[sIndex].questionsCount = 0;
+                    subjects[sIndex].correctCount = 0;
+                    saveUserData();
+                    renderApp();
+                    alert("Questões zeradas com sucesso!");
+                }
+            }
+        }
+
+        function renderSchedule() {
+            const container = document.getElementById('scheduleContainer');
+            if (!container) return;
+            if (subjects.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-zinc-500 text-xs">Nenhuma matéria cadastrada. Clique em "Add Matéria" ou "Importar Edital".</div>`;
+                return;
+            }
+
+            container.innerHTML = subjects.map((sub, sIndex) => {
+                const isMin = sub.minimized || false;
+                return `
+                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <button type="button" onclick="toggleMinimize(${sIndex})" class="text-zinc-400 hover:text-white transition" title="${isMin ? 'Maximizar Tópicos' : 'Minimizar Tópicos'}">
+                                <i data-lucide="${isMin ? 'chevron-right' : 'chevron-down'}" class="w-4 h-4"></i>
+                            </button>
+                            <h3 class="font-bold text-sm text-white">${sub.name} <span class="text-[10px] text-zinc-500 font-normal">(Peso ${sub.weight || 1})</span></h3>
+                        </div>
+                        <div class="flex items-center space-x-2.5 text-xs text-zinc-400">
+                            <span>${(sub.hoursStudied || 0).toFixed(1)}h estudadas</span>
+                            <button type="button" onclick="zerarQuestoes(${sIndex})" class="text-amber-400 hover:text-amber-300" title="Zerar Questões"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i></button>
+                            <button type="button" onclick="openSubjectModal(${sIndex})" class="text-blue-400 hover:text-blue-300" title="Editar Matéria"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                            <button type="button" onclick="deleteSubject(${sIndex})" class="text-red-400 hover:text-red-300" title="Excluir Matéria"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
+                        </div>
+                    </div>
+                    <div class="space-y-1.5 pl-2 border-l border-zinc-800 ${isMin ? 'hidden' : ''}">
+                        ${sub.topics && sub.topics.length > 0 ? sub.topics.map((top, tIndex) => `
+                            <label class="flex items-center space-x-2 text-xs text-zinc-300 cursor-pointer">
+                                <input type="checkbox" ${top.done ? 'checked' : ''} onclick="event.preventDefault(); handleTopicCheck(${sIndex},${tIndex})" class="rounded bg-black border-zinc-700 text-blue-600 focus:ring-0">
+                                <span class="${top.done ? 'line-through text-zinc-500' : ''}">${top.name}</span>
+                            </label>
+                        `).join('') : '<p class="text-[11px] text-zinc-600">Nenhum tópico cadastrado.</p>'}
+                    </div>
+                </div>
+            `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function reiniciarNovoEdital() {
+            if (confirm("ATENÇÃO: Deseja apagar todas as matérias atuais e reiniciar os dados para um novo edital? (O histórico de ciclos passados e notas arquivadas será limpo).")) {
+                subjects = [];
+                historicoDiario = [];
+                historicoSemanal = [];
+                cadernoErros = [];
+                planosSemanaisArquivados = [];
+                planoGerado = false;
+                saveUserData();
+                renderApp();
+                alert("Dados reiniciados com sucesso! Você já pode importar um novo edital.");
+            }
+        }
+
+        // PASTAS E BLOCOS DE NOTAS
+        function openFolderModal() {
+            document.getElementById('editingFolderId').value = '';
+            document.getElementById('modalFolderName').value = '';
+            document.getElementById('folderModal').classList.remove('hidden');
+        }
+
+        function closeFolderModal() {
+            document.getElementById('folderModal').classList.add('hidden');
+        }
+
+        function saveFolder() {
+            const folderName = document.getElementById('modalFolderName').value.trim();
+            if (!folderName) {
+                alert("Digite o nome da pasta.");
+                return;
+            }
+
+            if (!userFolders) userFolders = [];
+            userFolders.push({
+                id: 'folder_' + Date.now(),
+                name: folderName,
+                notes: []
+            });
+
+            saveUserData();
+            renderNotas();
+            closeFolderModal();
+        }
+
+        function deleteFolder(fIndex) {
+            if (confirm("Deseja realmente excluir esta pasta e todas as notas contidas nela?")) {
+                userFolders.splice(fIndex, 1);
+                saveUserData();
+                renderNotas();
+            }
+        }
+
+        function openNoteModal(fIndex = null, nIndex = null) {
+            if (!userFolders || userFolders.length === 0) {
+                userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
+            }
+
+            const select = document.getElementById('modalNoteFolderSelect');
+            select.innerHTML = userFolders.map((f, idx) => `<option value="${idx}">${f.name}</option>`).join('');
+
+            if (fIndex !== null && nIndex !== null && userFolders[fIndex] && userFolders[fIndex].notes[nIndex]) {
+                const note = userFolders[fIndex].notes[nIndex];
+                document.getElementById('editingNoteId').value = `${fIndex}_${nIndex}`;
+                select.value = fIndex;
+                document.getElementById('modalNoteTitle').value = note.title;
+                document.getElementById('modalNoteContent').value = note.content;
+                document.getElementById('noteModalTitle').textContent = 'Editar Bloco de Notas';
+            } else {
+                document.getElementById('editingNoteId').value = '';
+                if (fIndex !== null) select.value = fIndex;
+                document.getElementById('modalNoteTitle').value = '';
+                document.getElementById('modalNoteContent').value = '';
+                document.getElementById('noteModalTitle').textContent = 'Novo Bloco de Notas';
+            }
+            document.getElementById('noteModal').classList.remove('hidden');
+        }
+
+        function closeNoteModal() {
+            document.getElementById('noteModal').classList.add('hidden');
+        }
+
+        function saveNote() {
+            const editingId = document.getElementById('editingNoteId').value;
+            const targetFolderIdx = parseInt(document.getElementById('modalNoteFolderSelect').value);
+            const title = document.getElementById('modalNoteTitle').value.trim();
+            const content = document.getElementById('modalNoteContent').value.trim();
+
+            if (!title) {
+                alert("Digite o título da nota.");
+                return;
+            }
+
+            if (isNaN(targetFolderIdx) || !userFolders[targetFolderIdx]) {
+                alert("Selecione uma pasta válida.");
+                return;
+            }
+
+            const newNote = {
+                title,
+                content,
+                date: new Date().toLocaleDateString('pt-BR')
+            };
+
+            if (editingId !== '') {
+                const [oldFIdx, oldNIdx] = editingId.split('_').map(Number);
+                userFolders[oldFIdx].notes.splice(oldNIdx, 1);
+            }
+
+            userFolders[targetFolderIdx].notes.unshift(newNote);
+
+            saveUserData();
+            renderNotas();
+            closeNoteModal();
+        }
+
+        function deleteNote(fIndex, nIndex) {
+            if (confirm("Deseja realmente excluir este bloco de notas?")) {
+                userFolders[fIndex].notes.splice(nIndex, 1);
+                saveUserData();
+                renderNotas();
+            }
+        }
+
+        function renderNotas() {
+            const container = document.getElementById('foldersContainer');
+            if (!container) return;
+
+            if (!userFolders || userFolders.length === 0) {
+                userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
+            }
+
+            container.innerHTML = userFolders.map((folder, fIndex) => `
+                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="folder" class="w-4 h-4 text-blue-400"></i>
+                            <h3 class="font-bold text-sm text-white">${folder.name} <span class="text-[10px] text-zinc-500 font-normal">(${folder.notes ? folder.notes.length : 0} notas)</span></h3>
+                        </div>
+                        <div class="flex items-center space-x-3 text-xs">
+                            <button type="button" onclick="openNoteModal(${fIndex})" class="text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1" title="Adicionar nota nesta pasta">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>Nota</span>
+                            </button>
+                            ${userFolders.length > 1 ? `
+                            <button type="button" onclick="deleteFolder(${fIndex})" class="text-red-400 hover:text-red-300" title="Excluir Pasta">
+                                <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                            </button>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pl-2">
+                        ${folder.notes && folder.notes.length > 0 ? folder.notes.map((note, nIndex) => `
+                            <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl space-y-1.5">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-bold text-white">• ${note.title}</span>
+                                    <span class="text-[10px] text-zinc-500">${note.date}</span>
+                                </div>
+                                <p class="text-xs text-zinc-300 font-mono whitespace-pre-wrap bg-black/40 p-2 rounded-lg border border-zinc-800/50">${note.content || 'Sem conteúdo.'}</p>
+                                <div class="flex justify-end space-x-3 pt-1">
+                                    <button type="button" onclick="openNoteModal(${fIndex},${nIndex})" class="text-[11px] text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1">
+                                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                        <span>Editar</span>
+                                    </button>
+                                    <button type="button" onclick="deleteNote(${fIndex},${nIndex})" class="text-[11px] text-red-400 hover:text-red-300 font-semibold flex items-center space-x-1">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        <span>Excluir</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('') : '<p class="text-[11px] text-zinc-600 italic">Nenhuma nota nesta pasta.</p>'}
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // DISPARAR NOTIFICAÇÃO DO APARELHO (VIA SERVICE WORKER SE DISPONÍVEL)
+        function dispararNotificacaoDiaria() {
+            const container = document.getElementById('dailyNotificationContent');
+            if (!container) return;
+
+            if (!planoGerado || subjects.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Gere um plano de estudos e cadastre matérias para visualizar o resumo diário.</p>`;
+                document.getElementById('notificationModal').classList.remove('hidden');
+                return;
+            }
+
+            const dayMap = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
+            const todayKey = dayMap[new Date().getDay()];
+            const dayNames = { seg: 'Segunda-feira', ter: 'Terça-feira', qua: 'Quarta-feira', qui: 'Quinta-feira', sex: 'Sexta-feira', sab: 'Sábado', dom: 'Domingo' };
+            const hoursVal = weeklyHoursConfig[todayKey] || 0;
+
+            if (hoursVal <= 0) {
+                container.innerHTML = `<div class="bg-black border border-zinc-800 rounded-xl p-3 text-center text-xs text-zinc-400">Hoje é dia de descanso (${dayNames[todayKey]})! Aproveite para recarregar as energias.</div>`;
+                document.getElementById('notificationModal').classList.remove('hidden');
+                return;
+            }
+
+            const activeSubjects = subjects.filter(sub => sub.includeInPlan !== false);
+            if (activeSubjects.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Nenhuma matéria ativa no plano.</p>`;
+                document.getElementById('notificationModal').classList.remove('hidden');
+                return;
+            }
+
+            let html = `<div class="text-xs font-bold text-blue-400 mb-2">📅 Cronograma para hoje (${dayNames[todayKey]}):</div>`;
+            
+            activeSubjects.slice(0, dailySubjectsCount).forEach((sub, idx) => {
+                let uncompleted = sub.topics ? sub.topics.filter(t => !t.done) : [];
+                let topText = uncompleted.length > 0 ? uncompleted[0].name : (sub.topics && sub.topics.length > 0 ? sub.topics[0].name : 'Sem tópicos');
+                html += `
+                    <div class="bg-black border border-zinc-800 rounded-xl p-3 space-y-1">
+                        <div class="font-bold text-white text-xs">${idx + 1}. Estudo Normal: ${sub.name}</div>
+                        <div class="text-[11px] text-zinc-300">• Tópico: ${topText}</div>
+                    </div>
+                `;
+            });
+
+            html += `
+                <div class="bg-amber-950/30 border border-amber-900/40 rounded-xl p-3 space-y-1">
+                    <div class="font-bold text-amber-400 text-xs">3. Revisão Programada</div>
+                    <div class="text-[11px] text-zinc-300">• 30 min no total para revisão dos tópicos anteriores</div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+            document.getElementById('notificationModal').classList.remove('hidden');
+
+            if ("Notification" in window) {
+                if (Notification.permission === "granted") {
+                    const msgBody = `Você tem ${hoursVal}h de estudos programados para hoje (${dayNames[todayKey]}). Foco na aprovação!`;
+                    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.ready.then(registration => {
+                            registration.showNotification("EstudoFlow PRO - Estudo do Dia", {
+                                body: msgBody,
+                                icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%232563eb"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+                            });
+                        });
+                    } else {
+                        new Notification("EstudoFlow PRO - Estudo do Dia", { body: msgBody });
+                    }
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === "granted") {
+                            dispararNotificacaoDiaria();
+                        }
+                    });
+                }
+            }
+        }
+
+        function fecharModalNotificacao() {
+            document.getElementById('notificationModal').classList.add('hidden');
+        }
+
+        function renderPlanosArquivados() {
+            const container = document.getElementById('planosAnterioresContainer');
+            if (!container) return;
+
+            if (!planosSemanaisArquivados || planosSemanaisArquivados.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic">Nenhum plano semanal arquivado ainda.</p>`;
+                return;
+            }
+
+            container.innerHTML = planosSemanaisArquivados.map((planoObj, pIdx) => `
+                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
+                        <span class="text-xs font-bold text-amber-400">📅 Ciclo Fechado em: ${planoObj.date}</span>
+                        <span class="text-[10px] bg-zinc-900 text-zinc-400 px-2 py-0.5 rounded border border-zinc-800">Arquivado</span>
+                    </div>
+                    <div class="space-y-2 text-xs text-zinc-300">
+                        ${planoObj.summaryHtml || '<p class="text-zinc-500 italic">Detalhes do ciclo não disponíveis.</p>'}
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function renderSmartPlan() {
+            const container = document.getElementById('smartPlanContainer');
+            if (!container) return;
+
+            if (!planoGerado) {
+                container.innerHTML = `
+                    <div class="text-center py-12 space-y-3">
+                        <div class="inline-flex p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-blue-400">
+                            <i data-lucide="sparkles" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-xs text-zinc-400">Nenhum plano gerado ainda.</p>
+                        <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md">
+                            Configurar e Gerar Plano
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            const activeSubjects = subjects.filter(sub => sub.includeInPlan !== false);
+            if (activeSubjects.length === 0) {
+                container.innerHTML = '<p class="text-xs text-zinc-500 text-center py-6">Nenhuma matéria incluída no plano. Clique em "Configurar Metas" para selecionar.</p>';
+                return;
+            }
+
+            const scoredSubjects = activeSubjects.map(sub => {
+                const totalQ = sub.questionsCount || 0;
+                const correctQ = sub.correctCount || 0;
+                const accuracy = totalQ > 0 ? (correctQ / totalQ) * 100 : 100;
+                const weight = sub.weight || 1;
+                const priorityScore = weight * (101 - accuracy);
+                return { ...sub, accuracy, priorityScore };
+            });
+
+            scoredSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
+
+            const days = [
+                { id: 'seg', name: 'Segunda-feira', hours: weeklyHoursConfig.seg },
+                { id: 'ter', name: 'Terça-feira', hours: weeklyHoursConfig.ter },
+                { id: 'qua', name: 'Quarta-feira', hours: weeklyHoursConfig.qua },
+                { id: 'qui', name: 'Quinta-feira', hours: weeklyHoursConfig.qui },
+                { id: 'sex', name: 'Sexta-feira', hours: weeklyHoursConfig.sex },
+                { id: 'sab', name: 'Sábado', hours: weeklyHoursConfig.sab },
+                { id: 'dom', name: 'Domingo', hours: weeklyHoursConfig.dom }
+            ];
+
+            let normPtr = 0;
+            let activeDayCounter = 0;
+            let studyHistoryByDay = [];
+
+            container.innerHTML = days.map((day) => {
+                if (day.hours <= 0) {
+                    return `
+                        <div class="bg-black border border-zinc-800 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
+                            <span class="text-xs font-bold text-zinc-400">${day.name}</span>
+                            <span class="text-[11px] text-zinc-500">Descanso / 0h</span>
+                        </div>
+                    `;
+                }
+
+                let normalsForDay = [];
+                let totalWeightOfDay = 0;
+                for (let i = 0; i < dailySubjectsCount; i++) {
+                    let sub = scoredSubjects[normPtr % scoredSubjects.length];
+                    normalsForDay.push(sub);
+                    totalWeightOfDay += (sub.weight || 1);
+                    normPtr++;
+                }
+
+                let allocatedHours = normalsForDay.map(sub => {
+                    let weight = sub.weight || 1;
+                    let proportion = weight / totalWeightOfDay;
+                    let h = (day.hours * proportion).toFixed(1);
+                    return { sub, hours: h };
+                });
+
+                const normalHtml = allocatedHours.map((item, idx) => {
+                    let sub = item.sub;
+                    let currentTopicText = "Nenhum tópico pendente no edital";
+                    let isAllDone = false;
+                    if (sub.topics && sub.topics.length > 0) {
+                        let uncompleted = sub.topics.filter(t => !t.done);
+                        if (uncompleted.length > 0) {
+                            currentTopicText = uncompleted[0].name;
+                        } else {
+                            currentTopicText = "Todos os tópicos desta matéria concluídos! 🎉";
+                            isAllDone = true;
+                        }
+                    }
+
+                    studyHistoryByDay.push({ dayIndex: activeDayCounter, subjectName: sub.name, topicName: currentTopicText });
+
+                    return `
+                        <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl space-y-1">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-bold text-white">${idx + 1}. Estudo: ${sub.name} <span class="text-[10px] text-zinc-400 font-normal">(Peso ${sub.weight || 1})</span></span>
+                                <span class="text-[10px] font-bold text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded-lg border border-blue-800/50">${item.hours}h</span>
+                            </div>
+                            <div class="text-[11px] ${isAllDone ? 'text-emerald-400 font-bold' : 'text-zinc-300'} pl-2 border-l-2 ${isAllDone ? 'border-emerald-500' : 'border-blue-600'}">
+                                <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Tópico do Edital:</span>
+                                ${currentTopicText}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                let reviewItems = [];
+                if (activeDayCounter >= 1) {
+                    let candidates24 = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 1);
+                    candidates24.forEach(c => {
+                        reviewItems.push({ type: "Revisão 24h", subjectName: c.subjectName, topicName: c.topicName });
+                    });
+                }
+                if (activeDayCounter >= 7) {
+                    let candidates7 = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 7);
+                    candidates7.forEach(c => {
+                        reviewItems.push({ type: "Revisão 7d", subjectName: c.subjectName, topicName: c.topicName });
+                    });
+                }
+                if (activeDayCounter >= 30) {
+                    let candidates30 = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 30);
+                    candidates30.forEach(c => {
+                        reviewItems.push({ type: "Revisão 30d", subjectName: c.subjectName, topicName: c.topicName });
+                    });
+                }
+
+                activeDayCounter++;
+
+                let reviewHtml = '';
+                if (reviewItems.length > 0) {
+                    const minutosPorRevisao = Math.max(5, Math.round(30 / reviewItems.length));
+                    
+                    reviewHtml = reviewItems.map((rev, rIdx) => `
+                        <div class="bg-amber-950/30 border border-amber-900/40 p-2.5 rounded-xl space-y-1">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-bold text-amber-400">${dailySubjectsCount + 1 + rIdx}. ${rev.type}: ${rev.subjectName}</span>
+                                <span class="text-[10px] font-bold text-amber-500 bg-amber-950/60 px-2 py-0.5 rounded-lg border border-amber-800/50">~${minutosPorRevisao} min</span>
+                            </div>
+                            <div class="text-[11px] text-zinc-300 pl-2 border-l-2 border-amber-600">
+                                <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Assunto a Revisar:</span>
+                                ${rev.topicName}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                return `
+                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
+                            <span class="text-xs font-bold text-zinc-300">${day.hours}h totais ${reviewItems.length > 0 ? '+ 30min Rev. (Total)' : ''}</span>
+                        </div>
+                        <div class="space-y-2 pt-1">
+                            ${normalHtml}
+                            ${reviewHtml}
+                            ${reviewItems.length === 0 ? '<div class="text-[10px] text-zinc-500 italic px-1 pt-0.5">* Sem histórico anterior suficiente para revisões neste dia inicial.</div>' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function handleTopicCheck(sIndex, tIndex) {
+            const topic = subjects[sIndex].topics[tIndex];
+            if (topic.done) {
+                topic.done = false;
+                saveUserData();
+                renderApp();
+            } else {
+                document.getElementById('pendingSubjectIndex').value = sIndex;
+                document.getElementById('pendingTopicIndex').value = tIndex;
+                document.getElementById('inputTotalQ').value = 10;
+                document.getElementById('inputCorrectQ').value = 8;
+                document.getElementById('approvalModal').classList.remove('hidden');
+            }
+        }
+
+        function cancelTopicApproval() {
+            document.getElementById('approvalModal').classList.add('hidden');
+        }
+
+        function confirmTopicApproval() {
+            const sIndex = parseInt(document.getElementById('pendingSubjectIndex').value);
+            const tIndex = parseInt(document.getElementById('pendingTopicIndex').value);
+            const total = parseInt(document.getElementById('inputTotalQ').value) || 0;
+            const correct = parseInt(document.getElementById('inputCorrectQ').value) || 0;
+
+            if (total <= 0 || correct < 0 || correct > total) {
+                alert("Por favor, insira valores válidos de questões.");
+                return;
+            }
+
+            const percent = (correct / total) * 100;
+            if (percent < 80) {
+                alert(`Aproveitamento de ${percent.toFixed(1)}%. Você precisa de pelo menos 80% de acertos para avançar e concluir este tópico.`);
+                return;
+            }
+
+            subjects[sIndex].questionsCount = (subjects[sIndex].questionsCount || 0) + total;
+            subjects[sIndex].correctCount = (subjects[sIndex].correctCount || 0) + correct;
+            subjects[sIndex].topics[tIndex].done = true;
+            
+            registrarEvolucioDiaria(subjects[sIndex].name, subjects[sIndex].topics[tIndex].name, percent);
+
+            saveUserData();
+            renderApp(); // Atualiza a tela do Edital e automaticamente reflete no Plano Inteligente!
+            document.getElementById('approvalModal').classList.add('hidden');
+            alert(`Tópico concluído com sucesso! Aproveitamento de ${percent.toFixed(1)}%. O plano semanal foi atualizado.`);
+        }
+
+        function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
+            const hojeStr = new Date().toLocaleDateString('pt-BR');
+            let registroHoje = historicoDiario.find(h => h.date === hojeStr);
+            if (!registroHoje) {
+                registroHoje = { date: hojeStr, itens: [] };
+                historicoDiario.unshift(registroHoje);
+            }
+            const jaExiste = registroHoje.itens.some(item => item.subject === subjectName && item.topic === topicName);
+            if (!jaExiste) {
+                registroHoje.itens.push({ subject: subjectName, topic: topicName, accuracy: accuracy.toFixed(0) });
+            }
+        }
+
+        function renderHistorico() {
+            const container = document.getElementById('historicoSemanalList');
+            if (!container) return;
+
+            let htmlContent = '';
+
+            if (historicoDiario && historicoDiario.length > 0) {
+                htmlContent += `<h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Evolução por Tópicos (Diário)</h3>`;
+                htmlContent += historicoDiario.map(dia => `
+                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2 mb-3">
+                        <div class="flex items-center justify-between text-xs font-bold text-blue-400 border-b border-zinc-900 pb-1.5">
+                            <span>Data: ${dia.date}</span>
+                            <span class="text-[10px] text-zinc-500">${dia.itens.length} tópicos concluídos</span>
+                        </div>
+                        <div class="space-y-1.5 pt-1">
+                            ${dia.itens.map(item => `
+                                <div class="flex items-center justify-between text-xs bg-zinc-900/50 p-2 rounded-xl border border-zinc-800/60">
+                                    <div>
+                                        <span class="font-bold text-white">${item.subject}</span>
+                                        <span class="block text-[11px] text-zinc-400">• ${item.topic}</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-1 rounded-lg border border-emerald-800/50">${item.accuracy}% acertos</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            if (historicoSemanal && historicoSemanal.length > 0) {
+                htmlContent += `<h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mt-5 mb-2">Semanas Arquivadas</h3>`;
+                htmlContent += historicoSemanal.map((sem, sIdx) => `
+                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2 mb-3">
+                        <div class="flex items-center justify-between text-xs font-bold text-emerald-400 border-b border-zinc-900 pb-1.5">
+                            <span>Semana Arquivada (${sem.date})</span>
+                        </div>
+                        <p class="text-xs text-zinc-400">Ciclo concluído e arquivado com sucesso.</p>
+                    </div>
+                `).join('');
+            }
+
+            if (!historicoDiario.length && !historicoSemanal.length) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum registro no histórico ainda. Conclua tópicos no edital para registrar sua evolução.</p>`;
+            } else {
+                container.innerHTML = htmlContent;
+            }
+        }
+
+        function openErrorModal() {
+            const subjectSelect = document.getElementById('errorSubjectSelect');
+            subjectSelect.innerHTML = '<option value="">-- Selecione a matéria --</option>';
+            subjects.forEach((sub, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = sub.name;
+                subjectSelect.appendChild(opt);
+            });
+            document.getElementById('errorTopicSelect').innerHTML = '<option value="">-- Selecione o tópico --</option>';
+            document.getElementById('errorDescription').value = '';
+            document.getElementById('errorModal').classList.remove('hidden');
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.add('hidden');
+        }
+
+        function updateErrorTopicsSelect() {
+            const sIdx = document.getElementById('errorSubjectSelect').value;
+            const topicSelect = document.getElementById('errorTopicSelect');
+            topicSelect.innerHTML = '<option value="">-- Selecione o tópico --</option>';
+            if (sIdx !== '' && subjects[sIdx] && subjects[sIdx].topics) {
+                subjects[sIdx].topics.forEach((top, tIdx) => {
+                    const opt = document.createElement('option');
+                    opt.value = top.name;
+                    opt.textContent = top.name;
+                    topicSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function saveErrorRecord() {
+            const sIdx = document.getElementById('errorSubjectSelect').value;
+            const topicName = document.getElementById('errorTopicSelect').value;
+            const description = document.getElementById('errorDescription').value.trim();
+
+            if (sIdx === '' || !topicName) {
+                alert("Selecione a matéria e o assunto/tópico.");
+                return;
+            }
+
+            const subjectName = subjects[sIdx].name;
+            cadernoErros.unshift({
+                date: new Date().toLocaleDateString('pt-BR'),
+                subject: subjectName,
+                topic: topicName,
+                description: description || "Nenhuma anotação fornecida."
+            });
+
+            saveUserData();
+            renderCadernoErros();
+            closeErrorModal();
+            alert("Erro registrado no caderno com sucesso!");
+        }
+
+        function deleteErrorRecord(eIndex) {
+            if (confirm("Deseja remover este registro do caderno de erros?")) {
+                cadernoErros.splice(eIndex, 1);
+                saveUserData();
+                renderCadernoErros();
+            }
+        }
+
+        function renderCadernoErros() {
+            const container = document.getElementById('cadernoErrosList');
+            if (!container) return;
+
+            if (!cadernoErros || cadernoErros.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum erro registrado no caderno ainda.</p>`;
+                return;
+            }
+
+            container.innerHTML = cadernoErros.map((err, eIndex) => `
+                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2">
+                    <div class="flex items-center justify-between text-xs border-b border-zinc-900 pb-1.5">
+                        <span class="font-bold text-amber-400">${err.subject}</span>
+                        <span class="text-[10px] text-zinc-500">${err.date}</span>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-white block">• Assunto: ${err.topic}</span>
+                        <p class="text-xs text-zinc-300 mt-1 bg-zinc-900/50 p-2.5 rounded-xl border border-zinc-800/60">${err.description}</p>
+                    </div>
+                    <div class="flex justify-end pt-1">
+                        <button type="button" onclick="deleteErrorRecord(${eIndex})" class="text-[11px] text-red-400 hover:text-red-300 font-semibold flex items-center space-x-1">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            <span>Remover</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function deleteSubject(sIndex) {
+            if (confirm("Deseja realmente excluir esta matéria?")) {
+                subjects.splice(sIndex, 1);
+                saveUserData();
+                renderApp();
+            }
+        }
+
+        function updateStats() {
+            let totalTopics = 0;
+            let doneTopics = 0;
+            let totalHours = 0;
+            let totalQ = 0;
+            let totalC = 0;
+
+            subjects.forEach(sub => {
+                totalHours += sub.hoursStudied || 0;
+                totalQ += sub.questionsCount || 0;
+                totalC += sub.correctCount || 0;
+                if (sub.topics) {
+                    totalTopics += sub.topics.length;
+                    doneTopics += sub.topics.filter(t => t.done).length;
+                }
+            });
+
+            const percent = totalTopics > 0 ? Math.round((doneTopics / totalTopics) * 100) : 0;
+            const accuracy = totalQ > 0 ? Math.round((totalC / totalQ) * 100) : 0;
+
+            document.getElementById('statTotalHours').textContent = totalHours.toFixed(1) + 'h';
+            document.getElementById('statWeeklyHours').textContent = totalHours.toFixed(1) + 'h nesta semana';
+            document.getElementById('statTotalQuestions').textContent = totalQ;
+            document.getElementById('statAccuracy').textContent = accuracy + '% acertos no total';
+            document.getElementById('globalPercent').textContent = percent + '%';
+            document.getElementById('globalProgressBar').style.width = percent + '%';
+            document.getElementById('statWeeklyTopics').textContent = `${doneTopics} / ${totalTopics} tópicos concluídos nesta semana`;
+        }
+
+        function adicionarHorasEstudo(subjectIndex, minutos) {
+            if (subjectIndex === '' || subjectIndex === null || subjectIndex === undefined) {
+                alert("Selecione uma matéria antes de computar as horas!");
+                return;
+            }
+            const sIdx = parseInt(subjectIndex);
+            if (!isNaN(sIdx) && subjects[sIdx]) {
+                const horasAdicionadas = minutos / 60;
+                subjects[sIdx].hoursStudied = (subjects[sIdx].hoursStudied || 0) + horasAdicionadas;
+                saveUserData();
+                updateStats();
+                renderSchedule();
+            }
+        }
+
+        function abrirModalImportacao() { document.getElementById('importModal').classList.remove('hidden'); }
+        function fecharModalImportacao() { document.getElementById('importModal').classList.add('hidden'); }
+        
+        function abrirModalPlano() { 
+            const listContainer = document.getElementById('planSubjectsList');
+            if (subjects.length === 0) {
+                listContainer.innerHTML = '<p class="text-xs text-zinc-500 text-center py-2">Cadastre matérias primeiro.</p>';
+            } else {
+                listContainer.innerHTML = subjects.map((sub, idx) => `
+                    <label class="flex items-center justify-between bg-black p-2.5 border border-zinc-800 rounded-xl cursor-pointer">
+                        <span class="text-xs text-zinc-300 font-bold">${sub.name}</span>
+                        <input type="checkbox" data-sub-index="${idx}" ${sub.includeInPlan !== false ? 'checked' : ''} class="rounded bg-zinc-900 border-zinc-700 text-blue-600 focus:ring-0">
+                    </label>
+                `).join('');
+            }
+            document.getElementById('dailySubjectsCount').value = dailySubjectsCount;
+            document.getElementById('day_seg').value = weeklyHoursConfig.seg;
+            document.getElementById('day_ter').value = weeklyHoursConfig.ter;
+            document.getElementById('day_qua').value = weeklyHoursConfig.qua;
+            document.getElementById('day_qui').value = weeklyHoursConfig.qui;
+            document.getElementById('day_sex').value = weeklyHoursConfig.sex;
+            document.getElementById('day_sab').value = weeklyHoursConfig.sab;
+            document.getElementById('day_dom').value = weeklyHoursConfig.dom;
+
+            document.getElementById('planModal').classList.remove('hidden'); 
+        }
+        function fecharModalPlano() { document.getElementById('planModal').classList.add('hidden'); }
+
+        function processarEditalLocal() {
+            const texto = document.getElementById('editalText').value.trim();
+            if (!texto) return;
+            const linhas = texto.split('\n');
+            let materiaAtual = null;
+
+            linhas.forEach(linha => {
+                const linhaLimpa = linha.trim();
+                if (!linhaLimpa) return;
+                if (linhaLimpa === linhaLimpa.toUpperCase() && !linhaLimpa.startsWith('.')) {
+                    materiaAtual = { name: linhaLimpa, weight: 1, hoursStudied: 0, topics: [], questionsCount: 0, correctCount: 0, includeInPlan: true, minimized: false };
+                    subjects.push(materiaAtual);
+                } else if (materiaAtual) {
+                    materiaAtual.topics.push({ name: linhaLimpa, done: false });
+                }
+            });
+
+            saveUserData();
+            renderApp();
+            fecharModalImportacao();
+        }
+
+        function gerarPlanoInteligente() {
+            const checkboxes = document.querySelectorAll('#planSubjectsList input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                const idx = parseInt(cb.getAttribute('data-sub-index'));
+                if (!isNaN(idx) && subjects[idx]) {
+                    subjects[idx].includeInPlan = cb.checked;
+                }
+            });
+
+            dailySubjectsCount = parseInt(document.getElementById('dailySubjectsCount').value) || 2;
+            weeklyHoursConfig.seg = parseInt(document.getElementById('day_seg').value) || 0;
+            weeklyHoursConfig.ter = parseInt(document.getElementById('day_ter').value) || 0;
+            weeklyHoursConfig.qua = parseInt(document.getElementById('day_qua').value) || 0;
+            weeklyHoursConfig.qui = parseInt(document.getElementById('day_qui').value) || 0;
+            weeklyHoursConfig.sex = parseInt(document.getElementById('day_sex').value) || 0;
+            weeklyHoursConfig.sab = parseInt(document.getElementById('day_sab').value) || 0;
+            weeklyHoursConfig.dom = parseInt(document.getElementById('day_dom').value) || 0;
+
+            planoGerado = true;
+            saveUserData();
+            fecharModalPlano();
+            renderSmartPlan();
+            alert("Plano inteligente gerado e salvo com sucesso!");
+        }
+
+        function fecharSemana() {
+            if (confirm("Deseja fechar a semana atual e arquivar no histórico de planos?")) {
+                const planContainerEl = document.getElementById('smartPlanContainer');
+                const htmlConteudoAtual = planContainerEl ? planContainerEl.innerHTML : '';
+
+                if (!planosSemanaisArquivados) planosSemanaisArquivados = [];
+                planosSemanaisArquivados.unshift({
+                    date: new Date().toLocaleDateString('pt-BR'),
+                    summaryHtml: htmlConteudoAtual
+                });
+
+                historicoSemanal.push({ date: new Date().toLocaleDateString(), subjects: JSON.parse(JSON.stringify(subjects)) });
+                subjects.forEach(sub => sub.topics.forEach(t => t.done = false));
+                
+                saveUserData();
+                renderApp();
+                alert("Semana fechada e arquivada com sucesso no histórico de planos!");
+            }
+        }
+
+        function limparHistorico() {
+            if (confirm("Deseja limpar todo o histórico e planos arquivados?")) {
+                historicoDiario = [];
+                historicoSemanal = [];
+                planosSemanaisArquivados = [];
+                planoGerado = false;
+                saveUserData();
+                renderSmartPlan();
+                renderPlanosArquivados();
+                renderHistorico();
+            }
+        }
+
+        // TIMER POMODORO
+        function togglePomoTimer() {
+            const btn = document.getElementById('btnPomoStart');
+            const subIdx = document.getElementById('pomoSubjectSelect').value;
+
+            if (pomoIsRunning) {
+                clearInterval(pomoInterval);
+                pomoIsRunning = false;
+                btn.textContent = pomoMode === 'work' ? "Iniciar Foco" : "Iniciar Pausa";
+                btn.classList.replace('bg-amber-600', pomoMode === 'work' ? 'bg-blue-600' : 'bg-emerald-600');
+            } else {
+                pomoIsRunning = true;
+                btn.textContent = "Pausar";
+                btn.classList.replace(pomoMode === 'work' ? 'bg-blue-600' : 'bg-emerald-600', 'bg-amber-600');
+                
+                const workMins = parseInt(document.getElementById('pomoWorkTime').value) || 25;
+                const breakMins = parseInt(document.getElementById('pomoBreakTime').value) || 5;
+
+                pomoInterval = setInterval(() => {
+                    if (pomoSeconds > 0) {
+                        pomoSeconds--;
+                        updatePomoDisplay();
+                    } else {
+                        clearInterval(pomoInterval);
+                        pomoIsRunning = false;
+
+                        if (pomoMode === 'work') {
+                            adicionarHorasEstudo(subIdx, workMins);
+                            alert(`Foco de ${workMins} minutos concluído e computado! Hora da pausa.`);
+                            
+                            pomoMode = 'break';
+                            pomoSeconds = breakMins * 60;
+                            document.getElementById('pomoStatus').textContent = "Ciclo de Pausa";
+                            document.getElementById('pomoStatus').className = "text-[11px] font-bold text-emerald-400 uppercase tracking-widest";
+                            btn.textContent = "Iniciar Pausa";
+                            btn.classList.replace('bg-amber-600', 'bg-emerald-600');
+                            updatePomoDisplay();
+                        } else {
+                            alert(`Pausa de ${breakMins} minutos concluída! Pronto para voltar ao foco.`);
+                            
+                            pomoMode = 'work';
+                            pomoSeconds = workMins * 60;
+                            document.getElementById('pomoStatus').textContent = "Sessão de Foco";
+                            document.getElementById('pomoStatus').className = "text-[11px] font-bold text-blue-400 uppercase tracking-widest";
+                            btn.textContent = "Iniciar Foco";
+                            btn.classList.replace('bg-amber-600', 'bg-blue-600');
+                            updatePomoDisplay();
+                        }
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetPomoTimer() {
+            clearInterval(pomoInterval);
+            pomoIsRunning = false;
+            pomoMode = 'work';
+            const workMins = parseInt(document.getElementById('pomoWorkTime').value) || 25;
+            pomoSeconds = workMins * 60;
+            document.getElementById('pomoStatus').textContent = "Sessão de Foco";
+            document.getElementById('pomoStatus').className = "text-[11px] font-bold text-blue-400 uppercase tracking-widest";
+            updatePomoDisplay();
+            document.getElementById('btnPomoStart').textContent = "Iniciar Foco";
+            document.getElementById('btnPomoStart').className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
+        }
+
+        function updatePomoDisplay() {
+            const m = Math.floor(pomoSeconds / 60);
+            const s = pomoSeconds % 60;
+            document.getElementById('pomoDisplay').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        // TIMER LIVRE
+        function toggleFreeTimer() {
+            const btn = document.getElementById('btnFreeStart');
+            const subIdx = document.getElementById('freeSubjectSelect').value;
+
+            if (freeIsRunning) {
+                clearInterval(freeInterval);
+                freeIsRunning = false;
+                btn.textContent = "Iniciar Livre";
+                btn.classList.replace('bg-amber-600', 'bg-emerald-600');
+
+                const minutosEstudados = Math.floor(freeSeconds / 60);
+                const minutosComputados = minutosEstudados > 0 ? minutosEstudados : (freeSeconds > 0 ? 1 : 0);
+
+                if (minutosComputados > 0) {
+                    adicionarHorasEstudo(subIdx, minutosComputados);
+                    alert(`Sessão livre encerrada! ${minutosComputados} minuto(s) computados na matéria.`);
+                } else {
+                    alert("Nenhum tempo significativo foi registrado.");
+                }
+                freeSeconds = 0;
+                updateFreeDisplay();
+            } else {
+                if (subIdx === '') {
+                    alert("Por favor, selecione uma matéria antes de iniciar o cronômetro livre.");
+                    return;
+                }
+                freeIsRunning = true;
+                btn.textContent = "Parar e Salvar";
+                btn.classList.replace('bg-emerald-600', 'bg-amber-600');
+                freeSeconds = 0;
+
+                freeInterval = setInterval(() => {
+                    freeSeconds++;
+                    updateFreeDisplay();
+                }, 1000);
+            }
+        }
+
+        function resetFreeTimer() {
+            clearInterval(freeInterval);
+            freeIsRunning = false;
+            freeSeconds = 0;
+            updateFreeDisplay();
+            document.getElementById('btnFreeStart').textContent = "Iniciar Livre";
+            document.getElementById('btnFreeStart').className = "flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
+        }
+
+        function updateFreeDisplay() {
+            const h = Math.floor(freeSeconds / 3600);
+            const m = Math.floor((freeSeconds % 3600) / 60);
+            const s = freeSeconds % 60;
+            document.getElementById('freeDisplay').textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>
