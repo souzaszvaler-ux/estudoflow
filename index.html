@@ -200,7 +200,7 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="sparkles" class="w-5 h-5 text-blue-500"></i>
-                            <span>Plano da Semana Atual (100% Blindado e Congelado)</span>
+                            <span>Plano da Semana Atual (100% Estático e Imutável)</span>
                         </h2>
                         <div class="flex space-x-2">
                             <button type="button" onclick="reiniciarNovoEdital()" class="bg-red-950/80 hover:bg-red-900 text-red-400 border border-red-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Limpar tudo e iniciar novo edital">
@@ -213,7 +213,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano está blindado por sessão. Nenhuma alteração no edital ou recarregamento o afetará.</p>
+                    <p class="text-xs text-zinc-400">Este plano está congelado e totalmente isolado. Ele não se altera sozinho em hipótese alguma.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -610,17 +610,6 @@
         document.addEventListener("DOMContentLoaded", () => {
             lucide.createIcons();
             
-            // TRAVA DE SESSÃO LOCAL (Imutável por recarregamentos)
-            const cachedPlan = sessionStorage.getItem('frozen_estudoflow_plan');
-            if (cachedPlan) {
-                try {
-                    savedSmartPlan = JSON.parse(cachedPlan);
-                    planoGerado = true;
-                } catch(e) {
-                    savedSmartPlan = null;
-                }
-            }
-
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
             }
@@ -721,7 +710,8 @@
                 historicoSemanal, 
                 cadernoErros, 
                 userFolders, 
-                planosSemanaisArquivados,  
+                planosSemanaisArquivados,
+                savedSmartPlan,
                 weeklyHoursConfig, 
                 dailySubjectsCount, 
                 planoGerado 
@@ -742,6 +732,8 @@
                         cadernoErros = data.cadernoErros || [];
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
+                        savedSmartPlan = data.savedSmartPlan || null;
+                        planoGerado = data.planoGerado || (savedSmartPlan !== null);
                         
                         if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
                             userFolders.push({ id: 'geral', name: 'Geral', notes: data.userNotes });
@@ -756,6 +748,8 @@
                         subjects = [];
                         userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
                         planosSemanaisArquivados = [];
+                        savedSmartPlan = null;
+                        planoGerado = false;
                     }
                     renderApp();
                 })
@@ -915,7 +909,6 @@
                 cadernoErros = [];
                 planosSemanaisArquivados = [];
                 savedSmartPlan = null;
-                sessionStorage.removeItem('frozen_estudoflow_plan');
                 planoGerado = false;
                 saveUserData();
                 renderApp();
@@ -955,11 +948,10 @@
                     const content = JSON.parse(e.target.result);
                     if (content.subjects && Array.isArray(content.subjects)) {
                         subjects = content.subjects;
-                        if (content.savedSmartPlan !== undefined && content.savedSmartPlan !== null) {
+                        if (content.savedSmartPlan !== undefined) {
                             savedSmartPlan = content.savedSmartPlan;
-                            sessionStorage.setItem('frozen_estudoflow_plan', JSON.stringify(savedSmartPlan));
-                            planoGerado = true;
                         }
+                        if (content.planoGerado !== undefined) planoGerado = content.planoGerado;
                         if (content.weeklyHoursConfig) weeklyHoursConfig = content.weeklyHoursConfig;
                         if (content.dailySubjectsCount !== undefined) dailySubjectsCount = content.dailySubjectsCount;
                         
@@ -1271,7 +1263,7 @@
         function toggleDayTaskDone(dayId, taskIndex) {
             if (savedSmartPlan && savedSmartPlan[dayId] && savedSmartPlan[dayId].tasks[taskIndex]) {
                 savedSmartPlan[dayId].tasks[taskIndex].done = !savedSmartPlan[dayId].tasks[taskIndex].done;
-                sessionStorage.setItem('frozen_estudoflow_plan', JSON.stringify(savedSmartPlan));
+                saveUserData();
                 renderSmartPlan();
             }
         }
@@ -1589,6 +1581,7 @@
             let newSmartPlan = {};
             let normPtr = 0;
 
+            // Geração determinística fixa sem sorteio aleatório em loop dinâmico
             daysConfig.forEach(day => {
                 if (day.hours <= 0) {
                     newSmartPlan[day.id] = { hours: 0, tasks: [] };
@@ -1599,7 +1592,9 @@
                 for (let i = 0; i < dailySubjectsCount; i++) {
                     let sub = scoredSubjects[normPtr % scoredSubjects.length];
                     let topicsList = sub.topics || [];
-                    let topicName = topicsList.length > 0 ? String(topicsList[Math.floor(Math.random() * topicsList.length)].name) : "Revisão geral";
+                    // Seleciona o tópico de forma fixa com base no índice atual para que nunca mude sozinho
+                    let topicObj = topicsList.length > 0 ? topicsList[normPtr % topicsList.length] : null;
+                    let topicName = topicObj ? String(topicObj.name) : "Revisão geral";
                     
                     tasksForDay.push({
                         subjectName: String(sub.name),
@@ -1615,11 +1610,10 @@
                 };
             });
 
-            // Congela de forma isolada na sessão do navegador
+            // Salva de forma estática e definitiva na base de dados e estado local
             savedSmartPlan = JSON.parse(JSON.stringify(newSmartPlan));
-            sessionStorage.setItem('frozen_estudoflow_plan', JSON.stringify(savedSmartPlan));
             planoGerado = true;
-            
+            saveUserData();
             fecharModalPlano();
             renderSmartPlan();
             alert("Plano de estudos fixado e isolado com sucesso!");
@@ -1636,7 +1630,6 @@
 
                 historicoSemanal.push({ date: new Date().toLocaleDateString(), subjects: JSON.parse(JSON.stringify(subjects)) });
                 savedSmartPlan = null;
-                sessionStorage.removeItem('frozen_estudoflow_plan');
                 planoGerado = false;
                 saveUserData();
                 renderApp();
@@ -1650,7 +1643,6 @@
                 historicoSemanal = [];
                 planosSemanaisArquivados = [];
                 savedSmartPlan = null;
-                sessionStorage.removeItem('frozen_estudoflow_plan');
                 planoGerado = false;
                 saveUserData();
                 renderSmartPlan();
