@@ -21,7 +21,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-    <!-- Inicialização do Firebase com chaves reais -->
+    <!-- Inicialização do Firebase -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBCM2cfdMsNCLUltoly066qglhZnMRI86I",
@@ -31,7 +31,9 @@
             messagingSenderId: "74981576739",
             appId: "1:74981576739:web:41fb812867e19d7154e596"
         };
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
     </script>
 
     <style>
@@ -126,7 +128,7 @@
 
         <!-- Main Content -->
         <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 pb-64 overflow-y-auto hide-scrollbar">
-            <!-- ABA 1: CRONOGRAMA DE ESTUDOS -->
+            <!-- ABA 1: EDITAL -->
             <section id="tab-cronograma" class="space-y-5 tab-content">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-1 shadow-md">
@@ -156,19 +158,28 @@
                     <div class="w-full bg-zinc-900 h-2.5 rounded-full overflow-hidden border border-zinc-800">
                         <div id="globalProgressBar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
                     </div>
-                    <p id="statWeeklyTopics" class="text-[10px] text-zinc-500 pt-0.5">0 / 0 tópicos concluídos nesta semana</p>
+                    <p id="statWeeklyTopics" class="text-[10px] text-zinc-500 pt-0.5">0 / 0 tópicos concluídos</p>
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
                     <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1.5">
                         <i data-lucide="list-checks" class="w-4 h-4 text-blue-500"></i>
-                        <span>Disciplinas</span>
+                        <span>Disciplinas do Edital</span>
                     </h2>
-                    <div class="flex space-x-2">
+                    <div class="flex flex-wrap gap-2">
                         <button type="button" onclick="abrirModalImportacao()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="file-up" class="w-3.5 h-3.5"></i>
-                            <span>Importar Edital</span>
+                            <span>Importar</span>
                         </button>
+                        <button type="button" onclick="exportarBackupJSON()" class="bg-zinc-900 hover:bg-zinc-800 text-emerald-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Baixar arquivo de backup do edital">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            <span>Salvar Arquivo</span>
+                        </button>
+                        <label class="bg-zinc-900 hover:bg-zinc-800 text-amber-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition cursor-pointer" title="Restaurar de arquivo JSON">
+                            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                            <span>Restaurar Arquivo</span>
+                            <input type="file" accept=".json" onchange="importarBackupJSON(event)" class="hidden">
+                        </label>
                         <button type="button" onclick="abrirModalPlano()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                             <span>Gerar Plano</span>
@@ -189,7 +200,7 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="sparkles" class="w-5 h-5 text-blue-500"></i>
-                            <span>Plano da Semana Atual</span>
+                            <span>Plano da Semana Atual (Estático)</span>
                         </h2>
                         <div class="flex space-x-2">
                             <button type="button" onclick="reiniciarNovoEdital()" class="bg-red-950/80 hover:bg-red-900 text-red-400 border border-red-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Limpar tudo e iniciar novo edital">
@@ -198,15 +209,14 @@
                             </button>
                             <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                                 <i data-lucide="settings" class="w-3.5 h-3.5"></i>
-                                <span>Configurar Metas</span>
+                                <span>Configurar Novas Metas</span>
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Cronograma inteligente gerado com horários ponderados por peso e tópicos dinâmicos do edital.</p>
+                    <p class="text-xs text-zinc-400">Este plano permanece 100% estático. Concluir tópicos no edital altera exclusivamente o progresso geral e não afeta o plano semanal.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
-                <!-- SEÇÃO DE PLANOS SEMANAIS ANTERIORES / ARQUIVADOS -->
                 <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4 mt-6">
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
@@ -360,7 +370,7 @@
             <div class="max-w-md mx-auto flex justify-around items-center">
                 <button type="button" onclick="switchTab('cronograma')" id="nav-cronograma" class="flex flex-col items-center space-y-1 text-blue-500 font-bold transition">
                     <i data-lucide="calendar" class="w-5 h-5"></i>
-                    <span class="text-[9px]">Cronograma</span>
+                    <span class="text-[9px]">Edital</span>
                 </button>
                 <button type="button" onclick="switchTab('plano')" id="nav-plano" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
                     <i data-lucide="sparkles" class="w-5 h-5"></i>
@@ -386,7 +396,7 @@
         </nav>
     </div>
 
-    <!-- MODAL CRIAR/EDITAR PASTA -->
+    <!-- MODAIS -->
     <div id="folderModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
@@ -405,7 +415,6 @@
         </div>
     </div>
 
-    <!-- MODAL CRIAR/EDITAR NOTA -->
     <div id="noteModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
             <h3 id="noteModalTitle" class="text-base font-bold text-blue-500 flex items-center space-x-2">
@@ -413,24 +422,20 @@
                 <span>Novo Bloco de Notas</span>
             </h3>
             <input type="hidden" id="editingNoteId" value="">
-
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Pasta Destino</label>
                 <select id="modalNoteFolderSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
                     <option value="">-- Selecione a Pasta --</option>
                 </select>
             </div>
-
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Título da Nota</label>
-                <input type="text" id="modalNoteTitle" placeholder="Ex: Resumo de Direitos Fundamentais" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                <input type="text" id="modalNoteTitle" placeholder="Ex: Estado, governo e administração pública" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
             </div>
-
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Conteúdo Ampliado</label>
                 <textarea id="modalNoteContent" rows="10" placeholder="Escreva suas anotações aqui..." class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-y font-mono leading-relaxed"></textarea>
             </div>
-
             <div class="flex space-x-3 pt-2">
                 <button type="button" onclick="closeNoteModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-3 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
                 <button type="button" onclick="saveNote()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl text-sm font-semibold transition">Salvar Nota</button>
@@ -438,7 +443,6 @@
         </div>
     </div>
 
-    <!-- MODAL NOTIFICAÇÃO DIÁRIA -->
     <div id="notificationModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl">
             <div class="flex items-center space-x-3 text-blue-400">
@@ -453,7 +457,6 @@
         </div>
     </div>
 
-    <!-- MODAL IMPORTAR EDITAL -->
     <div id="importModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
@@ -469,22 +472,18 @@
         </div>
     </div>
 
-    <!-- MODAL PLANO SEMANAL DINÂMICO -->
     <div id="planModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
                 <i data-lucide="sparkles" class="w-5 h-5"></i>
-                <span>Gerar Plano e Selecionar Matérias</span>
+                <span>Configurar Novas Metas</span>
             </h3>
-            <p class="text-xs text-zinc-400">Defina quantas disciplinas de estudo normal deseja por dia e ajuste as horas e matérias ativas.</p>
-
+            <p class="text-xs text-zinc-400">Defina as horas e disciplinas para gerar ou atualizar o plano fixo da semana.</p>
             <div class="bg-black p-3 border border-zinc-800 rounded-xl space-y-2">
                 <label class="block text-xs text-zinc-300 font-bold">Disciplinas Normais por Dia:</label>
                 <input type="number" id="dailySubjectsCount" value="2" min="1" max="6" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1.5 font-bold text-sm">
             </div>
-
             <div id="planSubjectsList" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
-
             <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-zinc-800">
                 <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Segunda</span><input type="number" id="day_seg" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
                 <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Terça</span><input type="number" id="day_ter" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
@@ -494,25 +493,21 @@
                 <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Sábado</span><input type="number" id="day_sab" value="4" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
                 <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between col-span-2"><span class="text-zinc-300 font-bold">Domingo</span><input type="number" id="day_dom" value="2" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
             </div>
-
             <div class="flex space-x-2 pt-2">
                 <button type="button" onclick="fecharModalPlano()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Plano</button>
+                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Metas e Plano</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL MATÉRIA -->
     <div id="subjectModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <h3 id="subjectModalTitle" class="text-base font-bold text-white">Adicionar Matéria</h3>
             <input type="hidden" id="editingSubjectId" value="">
-            
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Nome da Matéria</label>
                 <input type="text" id="modalSubjectName" placeholder="Ex: Matemática" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
             </div>
-
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs text-zinc-400 mb-1">Peso (1 a 5)</label>
@@ -523,12 +518,10 @@
                     <input type="number" id="modalSubjectHours" min="0" step="0.5" value="0" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
             </div>
-
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Tópicos (um por linha)</label>
                 <textarea id="modalSubjectTopics" rows="4" placeholder="Álgebra Básica&#10;Equações do 2º Grau" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-blue-500"></textarea>
             </div>
-
             <div class="flex space-x-2 pt-2">
                 <button type="button" onclick="closeSubjectModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
                 <button type="button" onclick="saveSubject()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar</button>
@@ -536,33 +529,28 @@
         </div>
     </div>
 
-    <!-- MODAL REGISTRAR ERRO -->
     <div id="errorModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-amber-500 flex items-center space-x-2">
                 <i data-lucide="alert-triangle" class="w-5 h-5"></i>
                 <span>Registrar Erro no Caderno</span>
             </h3>
-            
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Matéria</label>
                 <select id="errorSubjectSelect" onchange="updateErrorTopicsSelect()" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
                     <option value="">-- Selecione a matéria --</option>
                 </select>
             </div>
-
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Assunto / Tópico</label>
                 <select id="errorTopicSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
                     <option value="">-- Selecione o tópico --</option>
                 </select>
             </div>
-
             <div>
                 <label class="block text-xs text-zinc-400 mb-1">Descrição / Motivo do Erro</label>
                 <textarea id="errorDescription" rows="3" placeholder="Ex: Confundi o prazo..." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none resize-none"></textarea>
             </div>
-
             <div class="flex space-x-2 pt-2">
                 <button type="button" onclick="closeErrorModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
                 <button type="button" onclick="saveErrorRecord()" class="flex-1 bg-amber-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Erro</button>
@@ -570,7 +558,6 @@
         </div>
     </div>
 
-    <!-- MODAL APROVEITAMENTO PARA TÓPICO -->
     <div id="approvalModal" class="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl text-center">
             <div class="inline-flex p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-400 mb-1">
@@ -578,10 +565,8 @@
             </div>
             <h3 class="text-base font-bold text-white">Validação de Aproveitamento</h3>
             <p class="text-xs text-zinc-400">Para concluir este tópico, informe o resultado dos seus exercícios de fixação (Mínimo de 80% exigido).</p>
-            
             <input type="hidden" id="pendingSubjectIndex" value="">
             <input type="hidden" id="pendingTopicIndex" value="">
-
             <div class="grid grid-cols-2 gap-3 text-left">
                 <div>
                     <label class="block text-[11px] text-zinc-400 mb-1">Total de Questões</label>
@@ -592,7 +577,6 @@
                     <input type="number" id="inputCorrectQ" min="0" value="8" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white text-center font-bold focus:outline-none focus:border-blue-500">
                 </div>
             </div>
-
             <div class="flex space-x-2 pt-2">
                 <button type="button" onclick="cancelTopicApproval()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
                 <button type="button" onclick="confirmTopicApproval()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Validar e Concluir</button>
@@ -602,8 +586,6 @@
 
     <!-- SCRIPT PRINCIPAL -->
     <script>
-        lucide.createIcons();
-
         let currentUser = null;
         let subjects = [];
         let historicoDiario = [];
@@ -611,6 +593,7 @@
         let cadernoErros = [];
         let userFolders = [];
         let planosSemanaisArquivados = [];
+        let savedSmartPlan = null;
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let dailySubjectsCount = 2;
         let planoGerado = false;
@@ -618,32 +601,31 @@
         let pomoInterval = null;
         let pomoSeconds = 25 * 60;
         let pomoIsRunning = false;
-        let pomoMode = 'work';
         
         let freeInterval = null;
         let freeSeconds = 0;
         let freeIsRunning = false;
-
         let isSignUpMode = false;
 
-        // Registro de Service Worker para habilitar notificações push reais no sistema do celular
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            
+            if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
-            });
-        }
-
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('appInterface').classList.remove('hidden');
-                loadUserData();
-            } else {
-                currentUser = null;
-                document.getElementById('authScreen').classList.remove('hidden');
-                document.getElementById('appInterface').classList.add('hidden');
             }
+
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('authScreen').classList.add('hidden');
+                    document.getElementById('appInterface').classList.remove('hidden');
+                    loadUserData();
+                } else {
+                    currentUser = null;
+                    document.getElementById('authScreen').classList.remove('hidden');
+                    document.getElementById('appInterface').classList.add('hidden');
+                }
+            });
         });
 
         function toggleAuthMode() {
@@ -722,8 +704,19 @@
 
         function saveUserData() {
             if (!currentUser) return;
-            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, userFolders, planosSemanaisArquivados, weeklyHoursConfig, dailySubjectsCount, planoGerado };
-            firebase.firestore().collection('schedules').doc(currentUser.uid).set(data)
+            const data = { 
+                subjects, 
+                historicoDiario, 
+                historicoSemanal, 
+                cadernoErros, 
+                userFolders, 
+                planosSemanaisArquivados, 
+                savedSmartPlan, 
+                weeklyHoursConfig, 
+                dailySubjectsCount, 
+                planoGerado 
+            };
+            firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
                 .catch(err => console.error("Erro ao salvar dados:", err));
         }
 
@@ -739,9 +732,15 @@
                         cadernoErros = data.cadernoErros || [];
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
+                        savedSmartPlan = data.savedSmartPlan || null;
+                        
                         if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
                             userFolders.push({ id: 'geral', name: 'Geral', notes: data.userNotes });
                         }
+                        if (userFolders.length === 0) {
+                            userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
+                        }
+
                         if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
                         if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
                         if (data.planoGerado !== undefined) planoGerado = data.planoGerado;
@@ -749,6 +748,7 @@
                         subjects = [];
                         userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
                         planosSemanaisArquivados = [];
+                        savedSmartPlan = null;
                     }
                     renderApp();
                 })
@@ -864,7 +864,7 @@
             const container = document.getElementById('scheduleContainer');
             if (!container) return;
             if (subjects.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-zinc-500 text-xs">Nenhuma matéria cadastrada. Clique em "Add Matéria" ou "Importar Edital".</div>`;
+                container.innerHTML = `<div class="text-center py-10 text-zinc-500 text-xs">Nenhuma matéria cadastrada. Clique em "Add Matéria" ou "Importar".</div>`;
                 return;
             }
 
@@ -889,7 +889,7 @@
                     <div class="space-y-1.5 pl-2 border-l border-zinc-800 ${isMin ? 'hidden' : ''}">
                         ${sub.topics && sub.topics.length > 0 ? sub.topics.map((top, tIndex) => `
                             <label class="flex items-center space-x-2 text-xs text-zinc-300 cursor-pointer">
-                                <input type="checkbox" ${top.done ? 'checked' : ''} onclick="event.preventDefault(); handleTopicCheck(${sIndex}, ${tIndex})" class="rounded bg-black border-zinc-700 text-blue-600 focus:ring-0">
+                                <input type="checkbox" ${top.done ? 'checked' : ''} onclick="event.preventDefault(); handleTopicCheck(${sIndex},${tIndex})" class="rounded bg-black border-zinc-700 text-blue-600 focus:ring-0">
                                 <span class="${top.done ? 'line-through text-zinc-500' : ''}">${top.name}</span>
                             </label>
                         `).join('') : '<p class="text-[11px] text-zinc-600">Nenhum tópico cadastrado.</p>'}
@@ -900,22 +900,72 @@
             lucide.createIcons();
         }
 
-        // FUNÇÃO DE REINÍCIO COMPLETO PARA NOVO EDITAL
         function reiniciarNovoEdital() {
-            if (confirm("ATENÇÃO: Deseja apagar todas as matérias atuais e reiniciar os dados para um novo edital? (O histórico de ciclos passados e notas arquivadas será limpo).")) {
+            if (confirm("ATENÇÃO: Deseja apagar todas as matérias atuais e reiniciar os dados para um novo edital? (Recomendamos salvar um arquivo JSON antes)")) {
                 subjects = [];
                 historicoDiario = [];
                 historicoSemanal = [];
                 cadernoErros = [];
                 planosSemanaisArquivados = [];
+                savedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderApp();
-                alert("Dados reiniciados com sucesso! Você já pode importar um novo edital.");
+                alert("Dados reiniciados com sucesso!");
             }
         }
 
-        // PASTAS E BLOCOS DE NOTAS
+        function exportarBackupJSON() {
+            if (subjects.length === 0) {
+                alert("Não há dados no edital para exportar.");
+                return;
+            }
+            const backupData = {
+                version: "1.0",
+                date: new Date().toISOString(),
+                subjects: subjects,
+                savedSmartPlan: savedSmartPlan,
+                planoGerado: planoGerado,
+                weeklyHoursConfig: weeklyHoursConfig,
+                dailySubjectsCount: dailySubjectsCount
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `estudoflow_backup_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importarBackupJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = JSON.parse(e.target.result);
+                    if (content.subjects && Array.isArray(content.subjects)) {
+                        subjects = content.subjects;
+                        if (content.savedSmartPlan !== undefined) savedSmartPlan = content.savedSmartPlan;
+                        if (content.planoGerado !== undefined) planoGerado = content.planoGerado;
+                        if (content.weeklyHoursConfig) weeklyHoursConfig = content.weeklyHoursConfig;
+                        if (content.dailySubjectsCount !== undefined) dailySubjectsCount = content.dailySubjectsCount;
+                        
+                        saveUserData();
+                        renderApp();
+                        alert("Edital e configurações restaurados com sucesso do arquivo!");
+                    } else {
+                        alert("Arquivo de backup inválido.");
+                    }
+                } catch (err) {
+                    alert("Erro ao ler o arquivo JSON: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
         function openFolderModal() {
             document.getElementById('editingFolderId').value = '';
             document.getElementById('modalFolderName').value = '';
@@ -932,14 +982,8 @@
                 alert("Digite o nome da pasta.");
                 return;
             }
-
             if (!userFolders) userFolders = [];
-            userFolders.push({
-                id: 'folder_' + Date.now(),
-                name: folderName,
-                notes: []
-            });
-
+            userFolders.push({ id: 'folder_' + Date.now(), name: folderName, notes: [] });
             saveUserData();
             renderNotas();
             closeFolderModal();
@@ -957,7 +1001,6 @@
             if (!userFolders || userFolders.length === 0) {
                 userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
             }
-
             const select = document.getElementById('modalNoteFolderSelect');
             select.innerHTML = userFolders.map((f, idx) => `<option value="${idx}">${f.name}</option>`).join('');
 
@@ -992,25 +1035,25 @@
                 alert("Digite o título da nota.");
                 return;
             }
-
             if (isNaN(targetFolderIdx) || !userFolders[targetFolderIdx]) {
                 alert("Selecione uma pasta válida.");
                 return;
             }
 
-            const newNote = {
-                title,
-                content,
-                date: new Date().toLocaleDateString('pt-BR')
-            };
+            const newNote = { title, content, date: new Date().toLocaleDateString('pt-BR') };
 
             if (editingId !== '') {
                 const [oldFIdx, oldNIdx] = editingId.split('_').map(Number);
-                userFolders[oldFIdx].notes.splice(oldNIdx, 1);
+                if (userFolders[oldFIdx] && userFolders[oldFIdx].notes[oldNIdx]) {
+                    userFolders[oldFIdx].notes.splice(oldNIdx, 1);
+                }
             }
-
+            
+            if (!userFolders[targetFolderIdx].notes) {
+                userFolders[targetFolderIdx].notes = [];
+            }
             userFolders[targetFolderIdx].notes.unshift(newNote);
-
+            
             saveUserData();
             renderNotas();
             closeNoteModal();
@@ -1027,7 +1070,6 @@
         function renderNotas() {
             const container = document.getElementById('foldersContainer');
             if (!container) return;
-
             if (!userFolders || userFolders.length === 0) {
                 userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
             }
@@ -1040,7 +1082,7 @@
                             <h3 class="font-bold text-sm text-white">${folder.name} <span class="text-[10px] text-zinc-500 font-normal">(${folder.notes ? folder.notes.length : 0} notas)</span></h3>
                         </div>
                         <div class="flex items-center space-x-3 text-xs">
-                            <button type="button" onclick="openNoteModal(${fIndex})" class="text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1" title="Adicionar nota nesta pasta">
+                            <button type="button" onclick="openNoteModal(${fIndex})" class="text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1" title="Adicionar nota">
                                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                                 <span>Nota</span>
                             </button>
@@ -1050,7 +1092,6 @@
                             </button>` : ''}
                         </div>
                     </div>
-
                     <div class="space-y-2 pl-2">
                         ${folder.notes && folder.notes.length > 0 ? folder.notes.map((note, nIndex) => `
                             <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl space-y-1.5">
@@ -1077,7 +1118,6 @@
             lucide.createIcons();
         }
 
-        // DISPARAR NOTIFICAÇÃO DO APARELHO (VIA SERVICE WORKER SE DISPONÍVEL)
         function dispararNotificacaoDiaria() {
             const container = document.getElementById('dailyNotificationContent');
             if (!container) return;
@@ -1094,63 +1134,28 @@
             const hoursVal = weeklyHoursConfig[todayKey] || 0;
 
             if (hoursVal <= 0) {
-                container.innerHTML = `<div class="bg-black border border-zinc-800 rounded-xl p-3 text-center text-xs text-zinc-400">Hoje é dia de descanso (${dayNames[todayKey]})! Aproveite para recarregar as energias.</div>`;
+                container.innerHTML = `<div class="bg-black border border-zinc-800 rounded-xl p-3 text-center text-xs text-zinc-400">Hoje é dia de descanso (${dayNames[todayKey]})!</div>`;
                 document.getElementById('notificationModal').classList.remove('hidden');
                 return;
             }
 
-            const activeSubjects = subjects.filter(sub => sub.includeInPlan !== false);
-            if (activeSubjects.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Nenhuma matéria ativa no plano.</p>`;
-                document.getElementById('notificationModal').classList.remove('hidden');
-                return;
+            if (savedSmartPlan && savedSmartPlan[todayKey]) {
+                let dayData = savedSmartPlan[todayKey];
+                let html = `<div class="text-xs font-bold text-blue-400 mb-2">📅 Cronograma para hoje (${dayNames[todayKey]}):</div>`;
+                dayData.tasks.forEach((task, idx) => {
+                    html += `
+                        <div class="bg-black border border-zinc-800 rounded-xl p-3 space-y-1">
+                            <div class="font-bold text-white text-xs">${idx + 1}. ${task.subjectName}</div>
+                            <div class="text-[11px] text-zinc-300">• Tópico: ${task.topicName}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Nenhum plano configurado para hoje.</p>`;
             }
 
-            let html = `<div class="text-xs font-bold text-blue-400 mb-2">📅 Cronograma para hoje (${dayNames[todayKey]}):</div>`;
-            
-            activeSubjects.slice(0, dailySubjectsCount).forEach((sub, idx) => {
-                let uncompleted = sub.topics ? sub.topics.filter(t => !t.done) : [];
-                let topText = uncompleted.length > 0 ? uncompleted[0].name : (sub.topics && sub.topics.length > 0 ? sub.topics[0].name : 'Sem tópicos');
-                html += `
-                    <div class="bg-black border border-zinc-800 rounded-xl p-3 space-y-1">
-                        <div class="font-bold text-white text-xs">${idx + 1}. Estudo Normal: ${sub.name}</div>
-                        <div class="text-[11px] text-zinc-300">• Tópico: ${topText}</div>
-                    </div>
-                `;
-            });
-
-            html += `
-                <div class="bg-amber-950/30 border border-amber-900/40 rounded-xl p-3 space-y-1">
-                    <div class="font-bold text-amber-400 text-xs">3. Revisão Programada</div>
-                    <div class="text-[11px] text-zinc-300">• 30 min no total para revisão dos tópicos anteriores</div>
-                </div>
-            `;
-
-            container.innerHTML = html;
             document.getElementById('notificationModal').classList.remove('hidden');
-
-            // Dispara notificação push nativa do sistema do celular/computador
-            if ("Notification" in window) {
-                if (Notification.permission === "granted") {
-                    const msgBody = `Você tem ${hoursVal}h de estudos programados para hoje (${dayNames[todayKey]}). Foco na aprovação!`;
-                    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-                        navigator.serviceWorker.ready.then(registration => {
-                            registration.showNotification("EstudoFlow PRO - Estudo do Dia", {
-                                body: msgBody,
-                                icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%232563eb"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
-                            });
-                        });
-                    } else {
-                        new Notification("EstudoFlow PRO - Estudo do Dia", { body: msgBody });
-                    }
-                } else if (Notification.permission !== "denied") {
-                    Notification.requestPermission().then(permission => {
-                        if (permission === "granted") {
-                            dispararNotificacaoDiaria();
-                        }
-                    });
-                }
-            }
         }
 
         function fecharModalNotificacao() {
@@ -1160,21 +1165,17 @@
         function renderPlanosArquivados() {
             const container = document.getElementById('planosAnterioresContainer');
             if (!container) return;
-
             if (!planosSemanaisArquivados || planosSemanaisArquivados.length === 0) {
                 container.innerHTML = `<p class="text-xs text-zinc-500 italic">Nenhum plano semanal arquivado ainda.</p>`;
                 return;
             }
-
-            container.innerHTML = planosSemanaisArquivados.map((planoObj, pIdx) => `
+            container.innerHTML = planosSemanaisArquivados.map(planoObj => `
                 <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-3">
                     <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
                         <span class="text-xs font-bold text-amber-400">📅 Ciclo Fechado em: ${planoObj.date}</span>
                         <span class="text-[10px] bg-zinc-900 text-zinc-400 px-2 py-0.5 rounded border border-zinc-800">Arquivado</span>
                     </div>
-                    <div class="space-y-2 text-xs text-zinc-300">
-                        ${planoObj.summaryHtml || '<p class="text-zinc-500 italic">Detalhes do ciclo não disponíveis.</p>'}
-                    </div>
+                    <div class="space-y-2 text-xs text-zinc-300">${planoObj.summaryHtml}</div>
                 </div>
             `).join('');
             lucide.createIcons();
@@ -1184,7 +1185,7 @@
             const container = document.getElementById('smartPlanContainer');
             if (!container) return;
 
-            if (!planoGerado) {
+            if (!planoGerado || !savedSmartPlan) {
                 container.innerHTML = `
                     <div class="text-center py-12 space-y-3">
                         <div class="inline-flex p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-blue-400">
@@ -1200,154 +1201,78 @@
                 return;
             }
 
-            const activeSubjects = subjects.filter(sub => sub.includeInPlan !== false);
-            if (activeSubjects.length === 0) {
-                container.innerHTML = '<p class="text-xs text-zinc-500 text-center py-6">Nenhuma matéria incluída no plano. Clique em "Configurar Metas" para selecionar.</p>';
-                return;
-            }
-
-            const scoredSubjects = activeSubjects.map(sub => {
-                const totalQ = sub.questionsCount || 0;
-                const correctQ = sub.correctCount || 0;
-                const accuracy = totalQ > 0 ? (correctQ / totalQ) * 100 : 100;
-                const weight = sub.weight || 1;
-                const priorityScore = weight * (101 - accuracy);
-                return { ...sub, accuracy, priorityScore };
-            });
-
-            scoredSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
-
-            const days = [
-                { id: 'seg', name: 'Segunda-feira', hours: weeklyHoursConfig.seg },
-                { id: 'ter', name: 'Terça-feira', hours: weeklyHoursConfig.ter },
-                { id: 'qua', name: 'Quarta-feira', hours: weeklyHoursConfig.qua },
-                { id: 'qui', name: 'Quinta-feira', hours: weeklyHoursConfig.qui },
-                { id: 'sex', name: 'Sexta-feira', hours: weeklyHoursConfig.sex },
-                { id: 'sab', name: 'Sábado', hours: weeklyHoursConfig.sab },
-                { id: 'dom', name: 'Domingo', hours: weeklyHoursConfig.dom }
+            const daysOrder = [
+                { id: 'seg', name: 'Segunda-feira' },
+                { id: 'ter', name: 'Terça-feira' },
+                { id: 'qua', name: 'Quarta-feira' },
+                { id: 'qui', name: 'Quinta-feira' },
+                { id: 'sex', name: 'Sexta-feira' },
+                { id: 'sab', name: 'Sábado' },
+                { id: 'dom', name: 'Domingo' }
             ];
 
-            let normPtr = 0;
-            let activeDayCounter = 0;
-            let studyHistoryByDay = [];
-
-            container.innerHTML = days.map((day) => {
-                if (day.hours <= 0) {
+            container.innerHTML = daysOrder.map(dayInfo => {
+                const dayData = savedSmartPlan[dayInfo.id];
+                if (!dayData || dayData.hours <= 0) {
                     return `
                         <div class="bg-black border border-zinc-800 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
-                            <span class="text-xs font-bold text-zinc-400">${day.name}</span>
+                            <span class="text-xs font-bold text-zinc-400">${dayInfo.name}</span>
                             <span class="text-[11px] text-zinc-500">Descanso / 0h</span>
                         </div>
                     `;
                 }
 
-                let normalsForDay = [];
-                let totalWeightOfDay = 0;
-                for (let i = 0; i < dailySubjectsCount; i++) {
-                    let sub = scoredSubjects[normPtr % scoredSubjects.length];
-                    normalsForDay.push(sub);
-                    totalWeightOfDay += (sub.weight || 1);
-                    normPtr++;
-                }
-
-                let allocatedHours = normalsForDay.map(sub => {
-                    let weight = sub.weight || 1;
-                    let proportion = weight / totalWeightOfDay;
-                    let h = (day.hours * proportion).toFixed(1);
-                    return { sub, hours: h };
-                });
-
-                const normalHtml = allocatedHours.map((item, idx) => {
-                    let sub = item.sub;
-                    let currentTopicText = "Nenhum tópico pendente no edital";
-                    if (sub.topics && sub.topics.length > 0) {
-                        let uncompleted = sub.topics.filter(t => !t.done);
-                        if (uncompleted.length > 0) {
-                            currentTopicText = uncompleted[0].name;
-                        } else {
-                            currentTopicText = sub.topics[0].name;
-                        }
-                    }
-
-                    studyHistoryByDay.push({ dayIndex: activeDayCounter, subjectName: sub.name, topicName: currentTopicText });
-
+                const tasksHtml = dayData.tasks.map((task, tIdx) => {
                     return `
-                        <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl space-y-1">
-                            <div class="flex items-center justify-between text-xs">
-                                <span class="font-bold text-white">${idx + 1}. Estudo: ${sub.name} <span class="text-[10px] text-zinc-400 font-normal">(Peso ${sub.weight || 1})</span></span>
-                                <span class="text-[10px] font-bold text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded-lg border border-blue-800/50">${item.hours}h</span>
+                        <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl flex items-center justify-between">
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2 text-xs">
+                                    <span class="font-bold text-white">${tIdx + 1}. Estudo: ${task.subjectName}</span>
+                                </div>
+                                <div class="text-[11px] text-zinc-300 pl-2 border-l-2 border-blue-600">
+                                    <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Tópico Fixado:</span>
+                                    ${task.topicName}
+                                </div>
                             </div>
-                            <div class="text-[11px] text-zinc-300 pl-2 border-l-2 border-blue-600">
-                                <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Tópico do Edital:</span>
-                                ${currentTopicText}
+                            <div>
+                                <label class="flex items-center space-x-1.5 cursor-pointer bg-black/60 px-3 py-1.5 rounded-xl border border-zinc-800">
+                                    <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleDayTaskDone('${dayInfo.id}', ${tIdx})" class="rounded bg-black border-zinc-700 text-emerald-500 focus:ring-0">
+                                    <span class="text-[11px] font-bold ${task.done ? 'text-emerald-400' : 'text-zinc-400'}">${task.done ? 'OK' : 'Pendente'}</span>
+                                </label>
                             </div>
                         </div>
                     `;
                 }).join('');
 
-                let reviewItems = [];
-                if (activeDayCounter >= 1) {
-                    let candidates24 = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 1);
-                    candidates24.forEach(c => {
-                        reviewItems.push({ type: "Revisão 24h", subjectName: c.subjectName, topicName: c.topicName });
-                    });
-                }
-                if (activeDayCounter >= 7) {
-                    let candidates7 = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 7);
-                    candidates7.forEach(c => {
-                        reviewItems.push({ type: "Revisão 7d", subjectName: c.subjectName, topicName: c.topicName });
-                    });
-                }
-                if (activeDayCounter >= 30) {
-                    let candidates30 = studyHistoryByDay.filter(item => item.dayIndex === activeDayCounter - 30);
-                    candidates30.forEach(c => {
-                        reviewItems.push({ type: "Revisão 30d", subjectName: c.subjectName, topicName: c.topicName });
-                    });
-                }
-
-                activeDayCounter++;
-
-                let reviewHtml = '';
-                if (reviewItems.length > 0) {
-                    const minutosPorRevisao = Math.max(5, Math.round(30 / reviewItems.length));
-                    
-                    reviewHtml = reviewItems.map((rev, rIdx) => `
-                        <div class="bg-amber-950/30 border border-amber-900/40 p-2.5 rounded-xl space-y-1">
-                            <div class="flex items-center justify-between text-xs">
-                                <span class="font-bold text-amber-400">${dailySubjectsCount + 1 + rIdx}. ${rev.type}: ${rev.subjectName}</span>
-                                <span class="text-[10px] font-bold text-amber-500 bg-amber-950/60 px-2 py-0.5 rounded-lg border border-amber-800/50">~${minutosPorRevisao} min</span>
-                            </div>
-                            <div class="text-[11px] text-zinc-300 pl-2 border-l-2 border-amber-600">
-                                <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Assunto a Revisar:</span>
-                                ${rev.topicName}
-                            </div>
-                        </div>
-                    `).join('');
-                }
-
                 return `
                     <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
-                            <span class="text-xs font-bold text-zinc-300">${day.hours}h totais ${reviewItems.length > 0 ? '+ 30min Rev. (Total)' : ''}</span>
+                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${dayInfo.name}</span>
+                            <span class="text-xs font-bold text-zinc-300">${dayData.hours}h totais</span>
                         </div>
-                        <div class="space-y-2 pt-1">
-                            ${normalHtml}
-                            ${reviewHtml}
-                            ${reviewItems.length === 0 ? '<div class="text-[10px] text-zinc-500 italic px-1 pt-0.5">* Sem histórico anterior suficiente para revisões neste dia inicial.</div>' : ''}
-                        </div>
+                        <div class="space-y-2 pt-1">${tasksHtml}</div>
                     </div>
                 `;
             }).join('');
             lucide.createIcons();
         }
 
+        function toggleDayTaskDone(dayId, taskIndex) {
+            if (savedSmartPlan && savedSmartPlan[dayId] && savedSmartPlan[dayId].tasks[taskIndex]) {
+                savedSmartPlan[dayId].tasks[taskIndex].done = !savedSmartPlan[dayId].tasks[taskIndex].done;
+                saveUserData();
+                renderSmartPlan();
+            }
+        }
+
         function handleTopicCheck(sIndex, tIndex) {
             const topic = subjects[sIndex].topics[tIndex];
             if (topic.done) {
+                // Apenas desmarca o tópico no edital
                 topic.done = false;
                 saveUserData();
-                renderApp();
+                renderSchedule();
+                updateStats();
             } else {
                 document.getElementById('pendingSubjectIndex').value = sIndex;
                 document.getElementById('pendingTopicIndex').value = tIndex;
@@ -1374,20 +1299,24 @@
 
             const percent = (correct / total) * 100;
             if (percent < 80) {
-                alert(`Aproveitamento de ${percent.toFixed(1)}%. Você precisa de pelo menos 80% de acertos para avançar e concluir este tópico.`);
+                alert(`Aproveitamento de ${percent.toFixed(1)}%. Mínimo de 80% exigido.`);
                 return;
             }
 
+            // Atualiza unicamente o progresso e estatísticas do edital
             subjects[sIndex].questionsCount = (subjects[sIndex].questionsCount || 0) + total;
             subjects[sIndex].correctCount = (subjects[sIndex].correctCount || 0) + correct;
             subjects[sIndex].topics[tIndex].done = true;
             
             registrarEvolucioDiaria(subjects[sIndex].name, subjects[sIndex].topics[tIndex].name, percent);
 
+            // Salva os dados mantendo rigidamente o savedSmartPlan inalterado
             saveUserData();
-            renderApp();
+            renderSchedule();
+            updateStats();
+            
             document.getElementById('approvalModal').classList.add('hidden');
-            alert(`Tópico concluído com sucesso! Aproveitamento de ${percent.toFixed(1)}%.`);
+            alert("Tópico concluído! O progresso do edital foi atualizado sem interferir no seu plano semanal.");
         }
 
         function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
@@ -1406,49 +1335,28 @@
         function renderHistorico() {
             const container = document.getElementById('historicoSemanalList');
             if (!container) return;
-
-            let htmlContent = '';
-
-            if (historicoDiario && historicoDiario.length > 0) {
-                htmlContent += `<h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Evolução por Tópicos (Diário)</h3>`;
-                htmlContent += historicoDiario.map(dia => `
-                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2 mb-3">
-                        <div class="flex items-center justify-between text-xs font-bold text-blue-400 border-b border-zinc-900 pb-1.5">
-                            <span>Data: ${dia.date}</span>
-                            <span class="text-[10px] text-zinc-500">${dia.itens.length} tópicos concluídos</span>
-                        </div>
-                        <div class="space-y-1.5 pt-1">
-                            ${dia.itens.map(item => `
-                                <div class="flex items-center justify-between text-xs bg-zinc-900/50 p-2 rounded-xl border border-zinc-800/60">
-                                    <div>
-                                        <span class="font-bold text-white">${item.subject}</span>
-                                        <span class="block text-[11px] text-zinc-400">• ${item.topic}</span>
-                                    </div>
-                                    <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-1 rounded-lg border border-emerald-800/50">${item.accuracy}% acertos</span>
+            if (!historicoDiario || historicoDiario.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum registro no histórico ainda.</p>`;
+                return;
+            }
+            container.innerHTML = historicoDiario.map(dia => `
+                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2 mb-3">
+                    <div class="flex items-center justify-between text-xs font-bold text-blue-400 border-b border-zinc-900 pb-1.5">
+                        <span>Data: ${dia.date}</span>
+                    </div>
+                    <div class="space-y-1.5 pt-1">
+                        ${dia.itens.map(item => `
+                            <div class="flex items-center justify-between text-xs bg-zinc-900/50 p-2 rounded-xl border border-zinc-800/60">
+                                <div>
+                                    <span class="font-bold text-white">${item.subject}</span>
+                                    <span class="block text-[11px] text-zinc-400">• ${item.topic}</span>
                                 </div>
-                            `).join('')}
-                        </div>
+                                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-1 rounded-lg">${item.accuracy}%</span>
+                            </div>
+                        `).join('')}
                     </div>
-                `).join('');
-            }
-
-            if (historicoSemanal && historicoSemanal.length > 0) {
-                htmlContent += `<h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mt-5 mb-2">Semanas Arquivadas</h3>`;
-                htmlContent += historicoSemanal.map((sem, sIdx) => `
-                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2 mb-3">
-                        <div class="flex items-center justify-between text-xs font-bold text-emerald-400 border-b border-zinc-900 pb-1.5">
-                            <span>Semana Arquivada (${sem.date})</span>
-                        </div>
-                        <p class="text-xs text-zinc-400">Ciclo concluído e arquivado com sucesso.</p>
-                    </div>
-                `).join('');
-            }
-
-            if (!historicoDiario.length && !historicoSemanal.length) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum registro no histórico ainda. Conclua tópicos no cronograma para registrar sua evolução.</p>`;
-            } else {
-                container.innerHTML = htmlContent;
-            }
+                </div>
+            `).join('');
         }
 
         function openErrorModal() {
@@ -1474,7 +1382,7 @@
             const topicSelect = document.getElementById('errorTopicSelect');
             topicSelect.innerHTML = '<option value="">-- Selecione o tópico --</option>';
             if (sIdx !== '' && subjects[sIdx] && subjects[sIdx].topics) {
-                subjects[sIdx].topics.forEach((top, tIdx) => {
+                subjects[sIdx].topics.forEach(top => {
                     const opt = document.createElement('option');
                     opt.value = top.name;
                     opt.textContent = top.name;
@@ -1489,41 +1397,35 @@
             const description = document.getElementById('errorDescription').value.trim();
 
             if (sIdx === '' || !topicName) {
-                alert("Selecione a matéria e o assunto/tópico.");
+                alert("Selecione a matéria e o tópico.");
                 return;
             }
 
-            const subjectName = subjects[sIdx].name;
             cadernoErros.unshift({
                 date: new Date().toLocaleDateString('pt-BR'),
-                subject: subjectName,
+                subject: subjects[sIdx].name,
                 topic: topicName,
-                description: description || "Nenhuma anotação fornecida."
+                description: description || "Sem anotação."
             });
 
             saveUserData();
             renderCadernoErros();
             closeErrorModal();
-            alert("Erro registrado no caderno com sucesso!");
         }
 
         function deleteErrorRecord(eIndex) {
-            if (confirm("Deseja remover este registro do caderno de erros?")) {
-                cadernoErros.splice(eIndex, 1);
-                saveUserData();
-                renderCadernoErros();
-            }
+            cadernoErros.splice(eIndex, 1);
+            saveUserData();
+            renderCadernoErros();
         }
 
         function renderCadernoErros() {
             const container = document.getElementById('cadernoErrosList');
             if (!container) return;
-
             if (!cadernoErros || cadernoErros.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum erro registrado no caderno ainda.</p>`;
+                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum erro registrado.</p>`;
                 return;
             }
-
             container.innerHTML = cadernoErros.map((err, eIndex) => `
                 <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2">
                     <div class="flex items-center justify-between text-xs border-b border-zinc-900 pb-1.5">
@@ -1532,21 +1434,17 @@
                     </div>
                     <div>
                         <span class="text-xs font-bold text-white block">• Assunto: ${err.topic}</span>
-                        <p class="text-xs text-zinc-300 mt-1 bg-zinc-900/50 p-2.5 rounded-xl border border-zinc-800/60">${err.description}</p>
+                        <p class="text-xs text-zinc-300 mt-1 bg-zinc-900/50 p-2.5 rounded-xl">${err.description}</p>
                     </div>
                     <div class="flex justify-end pt-1">
-                        <button type="button" onclick="deleteErrorRecord(${eIndex})" class="text-[11px] text-red-400 hover:text-red-300 font-semibold flex items-center space-x-1">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                            <span>Remover</span>
-                        </button>
+                        <button type="button" onclick="deleteErrorRecord(${eIndex})" class="text-[11px] text-red-400">Remover</button>
                     </div>
                 </div>
             `).join('');
-            lucide.createIcons();
         }
 
         function deleteSubject(sIndex) {
-            if (confirm("Deseja realmente excluir esta matéria?")) {
+            if (confirm("Deseja excluir esta matéria?")) {
                 subjects.splice(sIndex, 1);
                 saveUserData();
                 renderApp();
@@ -1554,12 +1452,7 @@
         }
 
         function updateStats() {
-            let totalTopics = 0;
-            let doneTopics = 0;
-            let totalHours = 0;
-            let totalQ = 0;
-            let totalC = 0;
-
+            let totalTopics = 0, doneTopics = 0, totalHours = 0, totalQ = 0, totalC = 0;
             subjects.forEach(sub => {
                 totalHours += sub.hoursStudied || 0;
                 totalQ += sub.questionsCount || 0;
@@ -1569,7 +1462,6 @@
                     doneTopics += sub.topics.filter(t => t.done).length;
                 }
             });
-
             const percent = totalTopics > 0 ? Math.round((doneTopics / totalTopics) * 100) : 0;
             const accuracy = totalQ > 0 ? Math.round((totalC / totalQ) * 100) : 0;
 
@@ -1579,18 +1471,13 @@
             document.getElementById('statAccuracy').textContent = accuracy + '% acertos no total';
             document.getElementById('globalPercent').textContent = percent + '%';
             document.getElementById('globalProgressBar').style.width = percent + '%';
-            document.getElementById('statWeeklyTopics').textContent = `${doneTopics} / ${totalTopics} tópicos concluídos nesta semana`;
+            document.getElementById('statWeeklyTopics').textContent = `${doneTopics} / ${totalTopics} tópicos concluídos`;
         }
 
         function adicionarHorasEstudo(subjectIndex, minutos) {
-            if (subjectIndex === '' || subjectIndex === null || subjectIndex === undefined) {
-                alert("Selecione uma matéria antes de computar as horas!");
-                return;
-            }
             const sIdx = parseInt(subjectIndex);
             if (!isNaN(sIdx) && subjects[sIdx]) {
-                const horasAdicionadas = minutos / 60;
-                subjects[sIdx].hoursStudied = (subjects[sIdx].hoursStudied || 0) + horasAdicionadas;
+                subjects[sIdx].hoursStudied = (subjects[sIdx].hoursStudied || 0) + (minutos / 60);
                 saveUserData();
                 updateStats();
                 renderSchedule();
@@ -1620,7 +1507,6 @@
             document.getElementById('day_sex').value = weeklyHoursConfig.sex;
             document.getElementById('day_sab').value = weeklyHoursConfig.sab;
             document.getElementById('day_dom').value = weeklyHoursConfig.dom;
-
             document.getElementById('planModal').classList.remove('hidden'); 
         }
         function fecharModalPlano() { document.getElementById('planModal').classList.add('hidden'); }
@@ -1665,30 +1551,85 @@
             weeklyHoursConfig.sab = parseInt(document.getElementById('day_sab').value) || 0;
             weeklyHoursConfig.dom = parseInt(document.getElementById('day_dom').value) || 0;
 
+            const activeSubjects = subjects.filter(sub => sub.includeInPlan !== false);
+            if (activeSubjects.length === 0) {
+                alert("Selecione ao menos uma matéria para o plano.");
+                return;
+            }
+
+            const scoredSubjects = activeSubjects.map(sub => {
+                const totalQ = sub.questionsCount || 0;
+                const correctQ = sub.correctCount || 0;
+                const accuracy = totalQ > 0 ? (correctQ / totalQ) * 100 : 100;
+                const weight = sub.weight || 1;
+                const priorityScore = weight * (101 - accuracy);
+                return { ...sub, accuracy, priorityScore };
+            });
+
+            scoredSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
+
+            const daysConfig = [
+                { id: 'seg', hours: weeklyHoursConfig.seg },
+                { id: 'ter', hours: weeklyHoursConfig.ter },
+                { id: 'qua', hours: weeklyHoursConfig.qua },
+                { id: 'qui', hours: weeklyHoursConfig.qui },
+                { id: 'sex', hours: weeklyHoursConfig.sex },
+                { id: 'sab', hours: weeklyHoursConfig.sab },
+                { id: 'dom', hours: weeklyHoursConfig.dom }
+            ];
+
+            let newSmartPlan = {};
+            let normPtr = 0;
+
+            daysConfig.forEach(day => {
+                if (day.hours <= 0) {
+                    newSmartPlan[day.id] = { hours: 0, tasks: [] };
+                    return;
+                }
+
+                let tasksForDay = [];
+                for (let i = 0; i < dailySubjectsCount; i++) {
+                    let sub = scoredSubjects[normPtr % scoredSubjects.length];
+                    let topicsList = sub.topics || [];
+                    let topicName = topicsList.length > 0 ? topicsList[Math.floor(Math.random() * topicsList.length)].name : "Revisão geral";
+                    
+                    tasksForDay.push({
+                        subjectName: sub.name,
+                        topicName: topicName,
+                        done: false
+                    });
+                    normPtr++;
+                }
+
+                newSmartPlan[day.id] = {
+                    hours: day.hours,
+                    tasks: tasksForDay
+                };
+            });
+
+            savedSmartPlan = newSmartPlan;
             planoGerado = true;
             saveUserData();
             fecharModalPlano();
             renderSmartPlan();
-            alert("Plano inteligente gerado e salvo com sucesso!");
+            alert("Plano de estudos fixo gerado com sucesso!");
         }
 
         function fecharSemana() {
             if (confirm("Deseja fechar a semana atual e arquivar no histórico de planos?")) {
                 const planContainerEl = document.getElementById('smartPlanContainer');
-                const htmlConteudoAtual = planContainerEl ? planContainerEl.innerHTML : '';
-
                 if (!planosSemanaisArquivados) planosSemanaisArquivados = [];
                 planosSemanaisArquivados.unshift({
                     date: new Date().toLocaleDateString('pt-BR'),
-                    summaryHtml: htmlConteudoAtual
+                    summaryHtml: planContainerEl ? planContainerEl.innerHTML : ''
                 });
 
                 historicoSemanal.push({ date: new Date().toLocaleDateString(), subjects: JSON.parse(JSON.stringify(subjects)) });
-                subjects.forEach(sub => sub.topics.forEach(t => t.done = false));
-                
+                savedSmartPlan = null;
+                planoGerado = false;
                 saveUserData();
                 renderApp();
-                alert("Semana fechada e arquivada com sucesso no histórico de planos!");
+                alert("Semana fechada e arquivada com sucesso! Clique em 'Configurar Novas Metas' para gerar o plano da próxima semana.");
             }
         }
 
@@ -1697,6 +1638,7 @@
                 historicoDiario = [];
                 historicoSemanal = [];
                 planosSemanaisArquivados = [];
+                savedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderSmartPlan();
@@ -1705,7 +1647,6 @@
             }
         }
 
-        // TIMER POMODORO
         function togglePomoTimer() {
             const btn = document.getElementById('btnPomoStart');
             const subIdx = document.getElementById('pomoSubjectSelect').value;
@@ -1713,16 +1654,18 @@
             if (pomoIsRunning) {
                 clearInterval(pomoInterval);
                 pomoIsRunning = false;
-                btn.textContent = pomoMode === 'work' ? "Iniciar Foco" : "Iniciar Pausa";
-                btn.classList.replace('bg-amber-600', pomoMode === 'work' ? 'bg-blue-600' : 'bg-emerald-600');
+                btn.textContent = "Iniciar Foco";
+                btn.classList.replace('bg-amber-600', 'bg-blue-600');
             } else {
+                if (subIdx === '') {
+                    alert("Selecione uma matéria para o Pomodoro.");
+                    return;
+                }
                 pomoIsRunning = true;
                 btn.textContent = "Pausar";
-                btn.classList.replace(pomoMode === 'work' ? 'bg-blue-600' : 'bg-emerald-600', 'bg-amber-600');
+                btn.classList.replace('bg-blue-600', 'bg-amber-600');
                 
                 const workMins = parseInt(document.getElementById('pomoWorkTime').value) || 25;
-                const breakMins = parseInt(document.getElementById('pomoBreakTime').value) || 5;
-
                 pomoInterval = setInterval(() => {
                     if (pomoSeconds > 0) {
                         pomoSeconds--;
@@ -1730,29 +1673,9 @@
                     } else {
                         clearInterval(pomoInterval);
                         pomoIsRunning = false;
-
-                        if (pomoMode === 'work') {
-                            adicionarHorasEstudo(subIdx, workMins);
-                            alert(`Foco de ${workMins} minutos concluído e computado! Hora da pausa.`);
-                            
-                            pomoMode = 'break';
-                            pomoSeconds = breakMins * 60;
-                            document.getElementById('pomoStatus').textContent = "Ciclo de Pausa";
-                            document.getElementById('pomoStatus').className = "text-[11px] font-bold text-emerald-400 uppercase tracking-widest";
-                            btn.textContent = "Iniciar Pausa";
-                            btn.classList.replace('bg-amber-600', 'bg-emerald-600');
-                            updatePomoDisplay();
-                        } else {
-                            alert(`Pausa de ${breakMins} minutos concluída! Pronto para voltar ao foco.`);
-                            
-                            pomoMode = 'work';
-                            pomoSeconds = workMins * 60;
-                            document.getElementById('pomoStatus').textContent = "Sessão de Foco";
-                            document.getElementById('pomoStatus').className = "text-[11px] font-bold text-blue-400 uppercase tracking-widest";
-                            btn.textContent = "Iniciar Foco";
-                            btn.classList.replace('bg-amber-600', 'bg-blue-600');
-                            updatePomoDisplay();
-                        }
+                        adicionarHorasEstudo(subIdx, workMins);
+                        alert(`Foco de ${workMins} minutos concluído!`);
+                        resetPomoTimer();
                     }
                 }, 1000);
             }
@@ -1761,11 +1684,7 @@
         function resetPomoTimer() {
             clearInterval(pomoInterval);
             pomoIsRunning = false;
-            pomoMode = 'work';
-            const workMins = parseInt(document.getElementById('pomoWorkTime').value) || 25;
-            pomoSeconds = workMins * 60;
-            document.getElementById('pomoStatus').textContent = "Sessão de Foco";
-            document.getElementById('pomoStatus').className = "text-[11px] font-bold text-blue-400 uppercase tracking-widest";
+            pomoSeconds = (parseInt(document.getElementById('pomoWorkTime').value) || 25) * 60;
             updatePomoDisplay();
             document.getElementById('btnPomoStart').textContent = "Iniciar Foco";
             document.getElementById('btnPomoStart').className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
@@ -1777,7 +1696,6 @@
             document.getElementById('pomoDisplay').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
-        // TIMER LIVRE
         function toggleFreeTimer() {
             const btn = document.getElementById('btnFreeStart');
             const subIdx = document.getElementById('freeSubjectSelect').value;
@@ -1788,27 +1706,22 @@
                 btn.textContent = "Iniciar Livre";
                 btn.classList.replace('bg-amber-600', 'bg-emerald-600');
 
-                const minutosEstudados = Math.floor(freeSeconds / 60);
-                const minutosComputados = minutosEstudados > 0 ? minutosEstudados : (freeSeconds > 0 ? 1 : 0);
-
-                if (minutosComputados > 0) {
-                    adicionarHorasEstudo(subIdx, minutosComputados);
-                    alert(`Sessão livre encerrada! ${minutosComputados} minuto(s) computados na matéria.`);
-                } else {
-                    alert("Nenhum tempo significativo foi registrado.");
+                const minutosMins = Math.floor(freeSeconds / 60);
+                if (minutosMins > 0) {
+                    adicionarHorasEstudo(subIdx, minutosMins);
+                    alert(`Cronômetro livre encerrado! ${minutosMins} minuto(s) computados.`);
                 }
                 freeSeconds = 0;
                 updateFreeDisplay();
             } else {
                 if (subIdx === '') {
-                    alert("Por favor, selecione uma matéria antes de iniciar o cronômetro livre.");
+                    alert("Selecione uma matéria para o cronômetro livre.");
                     return;
                 }
                 freeIsRunning = true;
                 btn.textContent = "Parar e Salvar";
                 btn.classList.replace('bg-emerald-600', 'bg-amber-600');
                 freeSeconds = 0;
-
                 freeInterval = setInterval(() => {
                     freeSeconds++;
                     updateFreeDisplay();
