@@ -191,7 +191,7 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="sparkles" class="w-5 h-5 text-blue-500"></i>
-                            <span>Plano da Semana Atual</span>
+                            <span>Plano da Semana Atual (Estático)</span>
                         </h2>
                         <div class="flex space-x-2">
                             <button type="button" onclick="reiniciarNovoEdital()" class="bg-red-950/80 hover:bg-red-900 text-red-400 border border-red-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Limpar tudo e iniciar novo edital">
@@ -204,7 +204,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Cronograma fixo da semana. Marque a caixinha ao concluir as atividades diárias. O plano só muda se você clicar em Configurar Novas Metas.</p>
+                    <p class="text-xs text-zinc-400">Cronograma fixo da semana. Marque a caixinha "OK" ao concluir as atividades do dia. Este plano não muda sozinho ao alterar o edital.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -1242,7 +1242,7 @@
             updateStats();
             
             document.getElementById('approvalModal').classList.add('hidden');
-            alert(`Tópico concluído com sucesso no edital! (O plano atual permanece intacto)`);
+            alert(`Tópico concluído no edital! O plano semanal permanece estático e inalterado.`);
         }
 
         function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
@@ -1516,10 +1516,8 @@
                 let tasksForDay = [];
                 for (let i = 0; i < dailySubjectsCount; i++) {
                     let sub = scoredSubjects[normPtr % scoredSubjects.length];
-                    
-                    // Pega o próximo tópico em aberto no edital ao gerar novas metas
-                    let uncompleted = sub.topics ? sub.topics.filter(t => !t.done) : [];
-                    let topicName = uncompleted.length > 0 ? uncompleted[0].name : (sub.topics && sub.topics.length > 0 ? sub.topics[0].name : "Revisão geral");
+                    let topicsList = sub.topics || [];
+                    let topicName = topicsList.length > 0 ? topicsList[Math.floor(Math.random() * topicsList.length)].name : "Revisão geral";
                     
                     tasksForDay.push({
                         subjectName: sub.name,
