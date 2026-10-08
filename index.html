@@ -204,7 +204,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano é totalmente estático. Marcar tópicos no edital altera apenas a porcentagem de progresso geral e não mexe no plano.</p>
+                    <p class="text-xs text-zinc-400">Este plano é estático e permanente. Ele só é atualizado/substituído quando você finaliza a semana ("Fechar Semana") e configura um novo plano.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -1242,7 +1242,7 @@
             updateStats();
             
             document.getElementById('approvalModal').classList.add('hidden');
-            alert("Tópico concluído no edital!");
+            alert("Tópico concluído! O progresso do edital foi atualizado.");
         }
 
         function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
