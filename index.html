@@ -228,4 +228,1407 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="history" class="w-5 h-5 text-blue-500"></i>
-                            <span>Evolução Di
+                            <span>Evolução Diária e Semanal</span>
+                        </h2>
+                        <button type="button" onclick="limparHistorico()" class="bg-red-950/80 hover:bg-red-900 border border-red-800 text-red-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            <span>Limpar Histórico</span>
+                        </button>
+                    </div>
+                    <div id="historicoSemanalList" class="space-y-3"></div>
+                </div>
+            </section>
+
+            <!-- ABA 4: CADERNO DE ERROS -->
+            <section id="tab-erros" class="space-y-4 tab-content hidden">
+                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-base font-bold text-white flex items-center space-x-2">
+                            <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-500"></i>
+                            <span>Caderno de Erros por Assuntos</span>
+                        </h2>
+                        <button type="button" onclick="openErrorModal()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            <span>Registrar Erro</span>
+                        </button>
+                    </div>
+                    <p class="text-xs text-zinc-400">Acompanhe e filtre os erros cometidos em cada matéria e tópico.</p>
+                    <div id="cadernoErrosList" class="space-y-3"></div>
+                </div>
+            </section>
+
+            <!-- ABA 5: NOTAS EM PASTAS -->
+            <section id="tab-notas" class="space-y-4 tab-content hidden">
+                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-base font-bold text-white flex items-center space-x-2">
+                            <i data-lucide="folder" class="w-5 h-5 text-blue-500"></i>
+                            <span>Pastas e Blocos de Notas</span>
+                        </h2>
+                        <div class="flex space-x-2">
+                            <button type="button" onclick="openFolderModal()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                                <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i>
+                                <span>Nova Pasta</span>
+                            </button>
+                            <button type="button" onclick="openNoteModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>Nova Nota</span>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-zinc-400">Organize suas anotações em pastas temáticas (Ex: Português, Constitucional).</p>
+                    <div id="foldersContainer" class="space-y-4"></div>
+                </div>
+            </section>
+
+            <!-- ABA 6: CRONÔMETRO -->
+            <section id="tab-timer" class="space-y-6 tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- POMODORO -->
+                    <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 text-center space-y-4 shadow-2xl flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-center space-x-2 mb-3">
+                                <i data-lucide="timer" class="w-5 h-5 text-blue-500"></i>
+                                <h3 class="text-base font-bold text-white">Ciclo Pomodoro</h3>
+                            </div>
+
+                            <div class="space-y-2 text-left">
+                                <label class="block text-[11px] text-zinc-400">Matéria para o Pomodoro:</label>
+                                <select id="pomoSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                                    <option value="">-- Selecione a matéria --</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 text-xs my-3">
+                                <div class="bg-black p-2 border border-zinc-800 rounded-xl">
+                                    <label class="block text-[10px] text-zinc-400 mb-1">Foco (min)</label>
+                                    <input type="number" id="pomoWorkTime" value="25" min="1" max="120" onchange="resetPomoTimer()" class="w-full bg-zinc-900 border border-zinc-700 rounded text-center text-white py-1 font-bold">
+                                </div>
+                                <div class="bg-black p-2 border border-zinc-800 rounded-xl">
+                                    <label class="block text-[10px] text-zinc-400 mb-1">Pausa (min)</label>
+                                    <input type="number" id="pomoBreakTime" value="5" min="1" max="60" onchange="resetPomoTimer()" class="w-full bg-zinc-900 border border-zinc-700 rounded text-center text-white py-1 font-bold">
+                                </div>
+                            </div>
+
+                            <div id="pomoStatus" class="text-[11px] font-bold text-blue-400 uppercase tracking-widest">Sessão de Foco</div>
+                            <div id="pomoDisplay" class="text-4xl font-black font-mono text-white tracking-wider my-3">25:00</div>
+                        </div>
+
+                        <div class="flex space-x-2 pt-2">
+                            <button type="button" id="btnPomoStart" onclick="togglePomoTimer()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                                Iniciar Foco
+                            </button>
+                            <button type="button" onclick="resetPomoTimer()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-zinc-800 px-3 py-2.5 rounded-xl text-xs transition">
+                                Zerar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CRONÔMETRO LIVRE -->
+                    <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 text-center space-y-4 shadow-2xl flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-center space-x-2 mb-3">
+                                <i data-lucide="play-circle" class="w-5 h-5 text-emerald-500"></i>
+                                <h3 class="text-base font-bold text-white">Cronômetro Livre</h3>
+                            </div>
+
+                            <div class="space-y-2 text-left">
+                                <label class="block text-[11px] text-zinc-400">Matéria para o Cronômetro Livre:</label>
+                                <select id="freeSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                                    <option value="">-- Selecione a matéria --</option>
+                                </select>
+                            </div>
+
+                            <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-widest my-3">Contagem Progressiva</div>
+                            <div id="freeDisplay" class="text-4xl font-black font-mono text-white tracking-wider my-3">00:00:00</div>
+                        </div>
+
+                        <div class="flex space-x-2 pt-2">
+                            <button type="button" id="btnFreeStart" onclick="toggleFreeTimer()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                                Iniciar Livre
+                            </button>
+                            <button type="button" onclick="resetFreeTimer()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-zinc-800 px-3 py-2.5 rounded-xl text-xs transition">
+                                Zerar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Navegação Inferior -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur border-t border-zinc-800 z-40 px-2 py-2">
+            <div class="max-w-md mx-auto flex justify-around items-center">
+                <button type="button" onclick="switchTab('cronograma')" id="nav-cronograma" class="flex flex-col items-center space-y-1 text-blue-500 font-bold transition">
+                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                    <span class="text-[9px]">Edital</span>
+                </button>
+                <button type="button" onclick="switchTab('plano')" id="nav-plano" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    <span class="text-[9px]">Plano</span>
+                </button>
+                <button type="button" onclick="switchTab('historico')" id="nav-historico" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                    <i data-lucide="history" class="w-5 h-5"></i>
+                    <span class="text-[9px]">Evolução</span>
+                </button>
+                <button type="button" onclick="switchTab('erros')" id="nav-erros" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    <span class="text-[9px]">Erros</span>
+                </button>
+                <button type="button" onclick="switchTab('notas')" id="nav-notas" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                    <i data-lucide="folder" class="w-5 h-5"></i>
+                    <span class="text-[9px]">Notas</span>
+                </button>
+                <button type="button" onclick="switchTab('timer')" id="nav-timer" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                    <i data-lucide="timer" class="w-5 h-5"></i>
+                    <span class="text-[9px]">Timer</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- MODAIS -->
+    <div id="folderModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
+                <i data-lucide="folder-plus" class="w-5 h-5"></i>
+                <span>Nova Pasta de Notas</span>
+            </h3>
+            <input type="hidden" id="editingFolderId" value="">
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Nome da Pasta</label>
+                <input type="text" id="modalFolderName" placeholder="Ex: Direito Constitucional" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="closeFolderModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="saveFolder()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Salvar Pasta</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="noteModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+            <h3 id="noteModalTitle" class="text-base font-bold text-blue-500 flex items-center space-x-2">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                <span>Novo Bloco de Notas</span>
+            </h3>
+            <input type="hidden" id="editingNoteId" value="">
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Pasta Destino</label>
+                <select id="modalNoteFolderSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                    <option value="">-- Selecione a Pasta --</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Título da Nota</label>
+                <input type="text" id="modalNoteTitle" placeholder="Ex: Resumo de Direitos Fundamentais" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Conteúdo Ampliado</label>
+                <textarea id="modalNoteContent" rows="10" placeholder="Escreva suas anotações aqui..." class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-y font-mono leading-relaxed"></textarea>
+            </div>
+            <div class="flex space-x-3 pt-2">
+                <button type="button" onclick="closeNoteModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-3 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="saveNote()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl text-sm font-semibold transition">Salvar Nota</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notificationModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center space-x-3 text-blue-400">
+                <i data-lucide="bell" class="w-6 h-6"></i>
+                <h3 class="text-base font-bold text-white">Resumo e Notificação Diária</h3>
+            </div>
+            <p class="text-xs text-zinc-400">Aqui está o seu planejamento de estudo normal e revisões para hoje:</p>
+            <div id="dailyNotificationContent" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+            <div class="pt-2">
+                <button type="button" onclick="fecharModalNotificacao()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="importModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
+                <i data-lucide="file-up" class="w-5 h-5"></i>
+                <span>Importar Edital Verticalizado</span>
+            </h3>
+            <p class="text-xs text-zinc-400">Cole o edital abaixo. Linhas em MAIÚSCULAS serão lidas como matérias e as linhas seguintes como tópicos.</p>
+            <textarea id="editalText" rows="10" placeholder="PORTUGUÊS&#10;1. Compreensão de texto&#10;2. Ortografia&#10;&#10;DIREITO CONSTITUCIONAL&#10;1. Direitos Fundamentais" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none font-mono"></textarea>
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="fecharModalImportacao()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="processarEditalLocal()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Importar Edital</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="planModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                <span>Gerar Plano e Selecionar Matérias</span>
+            </h3>
+            <p class="text-xs text-zinc-400">Defina quantas disciplinas de estudo normal deseja por dia e ajuste as horas e matérias ativas.</p>
+            <div class="bg-black p-3 border border-zinc-800 rounded-xl space-y-2">
+                <label class="block text-xs text-zinc-300 font-bold">Disciplinas Normais por Dia:</label>
+                <input type="number" id="dailySubjectsCount" value="2" min="1" max="6" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1.5 font-bold text-sm">
+            </div>
+            <div id="planSubjectsList" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
+            <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-zinc-800">
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Segunda</span><input type="number" id="day_seg" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Terça</span><input type="number" id="day_ter" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Quarta</span><input type="number" id="day_qua" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Quinta</span><input type="number" id="day_qui" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Sexta</span><input type="number" id="day_sex" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Sábado</span><input type="number" id="day_sab" value="4" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between col-span-2"><span class="text-zinc-300 font-bold">Domingo</span><input type="number" id="day_dom" value="2" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="fecharModalPlano()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Plano</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="subjectModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+            <h3 id="subjectModalTitle" class="text-base font-bold text-white">Adicionar Matéria</h3>
+            <input type="hidden" id="editingSubjectId" value="">
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Nome da Matéria</label>
+                <input type="text" id="modalSubjectName" placeholder="Ex: Matemática" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs text-zinc-400 mb-1">Peso (1 a 5)</label>
+                    <input type="number" id="modalSubjectWeight" min="1" max="5" value="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-zinc-400 mb-1">Horas Feitas</label>
+                    <input type="number" id="modalSubjectHours" min="0" step="0.5" value="0" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Tópicos (um por linha)</label>
+                <textarea id="modalSubjectTopics" rows="4" placeholder="Álgebra Básica&#10;Equações do 2º Grau" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-blue-500"></textarea>
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="closeSubjectModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="saveSubject()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-amber-500 flex items-center space-x-2">
+                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                <span>Registrar Erro no Caderno</span>
+            </h3>
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Matéria</label>
+                <select id="errorSubjectSelect" onchange="updateErrorTopicsSelect()" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                    <option value="">-- Selecione a matéria --</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Assunto / Tópico</label>
+                <select id="errorTopicSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                    <option value="">-- Selecione o tópico --</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs text-zinc-400 mb-1">Descrição / Motivo do Erro</label>
+                <textarea id="errorDescription" rows="3" placeholder="Ex: Confundi o prazo..." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none resize-none"></textarea>
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="closeErrorModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="saveErrorRecord()" class="flex-1 bg-amber-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Erro</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="approvalModal" class="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl text-center">
+            <div class="inline-flex p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-400 mb-1">
+                <i data-lucide="award" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-base font-bold text-white">Validação de Aproveitamento</h3>
+            <p class="text-xs text-zinc-400">Para concluir este tópico, informe o resultado dos seus exercícios de fixação (Mínimo de 80% exigido).</p>
+            <input type="hidden" id="pendingSubjectIndex" value="">
+            <input type="hidden" id="pendingTopicIndex" value="">
+            <div class="grid grid-cols-2 gap-3 text-left">
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1">Total de Questões</label>
+                    <input type="number" id="inputTotalQ" min="1" value="10" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white text-center font-bold focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-zinc-400 mb-1">Acertos</label>
+                    <input type="number" id="inputCorrectQ" min="0" value="8" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white text-center font-bold focus:outline-none focus:border-blue-500">
+                </div>
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="cancelTopicApproval()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
+                <button type="button" onclick="confirmTopicApproval()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Validar e Concluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT PRINCIPAL -->
+    <script>
+        let currentUser = null;
+        let subjects = [];
+        let historicoDiario = [];
+        let historicoSemanal = [];
+        let cadernoErros = [];
+        let userFolders = [];
+        let planosSemanaisArquivados = [];
+        let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
+        let dailySubjectsCount = 2;
+        let planoGerado = false;
+        
+        let pomoInterval = null;
+        let pomoSeconds = 25 * 60;
+        let pomoIsRunning = false;
+        let pomoMode = 'work';
+        
+        let freeInterval = null;
+        let freeSeconds = 0;
+        let freeIsRunning = false;
+        let isSignUpMode = false;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+            }
+
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('authScreen').classList.add('hidden');
+                    document.getElementById('appInterface').classList.remove('hidden');
+                    loadUserData();
+                } else {
+                    currentUser = null;
+                    document.getElementById('authScreen').classList.remove('hidden');
+                    document.getElementById('appInterface').classList.add('hidden');
+                }
+            });
+        });
+
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            const subtitle = document.getElementById('authSubtitle');
+            const btnSubmit = document.getElementById('btnAuthSubmit');
+            const btnToggle = document.getElementById('btnToggleAuth');
+
+            if (isSignUpMode) {
+                subtitle.textContent = "Crie sua conta para começar a estudar";
+                btnSubmit.textContent = "Cadastrar";
+                btnToggle.innerHTML = 'Já tem conta? <span class="text-blue-400 font-bold">Faça login</span>';
+            } else {
+                subtitle.textContent = "Acesse para sincronizar em todos os dispositivos";
+                btnSubmit.textContent = "Entrar";
+                btnToggle.innerHTML = 'Não tem conta? <span class="text-blue-400 font-bold">Cadastre-se</span>';
+            }
+        }
+
+        function handleAuth(event) {
+            event.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+
+            if (isSignUpMode) {
+                firebase.auth().createUserWithEmailAndPassword(email, password)
+                    .catch((error) => alert("Erro ao cadastrar: " + error.message));
+            } else {
+                firebase.auth().signInWithEmailAndPassword(email, password)
+                    .catch((error) => alert("Erro ao entrar: " + error.message));
+            }
+        }
+
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .catch((error) => alert("Erro no login com Google: " + error.message));
+        }
+
+        function resetPassword() {
+            const email = document.getElementById('authEmail').value;
+            if (!email) {
+                alert("Digite seu e-mail no campo acima para recuperar a senha.");
+                return;
+            }
+            firebase.auth().sendPasswordResetEmail(email)
+                .then(() => alert("E-mail de recuperação enviado com sucesso!"))
+                .catch((error) => alert("Erro ao enviar e-mail: " + error.message));
+        }
+
+        function logout() {
+            firebase.auth().signOut();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('text-blue-500', 'font-bold');
+                btn.classList.add('text-zinc-500');
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.remove('text-zinc-500');
+                activeNav.classList.add('text-blue-500', 'font-bold');
+            }
+            if (tabId === 'plano') {
+                renderSmartPlan();
+                renderPlanosArquivados();
+            }
+            if (tabId === 'historico') renderHistorico();
+            if (tabId === 'erros') renderCadernoErros();
+            if (tabId === 'notas') renderNotas();
+        }
+
+        function saveUserData() {
+            if (!currentUser) return;
+            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, userFolders, planosSemanaisArquivados, weeklyHoursConfig, dailySubjectsCount, planoGerado };
+            firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
+                .catch(err => console.error("Erro ao salvar dados:", err));
+        }
+
+        function loadUserData() {
+            if (!currentUser) return;
+            firebase.firestore().collection('schedules').doc(currentUser.uid).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        subjects = data.subjects || [];
+                        historicoDiario = data.historicoDiario || [];
+                        historicoSemanal = data.historicoSemanal || [];
+                        cadernoErros = data.cadernoErros || [];
+                        userFolders = data.userFolders || [];
+                        planosSemanaisArquivados = data.planosSemanaisArquivados || [];
+                        if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
+                            userFolders.push({ id: 'geral', name: 'Geral', notes: data.userNotes });
+                        }
+                        if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
+                        if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
+                        if (data.planoGerado !== undefined) planoGerado = data.planoGerado;
+                    } else {
+                        subjects = [];
+                        userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
+                        planosSemanaisArquivados = [];
+                    }
+                    renderApp();
+                })
+                .catch(err => console.error("Erro ao carregar dados:", err));
+        }
+
+        function renderApp() {
+            renderSchedule();
+            updateSelects();
+            updateStats();
+            renderSmartPlan();
+            renderPlanosArquivados();
+            renderHistorico();
+            renderCadernoErros();
+            renderNotas();
+            lucide.createIcons();
+        }
+
+        function updateSelects() {
+            const selects = [document.getElementById('pomoSubjectSelect'), document.getElementById('freeSubjectSelect')];
+            selects.forEach(select => {
+                if (!select) return;
+                const currentVal = select.value;
+                select.innerHTML = '<option value="">-- Selecione a matéria --</option>';
+                subjects.forEach((sub, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    opt.textContent = sub.name;
+                    select.appendChild(opt);
+                });
+                select.value = currentVal;
+            });
+        }
+
+        function openSubjectModal(sIndex = null) {
+            if (sIndex !== null && subjects[sIndex]) {
+                const sub = subjects[sIndex];
+                document.getElementById('editingSubjectId').value = sIndex;
+                document.getElementById('modalSubjectName').value = sub.name;
+                document.getElementById('modalSubjectWeight').value = sub.weight || 1;
+                document.getElementById('modalSubjectHours').value = sub.hoursStudied || 0;
+                document.getElementById('modalSubjectTopics').value = sub.topics ? sub.topics.map(t => t.name).join('\n') : '';
+                document.getElementById('subjectModalTitle').textContent = 'Editar Matéria';
+            } else {
+                document.getElementById('editingSubjectId').value = '';
+                document.getElementById('modalSubjectName').value = '';
+                document.getElementById('modalSubjectWeight').value = '1';
+                document.getElementById('modalSubjectHours').value = '0';
+                document.getElementById('modalSubjectTopics').value = '';
+                document.getElementById('subjectModalTitle').textContent = 'Adicionar Matéria';
+            }
+            document.getElementById('subjectModal').classList.remove('hidden');
+        }
+
+        function closeSubjectModal() {
+            document.getElementById('subjectModal').classList.add('hidden');
+        }
+
+        function saveSubject() {
+            const editingId = document.getElementById('editingSubjectId').value;
+            const name = document.getElementById('modalSubjectName').value.trim();
+            const weight = parseInt(document.getElementById('modalSubjectWeight').value) || 1;
+            const hoursStudied = parseFloat(document.getElementById('modalSubjectHours').value) || 0;
+            const topicsRaw = document.getElementById('modalSubjectTopics').value.trim();
+
+            if (!name) {
+                alert("Digite o nome da matéria.");
+                return;
+            }
+
+            const newTopics = topicsRaw ? topicsRaw.split('\n').map(t => ({ name: t.trim(), done: false })).filter(t => t.name) : [];
+
+            if (editingId !== '') {
+                const idx = parseInt(editingId);
+                const oldTopics = subjects[idx].topics || [];
+                newTopics.forEach(nt => {
+                    const found = oldTopics.find(ot => ot.name === nt.name);
+                    if (found) nt.done = found.done;
+                });
+                subjects[idx].name = name;
+                subjects[idx].weight = weight;
+                subjects[idx].hoursStudied = hoursStudied;
+                subjects[idx].topics = newTopics;
+            } else {
+                subjects.push({ name, weight, hoursStudied, topics: newTopics, questionsCount: 0, correctCount: 0, includeInPlan: true, minimized: false });
+            }
+
+            saveUserData();
+            renderApp();
+            closeSubjectModal();
+        }
+
+        function toggleMinimize(sIndex) {
+            if (subjects[sIndex]) {
+                subjects[sIndex].minimized = !subjects[sIndex].minimized;
+                renderSchedule();
+            }
+        }
+
+        function zerarQuestoes(sIndex) {
+            if (subjects[sIndex]) {
+                if (confirm(`Deseja zerar as questões contabilizadas de "${subjects[sIndex].name}"?`)) {
+                    subjects[sIndex].questionsCount = 0;
+                    subjects[sIndex].correctCount = 0;
+                    saveUserData();
+                    renderApp();
+                    alert("Questões zeradas com sucesso!");
+                }
+            }
+        }
+
+        function renderSchedule() {
+            const container = document.getElementById('scheduleContainer');
+            if (!container) return;
+            if (subjects.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-zinc-500 text-xs">Nenhuma matéria cadastrada. Clique em "Add Matéria" ou "Importar Edital".</div>`;
+                return;
+            }
+
+            container.innerHTML = subjects.map((sub, sIndex) => {
+                const isMin = sub.minimized || false;
+                return `
+                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <button type="button" onclick="toggleMinimize(${sIndex})" class="text-zinc-400 hover:text-white transition" title="${isMin ? 'Maximizar Tópicos' : 'Minimizar Tópicos'}">
+                                <i data-lucide="${isMin ? 'chevron-right' : 'chevron-down'}" class="w-4 h-4"></i>
+                            </button>
+                            <h3 class="font-bold text-sm text-white">${sub.name} <span class="text-[10px] text-zinc-500 font-normal">(Peso ${sub.weight || 1})</span></h3>
+                        </div>
+                        <div class="flex items-center space-x-2.5 text-xs text-zinc-400">
+                            <span>${(sub.hoursStudied || 0).toFixed(1)}h estudadas</span>
+                            <button type="button" onclick="zerarQuestoes(${sIndex})" class="text-amber-400 hover:text-amber-300" title="Zerar Questões"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i></button>
+                            <button type="button" onclick="openSubjectModal(${sIndex})" class="text-blue-400 hover:text-blue-300" title="Editar Matéria"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                            <button type="button" onclick="deleteSubject(${sIndex})" class="text-red-400 hover:text-red-300" title="Excluir Matéria"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
+                        </div>
+                    </div>
+                    <div class="space-y-1.5 pl-2 border-l border-zinc-800 ${isMin ? 'hidden' : ''}">
+                        ${sub.topics && sub.topics.length > 0 ? sub.topics.map((top, tIndex) => `
+                            <label class="flex items-center space-x-2 text-xs text-zinc-300 cursor-pointer">
+                                <input type="checkbox" ${top.done ? 'checked' : ''} onclick="event.preventDefault(); handleTopicCheck(${sIndex},${tIndex})" class="rounded bg-black border-zinc-700 text-blue-600 focus:ring-0">
+                                <span class="${top.done ? 'line-through text-zinc-500' : ''}">${top.name}</span>
+                            </label>
+                        `).join('') : '<p class="text-[11px] text-zinc-600">Nenhum tópico cadastrado.</p>'}
+                    </div>
+                </div>
+            `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function reiniciarNovoEdital() {
+            if (confirm("ATENÇÃO: Deseja apagar todas as matérias atuais e reiniciar os dados para um novo edital?")) {
+                subjects = [];
+                historicoDiario = [];
+                historicoSemanal = [];
+                cadernoErros = [];
+                planosSemanaisArquivados = [];
+                planoGerado = false;
+                saveUserData();
+                renderApp();
+                alert("Dados reiniciados com sucesso!");
+            }
+        }
+
+        function openFolderModal() {
+            document.getElementById('editingFolderId').value = '';
+            document.getElementById('modalFolderName').value = '';
+            document.getElementById('folderModal').classList.remove('hidden');
+        }
+
+        function closeFolderModal() {
+            document.getElementById('folderModal').classList.add('hidden');
+        }
+
+        function saveFolder() {
+            const folderName = document.getElementById('modalFolderName').value.trim();
+            if (!folderName) {
+                alert("Digite o nome da pasta.");
+                return;
+            }
+            if (!userFolders) userFolders = [];
+            userFolders.push({ id: 'folder_' + Date.now(), name: folderName, notes: [] });
+            saveUserData();
+            renderNotas();
+            closeFolderModal();
+        }
+
+        function deleteFolder(fIndex) {
+            if (confirm("Deseja realmente excluir esta pasta e todas as notas contidas nela?")) {
+                userFolders.splice(fIndex, 1);
+                saveUserData();
+                renderNotas();
+            }
+        }
+
+        function openNoteModal(fIndex = null, nIndex = null) {
+            if (!userFolders || userFolders.length === 0) {
+                userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
+            }
+            const select = document.getElementById('modalNoteFolderSelect');
+            select.innerHTML = userFolders.map((f, idx) => `<option value="${idx}">${f.name}</option>`).join('');
+
+            if (fIndex !== null && nIndex !== null && userFolders[fIndex] && userFolders[fIndex].notes[nIndex]) {
+                const note = userFolders[fIndex].notes[nIndex];
+                document.getElementById('editingNoteId').value = `${fIndex}_${nIndex}`;
+                select.value = fIndex;
+                document.getElementById('modalNoteTitle').value = note.title;
+                document.getElementById('modalNoteContent').value = note.content;
+                document.getElementById('noteModalTitle').textContent = 'Editar Bloco de Notas';
+            } else {
+                document.getElementById('editingNoteId').value = '';
+                if (fIndex !== null) select.value = fIndex;
+                document.getElementById('modalNoteTitle').value = '';
+                document.getElementById('modalNoteContent').value = '';
+                document.getElementById('noteModalTitle').textContent = 'Novo Bloco de Notas';
+            }
+            document.getElementById('noteModal').classList.remove('hidden');
+        }
+
+        function closeNoteModal() {
+            document.getElementById('noteModal').classList.add('hidden');
+        }
+
+        function saveNote() {
+            const editingId = document.getElementById('editingNoteId').value;
+            const targetFolderIdx = parseInt(document.getElementById('modalNoteFolderSelect').value);
+            const title = document.getElementById('modalNoteTitle').value.trim();
+            const content = document.getElementById('modalNoteContent').value.trim();
+
+            if (!title) {
+                alert("Digite o título da nota.");
+                return;
+            }
+            if (isNaN(targetFolderIdx) || !userFolders[targetFolderIdx]) {
+                alert("Selecione uma pasta válida.");
+                return;
+            }
+
+            const newNote = { title, content, date: new Date().toLocaleDateString('pt-BR') };
+
+            if (editingId !== '') {
+                const [oldFIdx, oldNIdx] = editingId.split('_').map(Number);
+                userFolders[oldFIdx].notes.splice(oldNIdx, 1);
+            }
+            userFolders[targetFolderIdx].notes.unshift(newNote);
+            saveUserData();
+            renderNotas();
+            closeNoteModal();
+        }
+
+        function deleteNote(fIndex, nIndex) {
+            if (confirm("Deseja realmente excluir este bloco de notas?")) {
+                userFolders[fIndex].notes.splice(nIndex, 1);
+                saveUserData();
+                renderNotas();
+            }
+        }
+
+        function renderNotas() {
+            const container = document.getElementById('foldersContainer');
+            if (!container) return;
+            if (!userFolders || userFolders.length === 0) {
+                userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
+            }
+
+            container.innerHTML = userFolders.map((folder, fIndex) => `
+                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="folder" class="w-4 h-4 text-blue-400"></i>
+                            <h3 class="font-bold text-sm text-white">${folder.name} <span class="text-[10px] text-zinc-500 font-normal">(${folder.notes ? folder.notes.length : 0} notas)</span></h3>
+                        </div>
+                        <div class="flex items-center space-x-3 text-xs">
+                            <button type="button" onclick="openNoteModal(${fIndex})" class="text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1" title="Adicionar nota">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>Nota</span>
+                            </button>
+                            ${userFolders.length > 1 ? `
+                            <button type="button" onclick="deleteFolder(${fIndex})" class="text-red-400 hover:text-red-300" title="Excluir Pasta">
+                                <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                            </button>` : ''}
+                        </div>
+                    </div>
+                    <div class="space-y-2 pl-2">
+                        ${folder.notes && folder.notes.length > 0 ? folder.notes.map((note, nIndex) => `
+                            <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl space-y-1.5">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-bold text-white">• ${note.title}</span>
+                                    <span class="text-[10px] text-zinc-500">${note.date}</span>
+                                </div>
+                                <p class="text-xs text-zinc-300 font-mono whitespace-pre-wrap bg-black/40 p-2 rounded-lg border border-zinc-800/50">${note.content || 'Sem conteúdo.'}</p>
+                                <div class="flex justify-end space-x-3 pt-1">
+                                    <button type="button" onclick="openNoteModal(${fIndex},${nIndex})" class="text-[11px] text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1">
+                                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                        <span>Editar</span>
+                                    </button>
+                                    <button type="button" onclick="deleteNote(${fIndex},${nIndex})" class="text-[11px] text-red-400 hover:text-red-300 font-semibold flex items-center space-x-1">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        <span>Excluir</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('') : '<p class="text-[11px] text-zinc-600 italic">Nenhuma nota nesta pasta.</p>'}
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function dispararNotificacaoDiaria() {
+            const container = document.getElementById('dailyNotificationContent');
+            if (!container) return;
+
+            if (!planoGerado || subjects.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Gere um plano de estudos e cadastre matérias para visualizar o resumo diário.</p>`;
+                document.getElementById('notificationModal').classList.remove('hidden');
+                return;
+            }
+
+            const dayMap = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
+            const todayKey = dayMap[new Date().getDay()];
+            const dayNames = { seg: 'Segunda-feira', ter: 'Terça-feira', qua: 'Quarta-feira', qui: 'Quinta-feira', sex: 'Sexta-feira', sab: 'Sábado', dom: 'Domingo' };
+            const hoursVal = weeklyHoursConfig[todayKey] || 0;
+
+            if (hoursVal <= 0) {
+                container.innerHTML = `<div class="bg-black border border-zinc-800 rounded-xl p-3 text-center text-xs text-zinc-400">Hoje é dia de descanso (${dayNames[todayKey]})!</div>`;
+                document.getElementById('notificationModal').classList.remove('hidden');
+                return;
+            }
+
+            const activeSubjects = subjects.filter(sub => sub.includeInPlan !== false);
+            let html = `<div class="text-xs font-bold text-blue-400 mb-2">📅 Cronograma para hoje (${dayNames[todayKey]}):</div>`;
+            
+            activeSubjects.slice(0, dailySubjectsCount).forEach((sub, idx) => {
+                let uncompleted = sub.topics ? sub.topics.filter(t => !t.done) : [];
+                let topText = uncompleted.length > 0 ? uncompleted[0].name : 'Todos concluídos!';
+                html += `
+                    <div class="bg-black border border-zinc-800 rounded-xl p-3 space-y-1">
+                        <div class="font-bold text-white text-xs">${idx + 1}. Estudo Normal: ${sub.name}</div>
+                        <div class="text-[11px] text-zinc-300">• Tópico: ${topText}</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            document.getElementById('notificationModal').classList.remove('hidden');
+
+            if ("Notification" in window) {
+                if (Notification.permission === "granted") {
+                    const msgBody = `Você tem ${hoursVal}h de estudos programados para hoje (${dayNames[todayKey]}). Foco!`;
+                    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.ready.then(reg => {
+                            reg.showNotification("EstudoFlow PRO - Estudo do Dia", { body: msgBody });
+                        });
+                    } else {
+                        new Notification("EstudoFlow PRO - Estudo do Dia", { body: msgBody });
+                    }
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission();
+                }
+            }
+        }
+
+        function fecharModalNotificacao() {
+            document.getElementById('notificationModal').classList.add('hidden');
+        }
+
+        function renderPlanosArquivados() {
+            const container = document.getElementById('planosAnterioresContainer');
+            if (!container) return;
+            if (!planosSemanaisArquivados || planosSemanaisArquivados.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic">Nenhum plano semanal arquivado ainda.</p>`;
+                return;
+            }
+            container.innerHTML = planosSemanaisArquivados.map(planoObj => `
+                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
+                        <span class="text-xs font-bold text-amber-400">📅 Ciclo Fechado em: ${planoObj.date}</span>
+                        <span class="text-[10px] bg-zinc-900 text-zinc-400 px-2 py-0.5 rounded border border-zinc-800">Arquivado</span>
+                    </div>
+                    <div class="space-y-2 text-xs text-zinc-300">${planoObj.summaryHtml}</div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function renderSmartPlan() {
+            const container = document.getElementById('smartPlanContainer');
+            if (!container) return;
+
+            if (!planoGerado) {
+                container.innerHTML = `
+                    <div class="text-center py-12 space-y-3">
+                        <div class="inline-flex p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-blue-400">
+                            <i data-lucide="sparkles" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-xs text-zinc-400">Nenhum plano gerado ainda.</p>
+                        <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md">
+                            Configurar e Gerar Plano
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            const activeSubjects = subjects.filter(sub => sub.includeInPlan !== false);
+            if (activeSubjects.length === 0) {
+                container.innerHTML = '<p class="text-xs text-zinc-500 text-center py-6">Nenhuma matéria incluída no plano.</p>';
+                return;
+            }
+
+            const scoredSubjects = activeSubjects.map(sub => {
+                const totalQ = sub.questionsCount || 0;
+                const correctQ = sub.correctCount || 0;
+                const accuracy = totalQ > 0 ? (correctQ / totalQ) * 100 : 100;
+                const weight = sub.weight || 1;
+                const priorityScore = weight * (101 - accuracy);
+                return { ...sub, accuracy, priorityScore };
+            });
+
+            scoredSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
+
+            const days = [
+                { id: 'seg', name: 'Segunda-feira', hours: weeklyHoursConfig.seg },
+                { id: 'ter', name: 'Terça-feira', hours: weeklyHoursConfig.ter },
+                { id: 'qua', name: 'Quarta-feira', hours: weeklyHoursConfig.qua },
+                { id: 'qui', name: 'Quinta-feira', hours: weeklyHoursConfig.qui },
+                { id: 'sex', name: 'Sexta-feira', hours: weeklyHoursConfig.sex },
+                { id: 'sab', name: 'Sábado', hours: weeklyHoursConfig.sab },
+                { id: 'dom', name: 'Domingo', hours: weeklyHoursConfig.dom }
+            ];
+
+            let normPtr = 0;
+            container.innerHTML = days.map(day => {
+                if (day.hours <= 0) {
+                    return `
+                        <div class="bg-black border border-zinc-800 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
+                            <span class="text-xs font-bold text-zinc-400">${day.name}</span>
+                            <span class="text-[11px] text-zinc-500">Descanso / 0h</span>
+                        </div>
+                    `;
+                }
+
+                let normalsForDay = [];
+                let totalWeightOfDay = 0;
+                for (let i = 0; i < dailySubjectsCount; i++) {
+                    let sub = scoredSubjects[normPtr % scoredSubjects.length];
+                    normalsForDay.push(sub);
+                    totalWeightOfDay += (sub.weight || 1);
+                    normPtr++;
+                }
+
+                const normalHtml = normalsForDay.map((sub, idx) => {
+                    let currentTopicText = "Nenhum tópico pendente";
+                    let isAllDone = false;
+                    if (sub.topics && sub.topics.length > 0) {
+                        let uncompleted = sub.topics.filter(t => !t.done);
+                        if (uncompleted.length > 0) {
+                            currentTopicText = uncompleted[0].name;
+                        } else {
+                            currentTopicText = "Todos os tópicos concluídos! 🎉";
+                            isAllDone = true;
+                        }
+                    }
+
+                    return `
+                        <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl space-y-1">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-bold text-white">${idx + 1}. Estudo: ${sub.name}</span>
+                            </div>
+                            <div class="text-[11px] ${isAllDone ? 'text-emerald-400 font-bold' : 'text-zinc-300'} pl-2 border-l-2 ${isAllDone ? 'border-emerald-500' : 'border-blue-600'}">
+                                <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Tópico do Edital:</span>
+                                ${currentTopicText}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
+                            <span class="text-xs font-bold text-zinc-300">${day.hours}h totais</span>
+                        </div>
+                        <div class="space-y-2 pt-1">${normalHtml}</div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function handleTopicCheck(sIndex, tIndex) {
+            const topic = subjects[sIndex].topics[tIndex];
+            if (topic.done) {
+                topic.done = false;
+                saveUserData();
+                renderApp();
+            } else {
+                document.getElementById('pendingSubjectIndex').value = sIndex;
+                document.getElementById('pendingTopicIndex').value = tIndex;
+                document.getElementById('inputTotalQ').value = 10;
+                document.getElementById('inputCorrectQ').value = 8;
+                document.getElementById('approvalModal').classList.remove('hidden');
+            }
+        }
+
+        function cancelTopicApproval() {
+            document.getElementById('approvalModal').classList.add('hidden');
+        }
+
+        function confirmTopicApproval() {
+            const sIndex = parseInt(document.getElementById('pendingSubjectIndex').value);
+            const tIndex = parseInt(document.getElementById('pendingTopicIndex').value);
+            const total = parseInt(document.getElementById('inputTotalQ').value) || 0;
+            const correct = parseInt(document.getElementById('inputCorrectQ').value) || 0;
+
+            if (total <= 0 || correct < 0 || correct > total) {
+                alert("Por favor, insira valores válidos de questões.");
+                return;
+            }
+
+            const percent = (correct / total) * 100;
+            if (percent < 80) {
+                alert(`Aproveitamento de ${percent.toFixed(1)}%. Mínimo de 80% exigido.`);
+                return;
+            }
+
+            subjects[sIndex].questionsCount = (subjects[sIndex].questionsCount || 0) + total;
+            subjects[sIndex].correctCount = (subjects[sIndex].correctCount || 0) + correct;
+            subjects[sIndex].topics[tIndex].done = true;
+            
+            registrarEvolucioDiaria(subjects[sIndex].name, subjects[sIndex].topics[tIndex].name, percent);
+
+            saveUserData();
+            renderApp();
+            document.getElementById('approvalModal').classList.add('hidden');
+            alert(`Tópico concluído! O plano semanal foi atualizado.`);
+        }
+
+        function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
+            const hojeStr = new Date().toLocaleDateString('pt-BR');
+            let registroHoje = historicoDiario.find(h => h.date === hojeStr);
+            if (!registroHoje) {
+                registroHoje = { date: hojeStr, itens: [] };
+                historicoDiario.unshift(registroHoje);
+            }
+            const jaExiste = registroHoje.itens.some(item => item.subject === subjectName && item.topic === topicName);
+            if (!jaExiste) {
+                registroHoje.itens.push({ subject: subjectName, topic: topicName, accuracy: accuracy.toFixed(0) });
+            }
+        }
+
+        function renderHistorico() {
+            const container = document.getElementById('historicoSemanalList');
+            if (!container) return;
+            if (!historicoDiario || historicoDiario.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum registro no histórico ainda.</p>`;
+                return;
+            }
+            container.innerHTML = historicoDiario.map(dia => `
+                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2 mb-3">
+                    <div class="flex items-center justify-between text-xs font-bold text-blue-400 border-b border-zinc-900 pb-1.5">
+                        <span>Data: ${dia.date}</span>
+                    </div>
+                    <div class="space-y-1.5 pt-1">
+                        ${dia.itens.map(item => `
+                            <div class="flex items-center justify-between text-xs bg-zinc-900/50 p-2 rounded-xl border border-zinc-800/60">
+                                <div>
+                                    <span class="font-bold text-white">${item.subject}</span>
+                                    <span class="block text-[11px] text-zinc-400">• ${item.topic}</span>
+                                </div>
+                                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-1 rounded-lg">${item.accuracy}%</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openErrorModal() {
+            const subjectSelect = document.getElementById('errorSubjectSelect');
+            subjectSelect.innerHTML = '<option value="">-- Selecione a matéria --</option>';
+            subjects.forEach((sub, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = sub.name;
+                subjectSelect.appendChild(opt);
+            });
+            document.getElementById('errorTopicSelect').innerHTML = '<option value="">-- Selecione o tópico --</option>';
+            document.getElementById('errorDescription').value = '';
+            document.getElementById('errorModal').classList.remove('hidden');
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.add('hidden');
+        }
+
+        function updateErrorTopicsSelect() {
+            const sIdx = document.getElementById('errorSubjectSelect').value;
+            const topicSelect = document.getElementById('errorTopicSelect');
+            topicSelect.innerHTML = '<option value="">-- Selecione o tópico --</option>';
+            if (sIdx !== '' && subjects[sIdx] && subjects[sIdx].topics) {
+                subjects[sIdx].topics.forEach(top => {
+                    const opt = document.createElement('option');
+                    opt.value = top.name;
+                    opt.textContent = top.name;
+                    topicSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function saveErrorRecord() {
+            const sIdx = document.getElementById('errorSubjectSelect').value;
+            const topicName = document.getElementById('errorTopicSelect').value;
+            const description = document.getElementById('errorDescription').value.trim();
+
+            if (sIdx === '' || !topicName) {
+                alert("Selecione a matéria e o tópico.");
+                return;
+            }
+
+            cadernoErros.unshift({
+                date: new Date().toLocaleDateString('pt-BR'),
+                subject: subjects[sIdx].name,
+                topic: topicName,
+                description: description || "Sem anotação."
+            });
+
+            saveUserData();
+            renderCadernoErros();
+            closeErrorModal();
+        }
+
+        function deleteErrorRecord(eIndex) {
+            cadernoErros.splice(eIndex, 1);
+            saveUserData();
+            renderCadernoErros();
+        }
+
+        function renderCadernoErros() {
+            const container = document.getElementById('cadernoErrosList');
+            if (!container) return;
+            if (!cadernoErros || cadernoErros.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum erro registrado.</p>`;
+                return;
+            }
+            container.innerHTML = cadernoErros.map((err, eIndex) => `
+                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2">
+                    <div class="flex items-center justify-between text-xs border-b border-zinc-900 pb-1.5">
+                        <span class="font-bold text-amber-400">${err.subject}</span>
+                        <span class="text-[10px] text-zinc-500">${err.date}</span>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-white block">• Assunto: ${err.topic}</span>
+                        <p class="text-xs text-zinc-300 mt-1 bg-zinc-900/50 p-2.5 rounded-xl">${err.description}</p>
+                    </div>
+                    <div class="flex justify-end pt-1">
+                        <button type="button" onclick="deleteErrorRecord(${eIndex})" class="text-[11px] text-red-400">Remover</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteSubject(sIndex) {
+            if (confirm("Deseja excluir esta matéria?")) {
+                subjects.splice(sIndex, 1);
+                saveUserData();
+                renderApp();
+            }
+        }
+
+        function updateStats() {
+            let totalTopics = 0, doneTopics = 0, totalHours = 0, totalQ = 0, totalC = 0;
+            subjects.forEach(sub => {
+                totalHours += sub.hoursStudied || 0;
+                totalQ += sub.questionsCount || 0;
+                totalC += sub.correctCount || 0;
+                if (sub.topics) {
+                    totalTopics += sub.topics.length;
+                    doneTopics += sub.topics.filter(t => t.done).length;
+                }
+            });
+            const percent = totalTopics > 0 ? Math.round((doneTopics / totalTopics) * 100) : 0;
+            const accuracy = totalQ > 0 ? Math.round((totalC / totalQ) * 100) : 0;
+
+            document.getElementById('statTotalHours').textContent = totalHours.toFixed(1) + 'h';
+            document.getElementById('statWeeklyHours').textContent = totalHours.toFixed(1) + 'h nesta semana';
+            document.getElementById('statTotalQuestions').textContent = totalQ;
+            document.getElementById('statAccuracy').textContent = accuracy + '% acertos no total';
+            document.getElementById('globalPercent').textContent = percent + '%';
+            document.getElementById('globalProgressBar').style.width = percent + '%';
+            document.getElementById('statWeeklyTopics').textContent = `${doneTopics} / ${totalTopics} tópicos concluídos`;
+        }
+
+        function adicionarHorasEstudo(subjectIndex, minutos) {
+            const sIdx = parseInt(subjectIndex);
+            if (!isNaN(sIdx) && subjects[sIdx]) {
+                subjects[sIdx].hoursStudied = (subjects[sIdx].hoursStudied || 0) + (minutos / 60);
+                saveUserData();
+                updateStats();
+                renderSchedule();
+            }
+        }
+
+        function abrirModalImportacao() { document.getElementById('importModal').classList.remove('hidden'); }
+        function fecharModalImportacao() { document.getElementById('importModal').classList.add('hidden'); }
+        
+        function abrirModalPlano() { 
+            const listContainer = document.getElementById('planSubjectsList');
+            if (subjects.length === 0) {
+                listContainer.innerHTML = '<p class="text-xs text-zinc-500 text-center py-2">Cadastre matérias primeiro.</p>';
+            } else {
+                listContainer.innerHTML = subjects.map((sub, idx) => `
+                    <label class="flex items-center justify-between bg-black p-2.5 border border-zinc-800 rounded-xl cursor-pointer">
+                        <span class="text-xs text-zinc-300 font-bold">${sub.name}</span>
+                        <input type="checkbox" data-sub-index="${idx}" ${sub.includeInPlan !== false ? 'checked' : ''} class="rounded bg-zinc-900 border-zinc-700 text-blue-600 focus:ring-0">
+                    </label>
+                `).join('');
+            }
+            document.getElementById('dailySubjectsCount').value = dailySubjectsCount;
+            document.getElementById('day_seg').value = weeklyHoursConfig.seg;
+            document.getElementById('day_ter').value = weeklyHoursConfig.ter;
+            document.getElementById('day_qua').value = weeklyHoursConfig.qua;
+            document.getElementById('day_qui').value = weeklyHoursConfig.qui;
+            document.getElementById('day_sex').value = weeklyHoursConfig.sex;
+            document.getElementById('day_sab').value = weeklyHoursConfig.sab;
+            document.getElementById('day_dom').value = weeklyHoursConfig.dom;
+            document.getElementById('planModal').classList.remove('hidden'); 
+        }
+        function fecharModalPlano() { document.getElementById('planModal').classList.add('hidden'); }
+
+        function processarEditalLocal() {
+            const texto = document.getElementById('editalText').value.trim();
+            if (!texto) return;
+            const linhas = texto.split('\n');
+            let materiaAtual = null;
+
+            linhas.forEach(linha => {
+                const linhaLimpa = linha.trim();
+                if (!linhaLimpa) return;
+                if (linhaLimpa === linhaLimpa.toUpperCase() && !linhaLimpa.startsWith('.')) {
+                    materiaAtual = { name: linhaLimpa, weight: 1, hoursStudied: 0, topics: [], questionsCount: 0, correctCount: 0, includeInPlan: true, minimized: false };
+                    subjects.push(materiaAtual);
+                } else if (materiaAtual) {
+                    materiaAtual.topics.push({ name: linhaLimpa, done: false });
+                }
+            });
+
+            saveUserData();
+            renderApp();
+            fecharModalImportacao();
+        }
+
+        function gerarPlanoInteligente() {
+            const checkboxes = document.querySelectorAll('#planSubjectsList input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                const idx = parseInt(cb.getAttribute('data-sub-index'));
+                if (!isNaN(idx) && subjects[idx]) {
+                    subjects[idx].includeInPlan = cb.checked;
+                }
+            });
+
+            dailySubjectsCount = parseInt(document.getElementById('dailySubjectsCount').value) || 2;
+            weeklyHoursConfig.seg = parseInt(document.getElementById('day_seg').value) || 0;
+            weeklyHoursConfig.ter = parseInt(document.getElementById('day_ter').value) || 0;
+            weeklyHoursConfig.qua = parseInt(document.getElementById('day_qua').value) || 0;
+            weeklyHoursConfig.qui = parseInt(document.getElementById('day_qui').value) || 0;
+            weeklyHoursConfig.sex = parseInt(document.getElementById('day_sex').value) || 0;
+            weeklyHoursConfig.sab = parseInt(document.getElementById('day_sab').value) || 0;
+            weeklyHoursConfig.dom = parseInt(document.getElementById('day_dom').value) || 0;
+
+            planoGerado = true;
+            saveUserData();
+            fecharModalPlano();
+            renderSmartPlan();
+            alert("Plano inteligente gerado e salvo com sucesso!");
+        }
+
+        function fecharSemana() {
+            if (confirm("Deseja fechar a semana atual e arquivar no histórico de planos?")) {
+                const planContainerEl = document.getElementById('smartPlanContainer');
+                if (!planosSemanaisArquivados) planosSemanaisArquivados = [];
+                planosSemanaisArquivados.unshift({
+                    date: new Date().toLocaleDateString('pt-BR'),
+                    summaryHtml: planContainerEl ? planContainerEl.innerHTML : ''
+                });
+
+                historicoSemanal.push({ date: new Date().toLocaleDateString(), subjects: JSON.parse(JSON.stringify(subjects)) });
+                subjects.forEach(sub => sub.topics.forEach(t => t.done = false));
+                saveUserData();
+                renderApp();
+                alert("Semana fechada e arquivada com sucesso!");
+            }
+        }
+
+        function limparHistorico() {
+            if (confirm("Deseja limpar todo o histórico e planos arquivados?")) {
+                historicoDiario = [];
+                historicoSemanal = [];
+                planosSemanaisArquivados = [];
+                planoGerado = false;
+                saveUserData();
+                renderSmartPlan();
+                renderPlanosArquivados();
+                renderHistorico();
+            }
+        }
+
+        function togglePomoTimer() {
+            const btn = document.getElementById('btnPomoStart');
+            const subIdx = document.getElementById('pomoSubjectSelect').value;
+
+            if (pomoIsRunning) {
+                clearInterval(pomoInterval);
+                pomoIsRunning = false;
+                btn.textContent = "Iniciar Foco";
+                btn.classList.replace('bg-amber-600', 'bg-blue-600');
+            } else {
+                if (subIdx === '') {
+                    alert("Selecione uma matéria para o Pomodoro.");
+                    return;
+                }
+                pomoIsRunning = true;
+                btn.textContent = "Pausar";
+                btn.classList.replace('bg-blue-600', 'bg-amber-600');
+                
+                const workMins = parseInt(document.getElementById('pomoWorkTime').value) || 25;
+                pomoInterval = setInterval(() => {
+                    if (pomoSeconds > 0) {
+                        pomoSeconds--;
+                        updatePomoDisplay();
+                    } else {
+                        clearInterval(pomoInterval);
+                        pomoIsRunning = false;
+                        adicionarHorasEstudo(subIdx, workMins);
+                        alert(`Foco de ${workMins} minutos concluído!`);
+                        resetPomoTimer();
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetPomoTimer() {
+            clearInterval(pomoInterval);
+            pomoIsRunning = false;
+            pomoSeconds = (parseInt(document.getElementById('pomoWorkTime').value) || 25) * 60;
+            updatePomoDisplay();
+            document.getElementById('btnPomoStart').textContent = "Iniciar Foco";
+            document.getElementById('btnPomoStart').className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
+        }
+
+        function updatePomoDisplay() {
+            const m = Math.floor(pomoSeconds / 60);
+            const s = pomoSeconds % 60;
+            document.getElementById('pomoDisplay').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function toggleFreeTimer() {
+            const btn = document.getElementById('btnFreeStart');
+            const subIdx = document.getElementById('freeSubjectSelect').value;
+
+            if (freeIsRunning) {
+                clearInterval(freeInterval);
+                freeIsRunning = false;
+                btn.textContent = "Iniciar Livre";
+                btn.classList.replace('bg-amber-600', 'bg-emerald-600');
+
+                const minutosMins = Math.floor(freeSeconds / 60);
+                if (minutosMins > 0) {
+                    adicionarHorasEstudo(subIdx, minutosMins);
+                    alert(`Cronômetro livre encerrado! ${minutosMins} minuto(s) computados.`);
+                }
+                freeSeconds = 0;
+                updateFreeDisplay();
+            } else {
+                if (subIdx === '') {
+                    alert("Selecione uma matéria para o cronômetro livre.");
+                    return;
+                }
+                freeIsRunning = true;
+                btn.textContent = "Parar e Salvar";
+                btn.classList.replace('bg-emerald-600', 'bg-amber-600');
+                freeSeconds = 0;
+                freeInterval = setInterval(() => {
+                    freeSeconds++;
+                    updateFreeDisplay();
+                }, 1000);
+            }
+        }
+
+        function resetFreeTimer() {
+            clearInterval(freeInterval);
+            freeIsRunning = false;
+            freeSeconds = 0;
+            updateFreeDisplay();
+            document.getElementById('btnFreeStart').textContent = "Iniciar Livre";
+            document.getElementById('btnFreeStart').className = "flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
+        }
+
+        function updateFreeDisplay() {
+            const h = Math.floor(freeSeconds / 3600);
+            const m = Math.floor((freeSeconds % 3600) / 60);
+            const s = freeSeconds % 60;
+            document.getElementById('freeDisplay').textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>
