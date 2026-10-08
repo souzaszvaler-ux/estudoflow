@@ -204,7 +204,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Cronograma inteligente gerado com horários ponderados por peso e tópicos dinâmicos do edital.</p>
+                    <p class="text-xs text-zinc-400">Cronograma fixo da semana. O plano só muda quando você gera um novo ciclo (ao configurar novas metas).</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -467,9 +467,9 @@
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
                 <i data-lucide="sparkles" class="w-5 h-5"></i>
-                <span>Gerar Plano e Selecionar Matérias</span>
+                <span>Gerar Novo Plano e Metas</span>
             </h3>
-            <p class="text-xs text-zinc-400">Defina quantas disciplinas de estudo normal deseja por dia e ajuste as horas e matérias ativas.</p>
+            <p class="text-xs text-zinc-400">Ao gerar um novo plano, o sistema avançará automaticamente para os próximos tópicos em aberto no seu edital.</p>
             <div class="bg-black p-3 border border-zinc-800 rounded-xl space-y-2">
                 <label class="block text-xs text-zinc-300 font-bold">Disciplinas Normais por Dia:</label>
                 <input type="number" id="dailySubjectsCount" value="2" min="1" max="6" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1.5 font-bold text-sm">
@@ -486,7 +486,7 @@
             </div>
             <div class="flex space-x-2 pt-2">
                 <button type="button" onclick="fecharModalPlano()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Plano</button>
+                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Gerar Novo Plano</button>
             </div>
         </div>
     </div>
@@ -584,6 +584,7 @@
         let cadernoErros = [];
         let userFolders = [];
         let planosSemanaisArquivados = [];
+        let savedSmartPlan = null;
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let dailySubjectsCount = 2;
         let planoGerado = false;
@@ -695,7 +696,7 @@
 
         function saveUserData() {
             if (!currentUser) return;
-            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, userFolders, planosSemanaisArquivados, weeklyHoursConfig, dailySubjectsCount, planoGerado };
+            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, userFolders, planosSemanaisArquivados, savedSmartPlan, weeklyHoursConfig, dailySubjectsCount, planoGerado };
             firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
                 .catch(err => console.error("Erro ao salvar dados:", err));
         }
@@ -712,6 +713,7 @@
                         cadernoErros = data.cadernoErros || [];
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
+                        savedSmartPlan = data.savedSmartPlan || null;
                         
                         if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
                             userFolders.push({ id: 'geral', name: 'Geral', notes: data.userNotes });
@@ -727,6 +729,7 @@
                         subjects = [];
                         userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
                         planosSemanaisArquivados = [];
+                        savedSmartPlan = null;
                     }
                     renderApp();
                 })
@@ -885,6 +888,7 @@
                 historicoSemanal = [];
                 cadernoErros = [];
                 planosSemanaisArquivados = [];
+                savedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderApp();
@@ -1065,37 +1069,23 @@
                 return;
             }
 
-            const activeSubjects = subjects.filter(sub => sub.includeInPlan !== false);
-            let html = `<div class="text-xs font-bold text-blue-400 mb-2">📅 Cronograma para hoje (${dayNames[todayKey]}):</div>`;
-            
-            activeSubjects.slice(0, dailySubjectsCount).forEach((sub, idx) => {
-                let uncompleted = sub.topics ? sub.topics.filter(t => !t.done) : [];
-                let topText = uncompleted.length > 0 ? uncompleted[0].name : 'Todos concluídos!';
-                html += `
-                    <div class="bg-black border border-zinc-800 rounded-xl p-3 space-y-1">
-                        <div class="font-bold text-white text-xs">${idx + 1}. Estudo Normal: ${sub.name}</div>
-                        <div class="text-[11px] text-zinc-300">• Tópico: ${topText}</div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-            document.getElementById('notificationModal').classList.remove('hidden');
-
-            if ("Notification" in window) {
-                if (Notification.permission === "granted") {
-                    const msgBody = `Você tem ${hoursVal}h de estudos programados para hoje (${dayNames[todayKey]}). Foco!`;
-                    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-                        navigator.serviceWorker.ready.then(reg => {
-                            reg.showNotification("EstudoFlow PRO - Estudo do Dia", { body: msgBody });
-                        });
-                    } else {
-                        new Notification("EstudoFlow PRO - Estudo do Dia", { body: msgBody });
-                    }
-                } else if (Notification.permission !== "denied") {
-                    Notification.requestPermission();
-                }
+            if (savedSmartPlan && savedSmartPlan[todayKey]) {
+                let dayData = savedSmartPlan[todayKey];
+                let html = `<div class="text-xs font-bold text-blue-400 mb-2">📅 Cronograma para hoje (${dayNames[todayKey]}):</div>`;
+                dayData.tasks.forEach((task, idx) => {
+                    html += `
+                        <div class="bg-black border border-zinc-800 rounded-xl p-3 space-y-1">
+                            <div class="font-bold text-white text-xs">${idx + 1}. ${task.subjectName}</div>
+                            <div class="text-[11px] text-zinc-300">• Tópico: ${task.topicName}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Nenhum plano configurado para hoje.</p>`;
             }
+
+            document.getElementById('notificationModal').classList.remove('hidden');
         }
 
         function fecharModalNotificacao() {
@@ -1125,7 +1115,7 @@
             const container = document.getElementById('smartPlanContainer');
             if (!container) return;
 
-            if (!planoGerado) {
+            if (!planoGerado || !savedSmartPlan) {
                 container.innerHTML = `
                     <div class="text-center py-12 space-y-3">
                         <div class="inline-flex p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-blue-400">
@@ -1141,74 +1131,44 @@
                 return;
             }
 
-            const activeSubjects = subjects.filter(sub => sub.includeInPlan !== false);
-            if (activeSubjects.length === 0) {
-                container.innerHTML = '<p class="text-xs text-zinc-500 text-center py-6">Nenhuma matéria incluída no plano.</p>';
-                return;
-            }
-
-            const scoredSubjects = activeSubjects.map(sub => {
-                const totalQ = sub.questionsCount || 0;
-                const correctQ = sub.correctCount || 0;
-                const accuracy = totalQ > 0 ? (correctQ / totalQ) * 100 : 100;
-                const weight = sub.weight || 1;
-                const priorityScore = weight * (101 - accuracy);
-                return { ...sub, accuracy, priorityScore };
-            });
-
-            scoredSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
-
-            const days = [
-                { id: 'seg', name: 'Segunda-feira', hours: weeklyHoursConfig.seg },
-                { id: 'ter', name: 'Terça-feira', hours: weeklyHoursConfig.ter },
-                { id: 'qua', name: 'Quarta-feira', hours: weeklyHoursConfig.qua },
-                { id: 'qui', name: 'Quinta-feira', hours: weeklyHoursConfig.qui },
-                { id: 'sex', name: 'Sexta-feira', hours: weeklyHoursConfig.sex },
-                { id: 'sab', name: 'Sábado', hours: weeklyHoursConfig.sab },
-                { id: 'dom', name: 'Domingo', hours: weeklyHoursConfig.dom }
+            const daysOrder = [
+                { id: 'seg', name: 'Segunda-feira' },
+                { id: 'ter', name: 'Terça-feira' },
+                { id: 'qua', name: 'Quarta-feira' },
+                { id: 'qui', name: 'Quinta-feira' },
+                { id: 'sex', name: 'Sexta-feira' },
+                { id: 'sab', name: 'Sábado' },
+                { id: 'dom', name: 'Domingo' }
             ];
 
-            let normPtr = 0;
-            container.innerHTML = days.map(day => {
-                if (day.hours <= 0) {
+            container.innerHTML = daysOrder.map(dayInfo => {
+                const dayData = savedSmartPlan[dayInfo.id];
+                if (!dayData || dayData.hours <= 0) {
                     return `
                         <div class="bg-black border border-zinc-800 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
-                            <span class="text-xs font-bold text-zinc-400">${day.name}</span>
+                            <span class="text-xs font-bold text-zinc-400">${dayInfo.name}</span>
                             <span class="text-[11px] text-zinc-500">Descanso / 0h</span>
                         </div>
                     `;
                 }
 
-                let normalsForDay = [];
-                let totalWeightOfDay = 0;
-                for (let i = 0; i < dailySubjectsCount; i++) {
-                    let sub = scoredSubjects[normPtr % scoredSubjects.length];
-                    normalsForDay.push(sub);
-                    totalWeightOfDay += (sub.weight || 1);
-                    normPtr++;
-                }
-
-                const normalHtml = normalsForDay.map((sub, idx) => {
-                    let currentTopicText = "Nenhum tópico pendente";
-                    let isAllDone = false;
-                    if (sub.topics && sub.topics.length > 0) {
-                        let uncompleted = sub.topics.filter(t => !t.done);
-                        if (uncompleted.length > 0) {
-                            currentTopicText = uncompleted[0].name;
-                        } else {
-                            currentTopicText = "Todos os tópicos concluídos! 🎉";
-                            isAllDone = true;
-                        }
-                    }
-
+                const tasksHtml = dayData.tasks.map((task, tIdx) => {
                     return `
-                        <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl space-y-1">
-                            <div class="flex items-center justify-between text-xs">
-                                <span class="font-bold text-white">${idx + 1}. Estudo: ${sub.name}</span>
+                        <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl flex items-center justify-between">
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2 text-xs">
+                                    <span class="font-bold text-white">${tIdx + 1}. Estudo: ${task.subjectName}</span>
+                                </div>
+                                <div class="text-[11px] text-zinc-300 pl-2 border-l-2 border-blue-600">
+                                    <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Tópico Fixado:</span>
+                                    ${task.topicName}
+                                </div>
                             </div>
-                            <div class="text-[11px] ${isAllDone ? 'text-emerald-400 font-bold' : 'text-zinc-300'} pl-2 border-l-2 ${isAllDone ? 'border-emerald-500' : 'border-blue-600'}">
-                                <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Tópico do Edital:</span>
-                                ${currentTopicText}
+                            <div>
+                                <label class="flex items-center space-x-1.5 cursor-pointer bg-black/60 px-3 py-1.5 rounded-xl border border-zinc-800">
+                                    <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleDayTaskDone('${dayInfo.id}', ${tIdx})" class="rounded bg-black border-zinc-700 text-emerald-500 focus:ring-0">
+                                    <span class="text-[11px] font-bold ${task.done ? 'text-emerald-400' : 'text-zinc-400'}">${task.done ? 'OK' : 'Pendente'}</span>
+                                </label>
                             </div>
                         </div>
                     `;
@@ -1217,14 +1177,22 @@
                 return `
                     <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
-                            <span class="text-xs font-bold text-zinc-300">${day.hours}h totais</span>
+                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${dayInfo.name}</span>
+                            <span class="text-xs font-bold text-zinc-300">${dayData.hours}h totais</span>
                         </div>
-                        <div class="space-y-2 pt-1">${normalHtml}</div>
+                        <div class="space-y-2 pt-1">${tasksHtml}</div>
                     </div>
                 `;
             }).join('');
             lucide.createIcons();
+        }
+
+        function toggleDayTaskDone(dayId, taskIndex) {
+            if (savedSmartPlan && savedSmartPlan[dayId] && savedSmartPlan[dayId].tasks[taskIndex]) {
+                savedSmartPlan[dayId].tasks[taskIndex].done = !savedSmartPlan[dayId].tasks[taskIndex].done;
+                saveUserData();
+                renderSmartPlan();
+            }
         }
 
         function handleTopicCheck(sIndex, tIndex) {
@@ -1275,7 +1243,7 @@
             updateStats();
             
             document.getElementById('approvalModal').classList.add('hidden');
-            alert(`Tópico concluído com sucesso!`);
+            alert(`Tópico concluído com sucesso no edital!`);
         }
 
         function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
@@ -1510,11 +1478,70 @@
             weeklyHoursConfig.sab = parseInt(document.getElementById('day_sab').value) || 0;
             weeklyHoursConfig.dom = parseInt(document.getElementById('day_dom').value) || 0;
 
+            const activeSubjects = subjects.filter(sub => sub.includeInPlan !== false);
+            if (activeSubjects.length === 0) {
+                alert("Selecione ao menos uma matéria para o plano.");
+                return;
+            }
+
+            const scoredSubjects = activeSubjects.map(sub => {
+                const totalQ = sub.questionsCount || 0;
+                const correctQ = sub.correctCount || 0;
+                const accuracy = totalQ > 0 ? (correctQ / totalQ) * 100 : 100;
+                const weight = sub.weight || 1;
+                const priorityScore = weight * (101 - accuracy);
+                return { ...sub, accuracy, priorityScore };
+            });
+
+            scoredSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
+
+            const daysConfig = [
+                { id: 'seg', hours: weeklyHoursConfig.seg },
+                { id: 'ter', hours: weeklyHoursConfig.ter },
+                { id: 'qua', hours: weeklyHoursConfig.qua },
+                { id: 'qui', hours: weeklyHoursConfig.qui },
+                { id: 'sex', hours: weeklyHoursConfig.sex },
+                { id: 'sab', hours: weeklyHoursConfig.sab },
+                { id: 'dom', hours: weeklyHoursConfig.dom }
+            ];
+
+            let newSmartPlan = {};
+            let normPtr = 0;
+
+            daysConfig.forEach(day => {
+                if (day.hours <= 0) {
+                    newSmartPlan[day.id] = { hours: 0, tasks: [] };
+                    return;
+                }
+
+                let tasksForDay = [];
+                for (let i = 0; i < dailySubjectsCount; i++) {
+                    let sub = scoredSubjects[normPtr % scoredSubjects.length];
+                    
+                    // PULA OS TÓPICOS JÁ CONCLUÍDOS NO EDITAL E PEGA O PRÓXIMO EM ABERTO
+                    let uncompleted = sub.topics ? sub.topics.filter(t => !t.done) : [];
+                    let topicName = uncompleted.length > 0 ? uncompleted[0].name : (sub.topics && sub.topics.length > 0 ? sub.topics[sub.topics.length - 1].name : "Revisão geral");
+                    
+                    tasksForDay.push({
+                        subjectName: sub.name,
+                        topicName: topicName,
+                        done: false
+                    });
+                    normPtr++;
+                }
+
+                newSmartPlan[day.id] = {
+                    hours: day.hours,
+                    tasks: tasksForDay
+                };
+            });
+
+            savedSmartPlan = newSmartPlan;
             planoGerado = true;
             saveUserData();
             fecharModalPlano();
             renderSmartPlan();
-            alert("Plano inteligente gerado e salvo com sucesso!");
+            alert("Novo plano gerado avançando para os tópicos em aberto!");
         }
 
         function fecharSemana() {
@@ -1527,10 +1554,11 @@
                 });
 
                 historicoSemanal.push({ date: new Date().toLocaleDateString(), subjects: JSON.parse(JSON.stringify(subjects)) });
-                subjects.forEach(sub => sub.topics.forEach(t => t.done = false));
+                savedSmartPlan = null;
+                planoGerado = false;
                 saveUserData();
                 renderApp();
-                alert("Semana fechada e arquivada com sucesso!");
+                alert("Semana fechada e arquivada com sucesso! Clique em 'Gerar Plano' para iniciar o próximo ciclo com base nos tópicos restantes.");
             }
         }
 
@@ -1539,6 +1567,7 @@
                 historicoDiario = [];
                 historicoSemanal = [];
                 planosSemanaisArquivados = [];
+                savedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderSmartPlan();
