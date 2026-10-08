@@ -158,7 +158,7 @@
                     <div class="w-full bg-zinc-900 h-2.5 rounded-full overflow-hidden border border-zinc-800">
                         <div id="globalProgressBar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
                     </div>
-                    <p id="statWeeklyTopics" class="text-[10px] text-zinc-500 pt-0.5">0 / 0 tópicos concluídos nesta semana</p>
+                    <p id="statWeeklyTopics" class="text-[10px] text-zinc-500 pt-0.5">0 / 0 tópicos concluídos</p>
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
@@ -166,15 +166,20 @@
                         <i data-lucide="list-checks" class="w-4 h-4 text-blue-500"></i>
                         <span>Disciplinas do Edital</span>
                     </h2>
-                    <div class="flex space-x-2">
+                    <div class="flex flex-wrap gap-2">
                         <button type="button" onclick="abrirModalImportacao()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="file-up" class="w-3.5 h-3.5"></i>
-                            <span>Importar Edital</span>
+                            <span>Importar</span>
                         </button>
-                        <button type="button" onclick="abrirModalBackupEdital()" class="bg-zinc-900 hover:bg-zinc-800 text-emerald-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Backup e Histórico do Edital">
-                            <i data-lucide="save" class="w-3.5 h-3.5"></i>
-                            <span>Backup Edital</span>
+                        <button type="button" onclick="exportarBackupJSON()" class="bg-zinc-900 hover:bg-zinc-800 text-emerald-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Baixar arquivo de backup do edital">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            <span>Salvar Arquivo</span>
                         </button>
+                        <label class="bg-zinc-900 hover:bg-zinc-800 text-amber-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition cursor-pointer" title="Restaurar de arquivo JSON">
+                            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                            <span>Restaurar Arquivo</span>
+                            <input type="file" accept=".json" onchange="importarBackupJSON(event)" class="hidden">
+                        </label>
                         <button type="button" onclick="abrirModalPlano()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                             <span>Gerar Plano</span>
@@ -208,7 +213,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano é 100% estático. Marcar tópicos no edital não altera o plano. O plano só muda ao finalizar a semana ("Fechar Semana") ou gerar novas metas.</p>
+                    <p class="text-xs text-zinc-400">Este plano é 100% estático. Marcar tópicos no edital altera apenas a porcentagem geral e não altera o plano semanal.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -392,33 +397,6 @@
     </div>
 
     <!-- MODAIS -->
-    <!-- Modal de Backup e Histórico do Edital -->
-    <div id="backupEditalModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 class="text-base font-bold text-emerald-400 flex items-center space-x-2">
-                <i data-lucide="save" class="w-5 h-5"></i>
-                <span>Backup e Restauração do Edital</span>
-            </h3>
-            <p class="text-xs text-zinc-400">Aqui você pode gerar um backup manual do seu edital atual para salvá-lo com segurança ou restaurar versões anteriores guardadas na nuvem.</p>
-            
-            <div class="space-y-3 pt-2">
-                <button type="button" onclick="salvarBackupEdital()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold transition">
-                    Criar Novo Ponto de Backup na Nuvem
-                </button>
-                <div class="border-t border-zinc-800 pt-3">
-                    <span class="block text-xs font-bold text-zinc-300 mb-2">Backups Anteriores Salvos:</span>
-                    <div id="listaBackupsEdital" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                        <p class="text-xs text-zinc-500 italic">Nenhum backup encontrado.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex pt-2">
-                <button type="button" onclick="fecharModalBackupEdital()" class="w-full bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Fechar</button>
-            </div>
-        </div>
-    </div>
-
     <div id="folderModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
@@ -616,7 +594,6 @@
         let userFolders = [];
         let planosSemanaisArquivados = [];
         let savedSmartPlan = null;
-        let editalBackups = []; // Novo array para armazenar backups do edital
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let dailySubjectsCount = 2;
         let planoGerado = false;
@@ -727,7 +704,19 @@
 
         function saveUserData() {
             if (!currentUser) return;
-            const data = { subjects, historicoDiario, historicoSemanal, cadernoErros, userFolders, planosSemanaisArquivados, editalBackups, savedSmartPlan, weeklyHoursConfig, dailySubjectsCount, planoGerado };
+            // Salva os dados preservando integralmente o savedSmartPlan atual e o edital
+            const data = { 
+                subjects, 
+                historicoDiario, 
+                historicoSemanal, 
+                cadernoErros, 
+                userFolders, 
+                planosSemanaisArquivados, 
+                savedSmartPlan, 
+                weeklyHoursConfig, 
+                dailySubjectsCount, 
+                planoGerado 
+            };
             firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
                 .catch(err => console.error("Erro ao salvar dados:", err));
         }
@@ -744,7 +733,8 @@
                         cadernoErros = data.cadernoErros || [];
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
-                        editalBackups = data.editalBackups || [];
+                        
+                        // Garante carregamento estrito do plano salvo sem sobrescritas indevidas
                         savedSmartPlan = data.savedSmartPlan || null;
                         
                         if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
@@ -761,7 +751,6 @@
                         subjects = [];
                         userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
                         planosSemanaisArquivados = [];
-                        editalBackups = [];
                         savedSmartPlan = null;
                     }
                     renderApp();
@@ -878,7 +867,7 @@
             const container = document.getElementById('scheduleContainer');
             if (!container) return;
             if (subjects.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-zinc-500 text-xs">Nenhuma matéria cadastrada. Clique em "Add Matéria" ou "Importar Edital".</div>`;
+                container.innerHTML = `<div class="text-center py-10 text-zinc-500 text-xs">Nenhuma matéria cadastrada. Clique em "Add Matéria" ou "Importar".</div>`;
                 return;
             }
 
@@ -915,7 +904,7 @@
         }
 
         function reiniciarNovoEdital() {
-            if (confirm("ATENÇÃO: Deseja apagar todas as matérias atuais e reiniciar os dados para um novo edital? (Recomendamos fazer um 'Backup Edital' antes)")) {
+            if (confirm("ATENÇÃO: Deseja apagar todas as matérias atuais e reiniciar os dados para um novo edital? (Recomendamos salvar um arquivo JSON antes)")) {
                 subjects = [];
                 historicoDiario = [];
                 historicoSemanal = [];
@@ -929,64 +918,56 @@
             }
         }
 
-        /* Funções de Backup do Edital */
-        function abrirModalBackupEdital() {
-            renderizarListaBackups();
-            document.getElementById('backupEditalModal').classList.remove('hidden');
-        }
-
-        function fecharModalBackupEdital() {
-            document.getElementById('backupEditalModal').classList.add('hidden');
-        }
-
-        function salvarBackupEdital() {
+        // Funções de Exportação e Importação de Backup Local do Edital (.JSON)
+        function exportarBackupJSON() {
             if (subjects.length === 0) {
-                alert("Não há matérias no edital para salvar.");
+                alert("Não há dados no edital para exportar.");
                 return;
             }
-            if (!editalBackups) editalBackups = [];
-            const dataStr = new Date().toLocaleString('pt-BR');
-            editalBackups.unshift({
-                id: 'backup_' + Date.now(),
-                date: dataStr,
-                subjects: JSON.parse(JSON.stringify(subjects))
-            });
-            if (editalBackups.length > 10) editalBackups.pop(); // Mantém até 10 backups
-            saveUserData();
-            renderizarListaBackups();
-            alert("Backup do edital salvo com sucesso na nuvem!");
+            const backupData = {
+                version: "1.0",
+                date: new Date().toISOString(),
+                subjects: subjects,
+                savedSmartPlan: savedSmartPlan,
+                planoGerado: planoGerado,
+                weeklyHoursConfig: weeklyHoursConfig,
+                dailySubjectsCount: dailySubjectsCount
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `estudoflow_backup_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
         }
 
-        function restaurarBackupEdital(backupId) {
-            const backup = editalBackups.find(b => b.id === backupId);
-            if (!backup) return;
-            if (confirm(`Deseja restaurar o edital salvo em ${backup.date}? Isso substituirá o edital atual.`)) {
-                subjects = JSON.parse(JSON.stringify(backup.subjects));
-                saveUserData();
-                renderApp();
-                fecharModalBackupEdital();
-                alert("Edital restaurado com sucesso!");
-            }
-        }
-
-        function renderizarListaBackups() {
-            const container = document.getElementById('listaBackupsEdital');
-            if (!container) return;
-            if (!editalBackups || editalBackups.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 italic">Nenhum backup encontrado.</p>`;
-                return;
-            }
-            container.innerHTML = editalBackups.map(b => `
-                <div class="bg-black border border-zinc-800 p-3 rounded-xl flex items-center justify-between">
-                    <div>
-                        <span class="text-xs font-bold text-white block">📅 Backup: ${b.date}</span>
-                        <span class="text-[10px] text-zinc-400">${b.subjects.length} matérias cadastradas</span>
-                    </div>
-                    <button type="button" onclick="restaurarBackupEdital('${b.id}')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
-                        Restaurar
-                    </button>
-                </div>
-            `).join('');
+        function importarBackupJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = JSON.parse(e.target.result);
+                    if (content.subjects && Array.isArray(content.subjects)) {
+                        subjects = content.subjects;
+                        if (content.savedSmartPlan !== undefined) savedSmartPlan = content.savedSmartPlan;
+                        if (content.planoGerado !== undefined) planoGerado = content.planoGerado;
+                        if (content.weeklyHoursConfig) weeklyHoursConfig = content.weeklyHoursConfig;
+                        if (content.dailySubjectsCount !== undefined) dailySubjectsCount = content.dailySubjectsCount;
+                        
+                        saveUserData();
+                        renderApp();
+                        alert("Edital e configurações restaurados com sucesso do arquivo!");
+                    } else {
+                        alert("Arquivo de backup inválido.");
+                    }
+                } catch (err) {
+                    alert("Erro ao ler o arquivo JSON: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reseta input
         }
 
         function openFolderModal() {
@@ -1325,19 +1306,20 @@
                 return;
             }
 
+            // Atualiza estritamente as questões e o status do tópico no edital
             subjects[sIndex].questionsCount = (subjects[sIndex].questionsCount || 0) + total;
             subjects[sIndex].correctCount = (subjects[sIndex].correctCount || 0) + correct;
             subjects[sIndex].topics[tIndex].done = true;
             
             registrarEvolucioDiaria(subjects[sIndex].name, subjects[sIndex].topics[tIndex].name, percent);
 
-            // Salva e atualiza estatísticas do edital (Plano semanal permanece estático)
+            // Salva as alterações preservando o plano semanal intacto
             saveUserData();
             renderSchedule();
             updateStats();
             
             document.getElementById('approvalModal').classList.add('hidden');
-            alert("Tópico concluído! Apenas o progresso do edital foi atualizado.");
+            alert("Tópico concluído! O progresso do edital foi atualizado.");
         }
 
         function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
