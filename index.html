@@ -200,7 +200,7 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="sparkles" class="w-5 h-5 text-blue-500"></i>
-                            <span>Plano da Semana Atual (Estático)</span>
+                            <span>Plano da Semana Atual (100% Estático e Blindado)</span>
                         </h2>
                         <div class="flex space-x-2">
                             <button type="button" onclick="reiniciarNovoEdital()" class="bg-red-950/80 hover:bg-red-900 text-red-400 border border-red-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Limpar tudo e iniciar novo edital">
@@ -209,11 +209,11 @@
                             </button>
                             <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                                 <i data-lucide="settings" class="w-3.5 h-3.5"></i>
-                                <span>Configurar Novas Metas</span>
+                                <span>Gerar Novo Plano</span>
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano permanece 100% estático e travado. Concluir tópicos ou usar o edital não altera este planejamento semanal.</p>
+                    <p class="text-xs text-zinc-400">Este plano está congelado e isolado de alterações no edital. Ele só muda se você clicar em "Gerar Novo Plano".</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -495,7 +495,7 @@
             </div>
             <div class="flex space-x-2 pt-2">
                 <button type="button" onclick="fecharModalPlano()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Metas e Plano</button>
+                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Metas e Gerar Plano</button>
             </div>
         </div>
     </div>
@@ -1531,8 +1531,6 @@
         }
 
         function gerarPlanoInteligente() {
-            // Se já existe um plano salvo, não sobrescreve a menos que o usuário queira forçar a geração por nova configuração,
-            // mas aqui mantemos o comportamento onde o botão "Gerar Plano" cria um novo ciclo estático.
             const checkboxes = document.querySelectorAll('#planSubjectsList input[type="checkbox"]');
             checkboxes.forEach(cb => {
                 const idx = parseInt(cb.getAttribute('data-sub-index'));
@@ -1590,10 +1588,11 @@
                 for (let i = 0; i < dailySubjectsCount; i++) {
                     let sub = scoredSubjects[normPtr % scoredSubjects.length];
                     let topicsList = sub.topics || [];
-                    let topicName = topicsList.length > 0 ? topicsList[Math.floor(Math.random() * topicsList.length)].name : "Revisão geral";
+                    // Copia fixa em string pura (evita ligação com o objeto original do edital)
+                    let topicName = topicsList.length > 0 ? String(topicsList[Math.floor(Math.random() * topicsList.length)].name) : "Revisão geral";
                     
                     tasksForDay.push({
-                        subjectName: sub.name,
+                        subjectName: String(sub.name),
                         topicName: topicName,
                         done: false
                     });
@@ -1606,12 +1605,13 @@
                 };
             });
 
-            savedSmartPlan = newSmartPlan;
+            // Assegura uma cópia profunda isolada e imutável para o Firebase e para a sessão
+            savedSmartPlan = JSON.parse(JSON.stringify(newSmartPlan));
             planoGerado = true;
             saveUserData();
             fecharModalPlano();
             renderSmartPlan();
-            alert("Plano de estudos fixo gerado com sucesso!");
+            alert("Plano de estudos fixo gerado e isolado com sucesso!");
         }
 
         function fecharSemana() {
@@ -1628,7 +1628,7 @@
                 planoGerado = false;
                 saveUserData();
                 renderApp();
-                alert("Semana fechada e arquivada com sucesso! Clique em 'Configurar Novas Metas' para gerar o plano da próxima semana.");
+                alert("Semana fechada e arquivada com sucesso! Clique em 'Gerar Novo Plano' para criar o plano da próxima semana.");
             }
         }
 
