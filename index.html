@@ -213,7 +213,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano permanece 100% estático. Concluir tópicos no edital altera exclusivamente o progresso geral e não afeta o plano semanal.</p>
+                    <p class="text-xs text-zinc-400">Este plano permanece rigorosamente estático. Concluir tópicos no edital não altera o plano semanal em hipótese alguma.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -1268,7 +1268,6 @@
         function handleTopicCheck(sIndex, tIndex) {
             const topic = subjects[sIndex].topics[tIndex];
             if (topic.done) {
-                // Apenas desmarca o tópico no edital
                 topic.done = false;
                 saveUserData();
                 renderSchedule();
@@ -1303,20 +1302,20 @@
                 return;
             }
 
-            // Atualiza unicamente o progresso e estatísticas do edital
+            // Atualiza unicamente o tópico no edital e as questões gerais
             subjects[sIndex].questionsCount = (subjects[sIndex].questionsCount || 0) + total;
             subjects[sIndex].correctCount = (subjects[sIndex].correctCount || 0) + correct;
             subjects[sIndex].topics[tIndex].done = true;
             
             registrarEvolucioDiaria(subjects[sIndex].name, subjects[sIndex].topics[tIndex].name, percent);
 
-            // Salva os dados mantendo rigidamente o savedSmartPlan inalterado
+            // Salva os dados no Firebase sem alterar o plano semanal
             saveUserData();
             renderSchedule();
             updateStats();
             
             document.getElementById('approvalModal').classList.add('hidden');
-            alert("Tópico concluído! O progresso do edital foi atualizado sem interferir no seu plano semanal.");
+            alert("Tópico concluído! O progresso do edital foi atualizado sem alterar o plano semanal.");
         }
 
         function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
