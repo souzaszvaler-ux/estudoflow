@@ -200,7 +200,7 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="sparkles" class="w-5 h-5 text-blue-500"></i>
-                            <span>Plano da Semana Atual (100% Estático e Imutável)</span>
+                            <span>Plano da Semana Atual (100% Blindado e Congelado)</span>
                         </h2>
                         <div class="flex space-x-2">
                             <button type="button" onclick="reiniciarNovoEdital()" class="bg-red-950/80 hover:bg-red-900 text-red-400 border border-red-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Limpar tudo e iniciar novo edital">
@@ -213,7 +213,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano está congelado e blindado contra qualquer alteração no edital. Ele não se altera sozinho de forma alguma.</p>
+                    <p class="text-xs text-zinc-400">Este plano está blindado por sessão. Nenhuma alteração no edital ou recarregamento o afetará.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -610,6 +610,17 @@
         document.addEventListener("DOMContentLoaded", () => {
             lucide.createIcons();
             
+            // TRAVA DE SESSÃO LOCAL (Imutável por recarregamentos)
+            const cachedPlan = sessionStorage.getItem('frozen_estudoflow_plan');
+            if (cachedPlan) {
+                try {
+                    savedSmartPlan = JSON.parse(cachedPlan);
+                    planoGerado = true;
+                } catch(e) {
+                    savedSmartPlan = null;
+                }
+            }
+
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
             }
@@ -704,22 +715,16 @@
 
         function saveUserData() {
             if (!currentUser) return;
-            
-            // CONGELAMENTO ABSOLUTO: Garante que o plano atual nunca seja sobrescrito se já estiver criado
-            const serializedPlan = savedSmartPlan ? JSON.stringify(savedSmartPlan) : null;
-            const finalPlanObject = serializedPlan ? JSON.parse(serializedPlan) : null;
-
             const data = { 
                 subjects, 
                 historicoDiario, 
                 historicoSemanal, 
                 cadernoErros, 
                 userFolders, 
-                planosSemanaisArquivados, 
-                savedSmartPlan: finalPlanObject, 
+                planosSemanaisArquivados,  
                 weeklyHoursConfig, 
                 dailySubjectsCount, 
-                planoGerado: planoGerado || (finalPlanObject !== null)
+                planoGerado 
             };
             firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
                 .catch(err => console.error("Erro ao salvar dados:", err));
@@ -738,15 +743,6 @@
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
                         
-                        if (data.savedSmartPlan && Object.keys(data.savedSmartPlan).length > 0) {
-                            // Carrega como stringfy plano e congela na memória
-                            savedSmartPlan = JSON.parse(JSON.stringify(data.savedSmartPlan));
-                            planoGerado = true;
-                        } else {
-                            savedSmartPlan = null;
-                            planoGerado = false;
-                        }
-                        
                         if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
                             userFolders.push({ id: 'geral', name: 'Geral', notes: data.userNotes });
                         }
@@ -756,13 +752,10 @@
 
                         if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
                         if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
-                        if (data.planoGerado !== undefined && data.savedSmartPlan) planoGerado = true;
                     } else {
                         subjects = [];
                         userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
                         planosSemanaisArquivados = [];
-                        savedSmartPlan = null;
-                        planoGerado = false;
                     }
                     renderApp();
                 })
@@ -922,6 +915,7 @@
                 cadernoErros = [];
                 planosSemanaisArquivados = [];
                 savedSmartPlan = null;
+                sessionStorage.removeItem('frozen_estudoflow_plan');
                 planoGerado = false;
                 saveUserData();
                 renderApp();
@@ -961,10 +955,11 @@
                     const content = JSON.parse(e.target.result);
                     if (content.subjects && Array.isArray(content.subjects)) {
                         subjects = content.subjects;
-                        if (content.savedSmartPlan !== undefined) {
-                            savedSmartPlan = content.savedSmartPlan ? JSON.parse(JSON.stringify(content.savedSmartPlan)) : null;
+                        if (content.savedSmartPlan !== undefined && content.savedSmartPlan !== null) {
+                            savedSmartPlan = content.savedSmartPlan;
+                            sessionStorage.setItem('frozen_estudoflow_plan', JSON.stringify(savedSmartPlan));
+                            planoGerado = true;
                         }
-                        if (content.planoGerado !== undefined) planoGerado = content.planoGerado;
                         if (content.weeklyHoursConfig) weeklyHoursConfig = content.weeklyHoursConfig;
                         if (content.dailySubjectsCount !== undefined) dailySubjectsCount = content.dailySubjectsCount;
                         
@@ -1276,7 +1271,7 @@
         function toggleDayTaskDone(dayId, taskIndex) {
             if (savedSmartPlan && savedSmartPlan[dayId] && savedSmartPlan[dayId].tasks[taskIndex]) {
                 savedSmartPlan[dayId].tasks[taskIndex].done = !savedSmartPlan[dayId].tasks[taskIndex].done;
-                saveUserData();
+                sessionStorage.setItem('frozen_estudoflow_plan', JSON.stringify(savedSmartPlan));
                 renderSmartPlan();
             }
         }
@@ -1620,10 +1615,11 @@
                 };
             });
 
-            // Isola estaticamente em JSON
+            // Congela de forma isolada na sessão do navegador
             savedSmartPlan = JSON.parse(JSON.stringify(newSmartPlan));
+            sessionStorage.setItem('frozen_estudoflow_plan', JSON.stringify(savedSmartPlan));
             planoGerado = true;
-            saveUserData();
+            
             fecharModalPlano();
             renderSmartPlan();
             alert("Plano de estudos fixado e isolado com sucesso!");
@@ -1640,6 +1636,7 @@
 
                 historicoSemanal.push({ date: new Date().toLocaleDateString(), subjects: JSON.parse(JSON.stringify(subjects)) });
                 savedSmartPlan = null;
+                sessionStorage.removeItem('frozen_estudoflow_plan');
                 planoGerado = false;
                 saveUserData();
                 renderApp();
@@ -1653,6 +1650,7 @@
                 historicoSemanal = [];
                 planosSemanaisArquivados = [];
                 savedSmartPlan = null;
+                sessionStorage.removeItem('frozen_estudoflow_plan');
                 planoGerado = false;
                 saveUserData();
                 renderSmartPlan();
