@@ -705,8 +705,9 @@
         function saveUserData() {
             if (!currentUser) return;
             
-            // TRAVA DE SEGURANÇA: Garante que se já temos um plano salvo localmente válido, ele nunca seja sobrescrito por null ou vazio na nuvem
-            const payloadPlan = savedSmartPlan || window._lockedSmartPlan || null;
+            // CONGELAMENTO ABSOLUTO: Garante que o plano atual nunca seja sobrescrito se já estiver criado
+            const serializedPlan = savedSmartPlan ? JSON.stringify(savedSmartPlan) : null;
+            const finalPlanObject = serializedPlan ? JSON.parse(serializedPlan) : null;
 
             const data = { 
                 subjects, 
@@ -715,10 +716,10 @@
                 cadernoErros, 
                 userFolders, 
                 planosSemanaisArquivados, 
-                savedSmartPlan: payloadPlan, 
+                savedSmartPlan: finalPlanObject, 
                 weeklyHoursConfig, 
                 dailySubjectsCount, 
-                planoGerado: planoGerado || (payloadPlan !== null)
+                planoGerado: planoGerado || (finalPlanObject !== null)
             };
             firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
                 .catch(err => console.error("Erro ao salvar dados:", err));
@@ -737,10 +738,9 @@
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
                         
-                        // Blindagem de carregamento do plano
                         if (data.savedSmartPlan && Object.keys(data.savedSmartPlan).length > 0) {
-                            savedSmartPlan = data.savedSmartPlan;
-                            window._lockedSmartPlan = data.savedSmartPlan;
+                            // Carrega como stringfy plano e congela na memória
+                            savedSmartPlan = JSON.parse(JSON.stringify(data.savedSmartPlan));
                             planoGerado = true;
                         } else {
                             savedSmartPlan = null;
@@ -922,7 +922,6 @@
                 cadernoErros = [];
                 planosSemanaisArquivados = [];
                 savedSmartPlan = null;
-                window._lockedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderApp();
@@ -939,7 +938,7 @@
                 version: "1.0",
                 date: new Date().toISOString(),
                 subjects: subjects,
-                savedSmartPlan: savedSmartPlan || window._lockedSmartPlan,
+                savedSmartPlan: savedSmartPlan,
                 planoGerado: planoGerado,
                 weeklyHoursConfig: weeklyHoursConfig,
                 dailySubjectsCount: dailySubjectsCount
@@ -963,8 +962,7 @@
                     if (content.subjects && Array.isArray(content.subjects)) {
                         subjects = content.subjects;
                         if (content.savedSmartPlan !== undefined) {
-                            savedSmartPlan = content.savedSmartPlan;
-                            window._lockedSmartPlan = content.savedSmartPlan;
+                            savedSmartPlan = content.savedSmartPlan ? JSON.parse(JSON.stringify(content.savedSmartPlan)) : null;
                         }
                         if (content.planoGerado !== undefined) planoGerado = content.planoGerado;
                         if (content.weeklyHoursConfig) weeklyHoursConfig = content.weeklyHoursConfig;
@@ -1140,8 +1138,7 @@
             const container = document.getElementById('dailyNotificationContent');
             if (!container) return;
 
-            const planRef = savedSmartPlan || window._lockedSmartPlan;
-            if (!planRef || subjects.length === 0) {
+            if (!savedSmartPlan || subjects.length === 0) {
                 container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Gere um plano de estudos e cadastre matérias para visualizar o resumo diário.</p>`;
                 document.getElementById('notificationModal').classList.remove('hidden');
                 return;
@@ -1158,8 +1155,8 @@
                 return;
             }
 
-            if (planRef[todayKey]) {
-                let dayData = planRef[todayKey];
+            if (savedSmartPlan[todayKey]) {
+                let dayData = savedSmartPlan[todayKey];
                 let html = `<div class="text-xs font-bold text-blue-400 mb-2">📅 Cronograma para hoje (${dayNames[todayKey]}):</div>`;
                 dayData.tasks.forEach((task, idx) => {
                     html += `
@@ -1204,9 +1201,7 @@
             const container = document.getElementById('smartPlanContainer');
             if (!container) return;
 
-            const planRef = savedSmartPlan || window._lockedSmartPlan;
-
-            if (!planRef) {
+            if (!savedSmartPlan) {
                 container.innerHTML = `
                     <div class="text-center py-12 space-y-3">
                         <div class="inline-flex p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-blue-400">
@@ -1233,7 +1228,7 @@
             ];
 
             container.innerHTML = daysOrder.map(dayInfo => {
-                const dayData = planRef[dayInfo.id];
+                const dayData = savedSmartPlan[dayInfo.id];
                 if (!dayData || dayData.hours <= 0) {
                     return `
                         <div class="bg-black border border-zinc-800 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
@@ -1279,9 +1274,8 @@
         }
 
         function toggleDayTaskDone(dayId, taskIndex) {
-            const planRef = savedSmartPlan || window._lockedSmartPlan;
-            if (planRef && planRef[dayId] && planRef[dayId].tasks[taskIndex]) {
-                planRef[dayId].tasks[taskIndex].done = !planRef[dayId].tasks[taskIndex].done;
+            if (savedSmartPlan && savedSmartPlan[dayId] && savedSmartPlan[dayId].tasks[taskIndex]) {
+                savedSmartPlan[dayId].tasks[taskIndex].done = !savedSmartPlan[dayId].tasks[taskIndex].done;
                 saveUserData();
                 renderSmartPlan();
             }
@@ -1626,8 +1620,8 @@
                 };
             });
 
+            // Isola estaticamente em JSON
             savedSmartPlan = JSON.parse(JSON.stringify(newSmartPlan));
-            window._lockedSmartPlan = savedSmartPlan;
             planoGerado = true;
             saveUserData();
             fecharModalPlano();
@@ -1646,7 +1640,6 @@
 
                 historicoSemanal.push({ date: new Date().toLocaleDateString(), subjects: JSON.parse(JSON.stringify(subjects)) });
                 savedSmartPlan = null;
-                window._lockedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderApp();
@@ -1660,7 +1653,6 @@
                 historicoSemanal = [];
                 planosSemanaisArquivados = [];
                 savedSmartPlan = null;
-                window._lockedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderSmartPlan();
