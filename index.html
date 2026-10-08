@@ -200,7 +200,7 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="sparkles" class="w-5 h-5 text-blue-500"></i>
-                            <span>Plano da Semana Atual (100% Estático e Blindado)</span>
+                            <span>Plano da Semana Atual (100% Estático e Imutável)</span>
                         </h2>
                         <div class="flex space-x-2">
                             <button type="button" onclick="reiniciarNovoEdital()" class="bg-red-950/80 hover:bg-red-900 text-red-400 border border-red-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Limpar tudo e iniciar novo edital">
@@ -213,7 +213,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano está congelado e isolado de alterações no edital. Ele só muda se você clicar em "Gerar Novo Plano".</p>
+                    <p class="text-xs text-zinc-400">Este plano está congelado e blindado contra qualquer alteração no edital. Ele não se altera sozinho de forma alguma.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -704,6 +704,10 @@
 
         function saveUserData() {
             if (!currentUser) return;
+            
+            // TRAVA DE SEGURANÇA: Garante que se já temos um plano salvo localmente válido, ele nunca seja sobrescrito por null ou vazio na nuvem
+            const payloadPlan = savedSmartPlan || window._lockedSmartPlan || null;
+
             const data = { 
                 subjects, 
                 historicoDiario, 
@@ -711,10 +715,10 @@
                 cadernoErros, 
                 userFolders, 
                 planosSemanaisArquivados, 
-                savedSmartPlan, 
+                savedSmartPlan: payloadPlan, 
                 weeklyHoursConfig, 
                 dailySubjectsCount, 
-                planoGerado 
+                planoGerado: planoGerado || (payloadPlan !== null)
             };
             firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
                 .catch(err => console.error("Erro ao salvar dados:", err));
@@ -732,7 +736,16 @@
                         cadernoErros = data.cadernoErros || [];
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
-                        savedSmartPlan = data.savedSmartPlan || null;
+                        
+                        // Blindagem de carregamento do plano
+                        if (data.savedSmartPlan && Object.keys(data.savedSmartPlan).length > 0) {
+                            savedSmartPlan = data.savedSmartPlan;
+                            window._lockedSmartPlan = data.savedSmartPlan;
+                            planoGerado = true;
+                        } else {
+                            savedSmartPlan = null;
+                            planoGerado = false;
+                        }
                         
                         if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
                             userFolders.push({ id: 'geral', name: 'Geral', notes: data.userNotes });
@@ -743,12 +756,13 @@
 
                         if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
                         if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
-                        if (data.planoGerado !== undefined) planoGerado = data.planoGerado;
+                        if (data.planoGerado !== undefined && data.savedSmartPlan) planoGerado = true;
                     } else {
                         subjects = [];
                         userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
                         planosSemanaisArquivados = [];
                         savedSmartPlan = null;
+                        planoGerado = false;
                     }
                     renderApp();
                 })
@@ -901,13 +915,14 @@
         }
 
         function reiniciarNovoEdital() {
-            if (confirm("ATENÇÃO: Deseja apagar todas as matérias atuais e reiniciar os dados para um novo edital? (Recomendamos salvar um arquivo JSON antes)")) {
+            if (confirm("ATENÇÃO: Deseja apagar todas as matérias atuais e reiniciar os dados para um novo edital?")) {
                 subjects = [];
                 historicoDiario = [];
                 historicoSemanal = [];
                 cadernoErros = [];
                 planosSemanaisArquivados = [];
                 savedSmartPlan = null;
+                window._lockedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderApp();
@@ -924,7 +939,7 @@
                 version: "1.0",
                 date: new Date().toISOString(),
                 subjects: subjects,
-                savedSmartPlan: savedSmartPlan,
+                savedSmartPlan: savedSmartPlan || window._lockedSmartPlan,
                 planoGerado: planoGerado,
                 weeklyHoursConfig: weeklyHoursConfig,
                 dailySubjectsCount: dailySubjectsCount
@@ -947,7 +962,10 @@
                     const content = JSON.parse(e.target.result);
                     if (content.subjects && Array.isArray(content.subjects)) {
                         subjects = content.subjects;
-                        if (content.savedSmartPlan !== undefined) savedSmartPlan = content.savedSmartPlan;
+                        if (content.savedSmartPlan !== undefined) {
+                            savedSmartPlan = content.savedSmartPlan;
+                            window._lockedSmartPlan = content.savedSmartPlan;
+                        }
                         if (content.planoGerado !== undefined) planoGerado = content.planoGerado;
                         if (content.weeklyHoursConfig) weeklyHoursConfig = content.weeklyHoursConfig;
                         if (content.dailySubjectsCount !== undefined) dailySubjectsCount = content.dailySubjectsCount;
@@ -1122,7 +1140,8 @@
             const container = document.getElementById('dailyNotificationContent');
             if (!container) return;
 
-            if (!planoGerado || subjects.length === 0) {
+            const planRef = savedSmartPlan || window._lockedSmartPlan;
+            if (!planRef || subjects.length === 0) {
                 container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Gere um plano de estudos e cadastre matérias para visualizar o resumo diário.</p>`;
                 document.getElementById('notificationModal').classList.remove('hidden');
                 return;
@@ -1139,8 +1158,8 @@
                 return;
             }
 
-            if (savedSmartPlan && savedSmartPlan[todayKey]) {
-                let dayData = savedSmartPlan[todayKey];
+            if (planRef[todayKey]) {
+                let dayData = planRef[todayKey];
                 let html = `<div class="text-xs font-bold text-blue-400 mb-2">📅 Cronograma para hoje (${dayNames[todayKey]}):</div>`;
                 dayData.tasks.forEach((task, idx) => {
                     html += `
@@ -1185,7 +1204,9 @@
             const container = document.getElementById('smartPlanContainer');
             if (!container) return;
 
-            if (!planoGerado || !savedSmartPlan) {
+            const planRef = savedSmartPlan || window._lockedSmartPlan;
+
+            if (!planRef) {
                 container.innerHTML = `
                     <div class="text-center py-12 space-y-3">
                         <div class="inline-flex p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-blue-400">
@@ -1212,7 +1233,7 @@
             ];
 
             container.innerHTML = daysOrder.map(dayInfo => {
-                const dayData = savedSmartPlan[dayInfo.id];
+                const dayData = planRef[dayInfo.id];
                 if (!dayData || dayData.hours <= 0) {
                     return `
                         <div class="bg-black border border-zinc-800 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
@@ -1258,8 +1279,9 @@
         }
 
         function toggleDayTaskDone(dayId, taskIndex) {
-            if (savedSmartPlan && savedSmartPlan[dayId] && savedSmartPlan[dayId].tasks[taskIndex]) {
-                savedSmartPlan[dayId].tasks[taskIndex].done = !savedSmartPlan[dayId].tasks[taskIndex].done;
+            const planRef = savedSmartPlan || window._lockedSmartPlan;
+            if (planRef && planRef[dayId] && planRef[dayId].tasks[taskIndex]) {
+                planRef[dayId].tasks[taskIndex].done = !planRef[dayId].tasks[taskIndex].done;
                 saveUserData();
                 renderSmartPlan();
             }
@@ -1588,7 +1610,6 @@
                 for (let i = 0; i < dailySubjectsCount; i++) {
                     let sub = scoredSubjects[normPtr % scoredSubjects.length];
                     let topicsList = sub.topics || [];
-                    // Copia fixa em string pura (evita ligação com o objeto original do edital)
                     let topicName = topicsList.length > 0 ? String(topicsList[Math.floor(Math.random() * topicsList.length)].name) : "Revisão geral";
                     
                     tasksForDay.push({
@@ -1605,13 +1626,13 @@
                 };
             });
 
-            // Assegura uma cópia profunda isolada e imutável para o Firebase e para a sessão
             savedSmartPlan = JSON.parse(JSON.stringify(newSmartPlan));
+            window._lockedSmartPlan = savedSmartPlan;
             planoGerado = true;
             saveUserData();
             fecharModalPlano();
             renderSmartPlan();
-            alert("Plano de estudos fixo gerado e isolado com sucesso!");
+            alert("Plano de estudos fixado e isolado com sucesso!");
         }
 
         function fecharSemana() {
@@ -1625,6 +1646,7 @@
 
                 historicoSemanal.push({ date: new Date().toLocaleDateString(), subjects: JSON.parse(JSON.stringify(subjects)) });
                 savedSmartPlan = null;
+                window._lockedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderApp();
@@ -1638,6 +1660,7 @@
                 historicoSemanal = [];
                 planosSemanaisArquivados = [];
                 savedSmartPlan = null;
+                window._lockedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderSmartPlan();
