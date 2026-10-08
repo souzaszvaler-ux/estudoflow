@@ -200,11 +200,11 @@
                             </button>
                             <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                                 <i data-lucide="settings" class="w-3.5 h-3.5"></i>
-                                <span>Configurar Metas</span>
+                                <span>Configurar Novas Metas</span>
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Cronograma fixo da semana. O plano só muda quando você gera um novo ciclo (ao configurar novas metas).</p>
+                    <p class="text-xs text-zinc-400">Cronograma fixo da semana. Marque a caixinha ao concluir as atividades diárias. O plano só muda se você clicar em Configurar Novas Metas.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -467,9 +467,9 @@
         <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
                 <i data-lucide="sparkles" class="w-5 h-5"></i>
-                <span>Gerar Novo Plano e Metas</span>
+                <span>Configurar Novas Metas</span>
             </h3>
-            <p class="text-xs text-zinc-400">Ao gerar um novo plano, o sistema avançará automaticamente para os próximos tópicos em aberto no seu edital.</p>
+            <p class="text-xs text-zinc-400">Defina as horas e disciplinas para gerar ou atualizar o plano fixo da semana.</p>
             <div class="bg-black p-3 border border-zinc-800 rounded-xl space-y-2">
                 <label class="block text-xs text-zinc-300 font-bold">Disciplinas Normais por Dia:</label>
                 <input type="number" id="dailySubjectsCount" value="2" min="1" max="6" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1.5 font-bold text-sm">
@@ -486,7 +486,7 @@
             </div>
             <div class="flex space-x-2 pt-2">
                 <button type="button" onclick="fecharModalPlano()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Gerar Novo Plano</button>
+                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Metas e Plano</button>
             </div>
         </div>
     </div>
@@ -592,7 +592,6 @@
         let pomoInterval = null;
         let pomoSeconds = 25 * 60;
         let pomoIsRunning = false;
-        let pomoMode = 'work';
         
         let freeInterval = null;
         let freeSeconds = 0;
@@ -1243,7 +1242,7 @@
             updateStats();
             
             document.getElementById('approvalModal').classList.add('hidden');
-            alert(`Tópico concluído com sucesso no edital!`);
+            alert(`Tópico concluído com sucesso no edital! (O plano atual permanece intacto)`);
         }
 
         function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
@@ -1518,9 +1517,9 @@
                 for (let i = 0; i < dailySubjectsCount; i++) {
                     let sub = scoredSubjects[normPtr % scoredSubjects.length];
                     
-                    // PULA OS TÓPICOS JÁ CONCLUÍDOS NO EDITAL E PEGA O PRÓXIMO EM ABERTO
+                    // Pega o próximo tópico em aberto no edital ao gerar novas metas
                     let uncompleted = sub.topics ? sub.topics.filter(t => !t.done) : [];
-                    let topicName = uncompleted.length > 0 ? uncompleted[0].name : (sub.topics && sub.topics.length > 0 ? sub.topics[sub.topics.length - 1].name : "Revisão geral");
+                    let topicName = uncompleted.length > 0 ? uncompleted[0].name : (sub.topics && sub.topics.length > 0 ? sub.topics[0].name : "Revisão geral");
                     
                     tasksForDay.push({
                         subjectName: sub.name,
@@ -1541,7 +1540,7 @@
             saveUserData();
             fecharModalPlano();
             renderSmartPlan();
-            alert("Novo plano gerado avançando para os tópicos em aberto!");
+            alert("Plano de estudos fixo gerado com sucesso!");
         }
 
         function fecharSemana() {
@@ -1558,7 +1557,7 @@
                 planoGerado = false;
                 saveUserData();
                 renderApp();
-                alert("Semana fechada e arquivada com sucesso! Clique em 'Gerar Plano' para iniciar o próximo ciclo com base nos tópicos restantes.");
+                alert("Semana fechada e arquivada com sucesso! Clique em 'Configurar Novas Metas' para gerar o plano da próxima semana.");
             }
         }
 
