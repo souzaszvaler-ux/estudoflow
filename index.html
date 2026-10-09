@@ -200,20 +200,20 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="sparkles" class="w-5 h-5 text-blue-500"></i>
-                            <span>Plano da Semana Atual (100% Estático e Blindado)</span>
+                            <span>Plano da Semana Atual (Estático)</span>
                         </h2>
                         <div class="flex space-x-2">
-                            <button type="button" onclick="reiniciarNovoEdital()" class="bg-red-950/80 hover:bg-red-900 text-red-400 border border-red-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Limpar tudo e iniciar novo edital">
+                            <button type="button" onclick="reiniciarNovoEdital()" class="bg-red-950/80 hover:bg-red-900 text-red-400 border border-red-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Arquivar edital atual e iniciar novo">
                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                 <span>Zerar Edital</span>
                             </button>
                             <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                                 <i data-lucide="settings" class="w-3.5 h-3.5"></i>
-                                <span>Gerar Novo Plano</span>
+                                <span>Configurar Novas Metas</span>
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano encontra-se totalmente blindado no armazenamento local do seu navegador. Ele é imune a atualizações de edital ou nuvem.</p>
+                    <p class="text-xs text-zinc-400">Este plano é 100% estático. Marcar tópicos no edital altera apenas a porcentagem geral e não altera o plano semanal.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -237,14 +237,28 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="history" class="w-5 h-5 text-blue-500"></i>
-                            <span>Evolução Diária e Semanal</span>
+                            <span>Evolução Diária e Editais Anteriores</span>
                         </h2>
                         <button type="button" onclick="limparHistorico()" class="bg-red-950/80 hover:bg-red-900 border border-red-800 text-red-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                             <span>Limpar Histórico</span>
                         </button>
                     </div>
-                    <div id="historicoSemanalList" class="space-y-3"></div>
+                    
+                    <div class="space-y-3 pt-1">
+                        <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center space-x-1.5 pt-2">
+                            <i data-lucide="folder-archive" class="w-4 h-4"></i>
+                            <span>Editais Anteriores Arquivados</span>
+                        </h3>
+                        <div id="editaisArquivadosList" class="space-y-3">
+                            <p class="text-xs text-zinc-500 italic">Nenhum edital anterior arquivado ainda.</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-zinc-900">
+                        <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">Evolução Diária</h3>
+                        <div id="historicoSemanalList" class="space-y-3"></div>
+                    </div>
                 </div>
             </section>
 
@@ -495,7 +509,7 @@
             </div>
             <div class="flex space-x-2 pt-2">
                 <button type="button" onclick="fecharModalPlano()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Metas e Gerar Plano</button>
+                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Metas e Plano</button>
             </div>
         </div>
     </div>
@@ -590,9 +604,11 @@
         let subjects = [];
         let historicoDiario = [];
         let historicoSemanal = [];
+        let editaisArquivados = [];
         let cadernoErros = [];
         let userFolders = [];
         let planosSemanaisArquivados = [];
+        let savedSmartPlan = null;
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let dailySubjectsCount = 2;
         let planoGerado = false;
@@ -608,7 +624,7 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             lucide.createIcons();
-
+            
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
             }
@@ -696,7 +712,10 @@
                 renderSmartPlan();
                 renderPlanosArquivados();
             }
-            if (tabId === 'historico') renderHistorico();
+            if (tabId === 'historico') {
+                renderHistorico();
+                renderEditaisArquivados();
+            }
             if (tabId === 'erros') renderCadernoErros();
             if (tabId === 'notas') renderNotas();
         }
@@ -707,9 +726,11 @@
                 subjects, 
                 historicoDiario, 
                 historicoSemanal, 
+                editaisArquivados,
                 cadernoErros, 
                 userFolders, 
-                planosSemanaisArquivados,
+                planosSemanaisArquivados, 
+                savedSmartPlan, 
                 weeklyHoursConfig, 
                 dailySubjectsCount, 
                 planoGerado 
@@ -727,10 +748,12 @@
                         subjects = data.subjects || [];
                         historicoDiario = data.historicoDiario || [];
                         historicoSemanal = data.historicoSemanal || [];
+                        editaisArquivados = data.editaisArquivados || [];
                         cadernoErros = data.cadernoErros || [];
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
-                        planoGerado = data.planoGerado || false;
+                        
+                        savedSmartPlan = data.savedSmartPlan || null;
                         
                         if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
                             userFolders.push({ id: 'geral', name: 'Geral', notes: data.userNotes });
@@ -741,10 +764,13 @@
 
                         if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
                         if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
+                        if (data.planoGerado !== undefined) planoGerado = data.planoGerado;
                     } else {
                         subjects = [];
                         userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
                         planosSemanaisArquivados = [];
+                        editaisArquivados = [];
+                        savedSmartPlan = null;
                     }
                     renderApp();
                 })
@@ -758,6 +784,7 @@
             renderSmartPlan();
             renderPlanosArquivados();
             renderHistorico();
+            renderEditaisArquivados();
             renderCadernoErros();
             renderNotas();
             lucide.createIcons();
@@ -897,17 +924,65 @@
         }
 
         function reiniciarNovoEdital() {
-            if (confirm("ATENÇÃO: Deseja apagar todas as matérias atuais e reiniciar os dados para um novo edital?")) {
+            if (confirm("ATENÇÃO: Deseja arquivar o edital atual no histórico e iniciar um novo edital em branco?")) {
+                if (subjects && subjects.length > 0) {
+                    if (!editaisArquivados) editaisArquivados = [];
+                    editaisArquivados.unshift({
+                        date: new Date().toLocaleDateString('pt-BR'),
+                        subjects: JSON.parse(JSON.stringify(subjects))
+                    });
+                }
+
                 subjects = [];
-                historicoDiario = [];
-                historicoSemanal = [];
-                cadernoErros = [];
-                planosSemanaisArquivados = [];
-                localStorage.removeItem('estudoflow_locked_plan');
+                savedSmartPlan = null;
                 planoGerado = false;
+                
                 saveUserData();
                 renderApp();
-                alert("Dados reiniciados com sucesso!");
+                alert("Edital anterior arquivado com sucesso! Pronto para um novo edital.");
+            }
+        }
+
+        function renderEditaisArquivados() {
+            const container = document.getElementById('editaisArquivadosList');
+            if (!container) return;
+            if (!editaisArquivados || editaisArquivados.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic">Nenhum edital anterior arquivado ainda.</p>`;
+                return;
+            }
+
+            container.innerHTML = editaisArquivados.map((editalObj, idx) => `
+                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2">
+                    <div class="flex items-center justify-between text-xs font-bold text-amber-400 border-b border-zinc-900 pb-1.5">
+                        <span>Edital Arquivado em: ${editalObj.date}</span>
+                        <button type="button" onclick="excluirEditalArquivado(${idx})" class="text-red-400 hover:text-red-300 text-[10px]">Excluir do Histórico</button>
+                    </div>
+                    <div class="space-y-1.5 pt-1">
+                        ${editalObj.subjects.map(sub => {
+                            const totalT = sub.topics ? sub.topics.length : 0;
+                            const doneT = sub.topics ? sub.topics.filter(t => t.done).length : 0;
+                            const pct = totalT > 0 ? Math.round((doneT / totalT) * 100) : 0;
+                            return `
+                                <div class="bg-zinc-900/50 p-2.5 rounded-xl border border-zinc-800/60 text-xs flex items-center justify-between">
+                                    <div>
+                                        <span class="font-bold text-white">${sub.name}</span>
+                                        <span class="block text-[10px] text-zinc-400">${doneT} / ${totalT} tópicos (${pct}%)</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-blue-400">${(sub.hoursStudied || 0).toFixed(1)}h</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function excluirEditalArquivado(idx) {
+            if (confirm("Deseja excluir permanentemente este edital arquivado?")) {
+                editaisArquivados.splice(idx, 1);
+                saveUserData();
+                renderEditaisArquivados();
             }
         }
 
@@ -920,7 +995,7 @@
                 version: "1.0",
                 date: new Date().toISOString(),
                 subjects: subjects,
-                lockedPlan: localStorage.getItem('estudoflow_locked_plan'),
+                savedSmartPlan: savedSmartPlan,
                 planoGerado: planoGerado,
                 weeklyHoursConfig: weeklyHoursConfig,
                 dailySubjectsCount: dailySubjectsCount
@@ -943,10 +1018,8 @@
                     const content = JSON.parse(e.target.result);
                     if (content.subjects && Array.isArray(content.subjects)) {
                         subjects = content.subjects;
-                        if (content.lockedPlan) {
-                            localStorage.setItem('estudoflow_locked_plan', content.lockedPlan);
-                            planoGerado = true;
-                        }
+                        if (content.savedSmartPlan !== undefined) savedSmartPlan = content.savedSmartPlan;
+                        if (content.planoGerado !== undefined) planoGerado = content.planoGerado;
                         if (content.weeklyHoursConfig) weeklyHoursConfig = content.weeklyHoursConfig;
                         if (content.dailySubjectsCount !== undefined) dailySubjectsCount = content.dailySubjectsCount;
                         
@@ -1120,14 +1193,39 @@
             const container = document.getElementById('dailyNotificationContent');
             if (!container) return;
 
-            const locked = localStorage.getItem('estudoflow_locked_plan');
-            if (!locked || subjects.length === 0) {
+            if (!planoGerado || subjects.length === 0) {
                 container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Gere um plano de estudos e cadastre matérias para visualizar o resumo diário.</p>`;
                 document.getElementById('notificationModal').classList.remove('hidden');
                 return;
             }
 
-            container.innerHTML = `<div class="bg-black border border-zinc-800 rounded-xl p-3 text-xs text-zinc-300">O seu plano semanal está fixado e operacional. Consulte a aba Plano para ver os detalhes diários.</div>`;
+            const dayMap = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
+            const todayKey = dayMap[new Date().getDay()];
+            const dayNames = { seg: 'Segunda-feira', ter: 'Terça-feira', qua: 'Quarta-feira', qui: 'Quinta-feira', sex: 'Sexta-feira', sab: 'Sábado', dom: 'Domingo' };
+            const hoursVal = weeklyHoursConfig[todayKey] || 0;
+
+            if (hoursVal <= 0) {
+                container.innerHTML = `<div class="bg-black border border-zinc-800 rounded-xl p-3 text-center text-xs text-zinc-400">Hoje é dia de descanso (${dayNames[todayKey]})!</div>`;
+                document.getElementById('notificationModal').classList.remove('hidden');
+                return;
+            }
+
+            if (savedSmartPlan && savedSmartPlan[todayKey]) {
+                let dayData = savedSmartPlan[todayKey];
+                let html = `<div class="text-xs font-bold text-blue-400 mb-2">📅 Cronograma para hoje (${dayNames[todayKey]}):</div>`;
+                dayData.tasks.forEach((task, idx) => {
+                    html += `
+                        <div class="bg-black border border-zinc-800 rounded-xl p-3 space-y-1">
+                            <div class="font-bold text-white text-xs">${idx + 1}. ${task.subjectName}</div>
+                            <div class="text-[11px] text-zinc-300">• Tópico: ${task.topicName}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Nenhum plano configurado para hoje.</p>`;
+            }
+
             document.getElementById('notificationModal').classList.remove('hidden');
         }
 
@@ -1158,8 +1256,7 @@
             const container = document.getElementById('smartPlanContainer');
             if (!container) return;
 
-            const locked = localStorage.getItem('estudoflow_locked_plan');
-            if (!locked) {
+            if (!planoGerado || !savedSmartPlan) {
                 container.innerHTML = `
                     <div class="text-center py-12 space-y-3">
                         <div class="inline-flex p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-blue-400">
@@ -1175,8 +1272,68 @@
                 return;
             }
 
-            container.innerHTML = locked;
+            const daysOrder = [
+                { id: 'seg', name: 'Segunda-feira' },
+                { id: 'ter', name: 'Terça-feira' },
+                { id: 'qua', name: 'Quarta-feira' },
+                { id: 'qui', name: 'Quinta-feira' },
+                { id: 'sex', name: 'Sexta-feira' },
+                { id: 'sab', name: 'Sábado' },
+                { id: 'dom', name: 'Domingo' }
+            ];
+
+            container.innerHTML = daysOrder.map(dayInfo => {
+                const dayData = savedSmartPlan[dayInfo.id];
+                if (!dayData || dayData.hours <= 0) {
+                    return `
+                        <div class="bg-black border border-zinc-800 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
+                            <span class="text-xs font-bold text-zinc-400">${dayInfo.name}</span>
+                            <span class="text-[11px] text-zinc-500">Descanso / 0h</span>
+                        </div>
+                    `;
+                }
+
+                const tasksHtml = dayData.tasks.map((task, tIdx) => {
+                    return `
+                        <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl flex items-center justify-between">
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2 text-xs">
+                                    <span class="font-bold text-white">${tIdx + 1}. Estudo: ${task.subjectName}</span>
+                                </div>
+                                <div class="text-[11px] text-zinc-300 pl-2 border-l-2 border-blue-600">
+                                    <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Tópico Fixado:</span>
+                                    ${task.topicName}
+                                </div>
+                            </div>
+                            <div>
+                                <label class="flex items-center space-x-1.5 cursor-pointer bg-black/60 px-3 py-1.5 rounded-xl border border-zinc-800">
+                                    <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleDayTaskDone('${dayInfo.id}', ${tIdx})" class="rounded bg-black border-zinc-700 text-emerald-500 focus:ring-0">
+                                    <span class="text-[11px] font-bold ${task.done ? 'text-emerald-400' : 'text-zinc-400'}">${task.done ? 'OK' : 'Pendente'}</span>
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${dayInfo.name}</span>
+                            <span class="text-xs font-bold text-zinc-300">${dayData.hours}h totais</span>
+                        </div>
+                        <div class="space-y-2 pt-1">${tasksHtml}</div>
+                    </div>
+                `;
+            }).join('');
             lucide.createIcons();
+        }
+
+        function toggleDayTaskDone(dayId, taskIndex) {
+            if (savedSmartPlan && savedSmartPlan[dayId] && savedSmartPlan[dayId].tasks[taskIndex]) {
+                savedSmartPlan[dayId].tasks[taskIndex].done = !savedSmartPlan[dayId].tasks[taskIndex].done;
+                saveUserData();
+                renderSmartPlan();
+            }
         }
 
         function handleTopicCheck(sIndex, tIndex) {
@@ -1227,7 +1384,7 @@
             updateStats();
             
             document.getElementById('approvalModal').classList.add('hidden');
-            alert("Tópico concluído! O progresso do edital foi atualizado sem alterar o plano semanal.");
+            alert("Tópico concluído! O progresso do edital foi atualizado.");
         }
 
         function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
@@ -1247,7 +1404,7 @@
             const container = document.getElementById('historicoSemanalList');
             if (!container) return;
             if (!historicoDiario || historicoDiario.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum registro no histórico ainda.</p>`;
+                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-4">Nenhum registro no histórico diário ainda.</p>`;
                 return;
             }
             container.innerHTML = historicoDiario.map(dia => `
@@ -1480,74 +1637,50 @@
             scoredSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
 
             const daysConfig = [
-                { id: 'seg', name: 'Segunda-feira', hours: weeklyHoursConfig.seg },
-                { id: 'ter', name: 'Terça-feira', hours: weeklyHoursConfig.ter },
-                { id: 'qua', name: 'Quarta-feira', hours: weeklyHoursConfig.qua },
-                { id: 'qui', name: 'Quinta-feira', hours: weeklyHoursConfig.qui },
-                { id: 'sex', name: 'Sexta-feira', hours: weeklyHoursConfig.sex },
-                { id: 'sab', name: 'Sábado', hours: weeklyHoursConfig.sab },
-                { id: 'dom', name: 'Domingo', hours: weeklyHoursConfig.dom }
+                { id: 'seg', hours: weeklyHoursConfig.seg },
+                { id: 'ter', hours: weeklyHoursConfig.ter },
+                { id: 'qua', hours: weeklyHoursConfig.qua },
+                { id: 'qui', hours: weeklyHoursConfig.qui },
+                { id: 'sex', hours: weeklyHoursConfig.sex },
+                { id: 'sab', hours: weeklyHoursConfig.sab },
+                { id: 'dom', hours: weeklyHoursConfig.dom }
             ];
 
-            let generatedHtml = '';
+            let newSmartPlan = {};
             let normPtr = 0;
 
             daysConfig.forEach(day => {
                 if (day.hours <= 0) {
-                    generatedHtml += `
-                        <div class="bg-black border border-zinc-800 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
-                            <span class="text-xs font-bold text-zinc-400">${day.name}</span>
-                            <span class="text-[11px] text-zinc-500">Descanso / 0h</span>
-                        </div>
-                    `;
+                    newSmartPlan[day.id] = { hours: 0, tasks: [] };
                     return;
                 }
 
-                let tasksHtml = '';
+                let tasksForDay = [];
                 for (let i = 0; i < dailySubjectsCount; i++) {
                     let sub = scoredSubjects[normPtr % scoredSubjects.length];
                     let topicsList = sub.topics || [];
-                    let topicObj = topicsList.length > 0 ? topicsList[normPtr % topicsList.length] : null;
-                    let topicName = topicObj ? String(topicObj.name) : "Revisão geral";
+                    let topicName = topicsList.length > 0 ? topicsList[Math.floor(Math.random() * topicsList.length)].name : "Revisão geral";
                     
-                    tasksHtml += `
-                        <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl flex items-center justify-between">
-                            <div class="space-y-1">
-                                <div class="flex items-center space-x-2 text-xs">
-                                    <span class="font-bold text-white">${i + 1}. Estudo: ${String(sub.name)}</span>
-                                </div>
-                                <div class="text-[11px] text-zinc-300 pl-2 border-l-2 border-blue-600">
-                                    <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Tópico Fixado:</span>
-                                    ${topicName}
-                                </div>
-                            </div>
-                            <div>
-                                <span class="text-[11px] font-bold text-zinc-400 bg-black/60 px-3 py-1.5 rounded-xl border border-zinc-800">Pendente</span>
-                            </div>
-                        </div>
-                    `;
+                    tasksForDay.push({
+                        subjectName: sub.name,
+                        topicName: topicName,
+                        done: false
+                    });
                     normPtr++;
                 }
 
-                generatedHtml += `
-                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
-                            <span class="text-xs font-bold text-zinc-300">${day.hours}h totais</span>
-                        </div>
-                        <div class="space-y-2 pt-1">${tasksHtml}</div>
-                    </div>
-                `;
+                newSmartPlan[day.id] = {
+                    hours: day.hours,
+                    tasks: tasksForDay
+                };
             });
 
-            // SALVA DE FORMA PERMANENTE E ISOLADA NO LOCALSTORAGE DO NAVEGADOR
-            localStorage.setItem('estudoflow_locked_plan', generatedHtml);
+            savedSmartPlan = newSmartPlan;
             planoGerado = true;
-            
             saveUserData();
             fecharModalPlano();
             renderSmartPlan();
-            alert("Plano de estudos fixado com sucesso!");
+            alert("Plano de estudos fixo gerado com sucesso!");
         }
 
         function fecharSemana() {
@@ -1560,25 +1693,27 @@
                 });
 
                 historicoSemanal.push({ date: new Date().toLocaleDateString(), subjects: JSON.parse(JSON.stringify(subjects)) });
-                localStorage.removeItem('estudoflow_locked_plan');
+                savedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderApp();
-                alert("Semana fechada e arquivada com sucesso! Clique em 'Gerar Novo Plano' para criar o plano da próxima semana.");
+                alert("Semana fechada e arquivada com sucesso! Clique em 'Configurar Novas Metas' para gerar o plano da próxima semana.");
             }
         }
 
         function limparHistorico() {
-            if (confirm("Deseja limpar todo o histórico e planos arquivados?")) {
+            if (confirm("Deseja limpar todo o histórico e editais arquivados?")) {
                 historicoDiario = [];
                 historicoSemanal = [];
+                editaisArquivados = [];
                 planosSemanaisArquivados = [];
-                localStorage.removeItem('estudoflow_locked_plan');
+                savedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderSmartPlan();
                 renderPlanosArquivados();
                 renderHistorico();
+                renderEditaisArquivados();
             }
         }
 
