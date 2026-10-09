@@ -107,7 +107,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v3.9</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v4.0</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -203,7 +203,6 @@
 
                 <!-- TAB: DASHBOARD -->
                 <div id="tab-dashboard" class="tab-content space-y-6">
-                    <!-- Welcome & Quick Stats Cards -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
                             <div>
@@ -247,7 +246,6 @@
                         </div>
                     </div>
 
-                    <!-- Charts & Recent Activity Grid -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
                             <div class="flex items-center justify-between mb-4">
@@ -288,7 +286,6 @@
                             </div>
                         </div>
 
-                        <!-- Progress Bar General -->
                         <div class="mb-6 bg-slate-100 dark:bg-slate-700/50 p-4 rounded-xl">
                             <div class="flex justify-between text-sm font-semibold mb-2 text-slate-700 dark:text-slate-200">
                                 <span id="edital-progress-text">Progresso Geral: 0%</span>
@@ -299,7 +296,6 @@
                             </div>
                         </div>
 
-                        <!-- Subjects Container -->
                         <div id="subjects-list-container" class="space-y-4">
                             <!-- Injetado dinamicamente -->
                         </div>
@@ -314,7 +310,7 @@
                                 <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Semanal Adaptativo</h3>
                                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Distribua horas e quantidade de matérias por dia com base no seu edital.</p>
                             </div>
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-2 flex-wrap gap-2">
                                 <button onclick="openModal('availability-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md shadow-indigo-500/20">
                                     <i class="fa-solid fa-sliders mr-2"></i> Configurar Ciclo / Horas
                                 </button>
@@ -324,12 +320,10 @@
                             </div>
                         </div>
 
-                        <!-- Resumo de Horas da Semana -->
                         <div id="weekly-availability-summary" class="bg-slate-50 dark:bg-slate-700/30 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 text-center">
                             <!-- Preenchido dinamicamente -->
                         </div>
 
-                        <!-- Lista de Ciclos Gerados por Dia com Assuntos do Edital -->
                         <div id="cycle-items-container" class="space-y-4">
                             <!-- Preenchido dinamicamente -->
                         </div>
@@ -352,12 +346,10 @@
                             </select>
                         </div>
 
-                        <!-- Timer Display -->
                         <div class="my-10">
                             <span id="timer-display" class="text-7xl font-extrabold tracking-tight text-indigo-600 dark:text-indigo-400 font-mono">25:00</span>
                         </div>
 
-                        <!-- Controls -->
                         <div class="flex items-center justify-center space-x-4 mb-6">
                             <button onclick="startTimer()" id="timer-start-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white w-14 h-14 rounded-full flex items-center justify-center text-xl shadow-lg shadow-indigo-500/30 transition-all">
                                 <i class="fa-solid fa-play"></i>
@@ -412,16 +404,13 @@
                             </div>
                         </div>
 
-                        <!-- Folders & Notes Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                            <!-- Folders Sidebar -->
                             <div class="space-y-2">
                                 <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Pastas</h4>
                                 <div id="folders-list-container" class="space-y-1">
                                     <!-- Injetado dinamicamente -->
                                 </div>
                             </div>
-                            <!-- Notes List -->
                             <div class="md:col-span-3 space-y-4">
                                 <h4 id="current-folder-title" class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Notas da Pasta</h4>
                                 <div id="notes-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -435,7 +424,6 @@
                 <!-- TAB: EVOLUÇÃO & ARQUIVO -->
                 <div id="tab-evolucao" class="tab-content hidden space-y-6">
                     <div class="space-y-6">
-                        <!-- Histórico de Ciclos Semanais Concluídos -->
                         <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
                             <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-1">Ciclos Semanais Concluídos</h3>
                             <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Métricas e histórico de ciclos anteriores finalizados.</p>
@@ -444,7 +432,6 @@
                             </div>
                         </div>
 
-                        <!-- Histórico de Editais Anteriores Arquivados -->
                         <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
                             <div class="flex items-center justify-between mb-4">
                                 <div>
@@ -789,7 +776,6 @@
 
         const appId = 'estudoflow-pro-default';
         
-        // --- CREDENCIAIS REAIS DO FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyBCM2cfdMsNCLUltoly066qglhZnMRI86I", 
             authDomain: "estudoflow-fef07.firebaseapp.com",
@@ -804,7 +790,6 @@
         let isSignUpMode = false;
         let deferredPrompt = null;
 
-        // Application State
         let state = {
             subjects: [
                 {
@@ -857,7 +842,6 @@
         let subjectsChartInstance = null;
         let currentFolderId = 'fold-1';
 
-        // Timer State
         let timerInterval = null;
         let timerSecondsLeft = 25 * 60;
         let timerTotalSeconds = 25 * 60;
@@ -894,12 +878,14 @@
             }
         });
 
-        // --- PWA SETUP & SERVICE WORKER REGISTRATION ---
         function setupPWA() {
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('./sw.js')
-                        .then(reg => console.log('Service Worker registado com sucesso:', reg.scope))
+                        .then(reg => {
+                            console.log('Service Worker registado:', reg.scope);
+                            reg.update();
+                        })
                         .catch(err => console.log('Falha ao registar o Service Worker:', err));
                 });
             }
@@ -921,11 +907,10 @@
                 }
                 deferredPrompt = null;
             } else {
-                alert("Para instalar: abra o menu do seu navegador (Chrome/Safari) e selecione 'Adicionar ao Ecrã Inicial' ou 'Instalar Aplicação'.");
+                alert("Para instalar: abra o menu do seu navegador e selecione 'Adicionar ao Ecrã Inicial' ou 'Instalar Aplicação'.");
             }
         };
 
-        // --- NOTIFICAÇÕES DIÁRIAS ---
         window.requestNotificationPermission = async function() {
             if (!("Notification" in window)) {
                 alert("Este navegador não suporta notificações.");
@@ -933,13 +918,9 @@
             }
             const permission = await Notification.requestPermission();
             if (permission === "granted") {
-                showToast("Lembretes ativados com sucesso! Receberá notificações diárias de estudo.");
-                new Notification("EstudoFlow PRO 📚", {
-                    body: "Notificações ativadas! Vamos rumo à aprovação nos concursos!",
-                    icon: "icon.png"
-                });
+                showToast("Lembretes ativados com sucesso!");
             } else {
-                alert("Permissão de notificações negada nas definições do navegador.");
+                alert("Permissão de notificações negada.");
             }
         };
 
@@ -950,7 +931,7 @@
                 if (lastReminder !== today) {
                     setTimeout(() => {
                         new Notification("EstudoFlow PRO 🔔", {
-                            body: "A sua meta diária de estudos está à sua espera! Vamos focar?",
+                            body: "A sua meta diária de estudos está à sua espera!",
                             icon: "icon.png"
                         });
                         localStorage.setItem('estudoflow_last_notif', today);
@@ -984,7 +965,7 @@
             try {
                 if (isSignUpMode) {
                     await createUserWithEmailAndPassword(auth, email, password);
-                    showToast("Conta criada e sessão iniciada com sucesso!");
+                    showToast("Conta criada com sucesso!");
                 } else {
                     await signInWithEmailAndPassword(auth, email, password);
                     showToast("Sessão iniciada com sucesso!");
@@ -1006,9 +987,7 @@
 
         window.logoutUser = async function() {
             if (auth) {
-                try {
-                    await signOut(auth);
-                } catch(e) {}
+                try { await signOut(auth); } catch(e) {}
             }
             document.getElementById('auth-screen').classList.remove('hidden');
             showToast("Sessão encerrada.");
@@ -1036,7 +1015,6 @@
                                 dom: { hours: 2, count: 1 }
                             };
                         }
-                        // Compatibilidade com formato antigo se houver
                         Object.keys(state.weeklyAvailability).forEach(k => {
                             if (typeof state.weeklyAvailability[k] === 'number') {
                                 const h = state.weeklyAvailability[k];
@@ -1075,7 +1053,6 @@
             }, 600);
         };
 
-        // --- NAVIGATION & TABS ---
         window.switchTab = function(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(el => {
@@ -1116,7 +1093,6 @@
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
         };
 
-        // --- RENDER ALL UI ---
         function renderAll() {
             populateSelects();
             renderDashboardStats();
@@ -1144,7 +1120,6 @@
             }
         }
 
-        // --- DASHBOARD & STATS ---
         function renderDashboardStats() {
             let totalMins = 0;
             let totalQ = 0;
@@ -1180,7 +1155,6 @@
             document.getElementById('stat-total-errors').innerText = state.errors.length;
         }
 
-        // --- EDITAL VERTICALIZADO COM RESTRIÇÃO DE 80% ---
         function renderEditalView() {
             const container = document.getElementById('subjects-list-container');
             if (!container) return;
@@ -1197,7 +1171,7 @@
                 doneTopics += subDone;
 
                 return `
-                    <div class="bg-slate-50 dark:bg-slate-850 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
+                    <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center space-x-3">
                                 <span class="w-4 h-4 rounded-full" style="background-color: ${sub.color}"></span>
@@ -1214,7 +1188,6 @@
                             </div>
                         </div>
 
-                        <!-- Topics List -->
                         <div class="space-y-2 mt-4">
                             ${sub.topics.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhum tópico cadastrado.</p>' : ''}
                             ${sub.topics.map(t => {
@@ -1285,7 +1258,7 @@
 
             const accuracy = (correctQ / totalQ) * 100;
             if (accuracy < 80) {
-                alert(`Acurácia insuficiente (${accuracy.toFixed(1)}%). O requisito mínimo para concluir o tópico é de 80%. Continue a estudar e treinar!`);
+                alert(`Acurácia insuficiente (${accuracy.toFixed(1)}%). O requisito mínimo para concluir o tópico é de 80%.`);
                 return;
             }
 
@@ -1324,16 +1297,13 @@
             saveUserDataToFirebase();
         };
 
-        // --- ZERAR EDITAL & ARQUIVO ---
         window.openResetEditalModal = function() {
             openModal('reset-edital-modal');
         };
 
         window.confirmResetEdital = function() {
             state.subjects.forEach(sub => {
-                sub.topics.forEach(t => {
-                    t.status = 'nao_iniciado';
-                });
+                sub.topics.forEach(t => { t.status = 'nao_iniciado'; });
             });
             closeModal('reset-edital-modal');
             saveUserDataToFirebase();
@@ -1372,7 +1342,6 @@
             showToast("Edital arquivado com sucesso!");
         };
 
-        // --- CICLO DE ESTUDOS BASEADO NO EDITAL E DISPONIBILIDADE ---
         window.handleAvailabilitySubmit = function(e) {
             e.preventDefault();
             state.weeklyAvailability = {
@@ -1386,7 +1355,7 @@
             };
             closeModal('availability-modal');
             saveUserDataToFirebase();
-            showToast("Ciclo semanal gerado com sucesso!");
+            showToast("Ciclo semanal atualizado com sucesso!");
         };
 
         window.finishCurrentCycle = function() {
@@ -1406,7 +1375,7 @@
             if (!state.archivedCycles) state.archivedCycles = [];
             state.archivedCycles.push(cycleRecord);
             saveUserDataToFirebase();
-            showToast("Ciclo semanal finalizado e guardado no histórico! Pode gerar um novo.");
+            showToast("Ciclo semanal finalizado e guardado no histórico com sucesso!");
         };
 
         function renderCycleView() {
@@ -1474,7 +1443,6 @@
                 return;
             }
 
-            // Recoller tópicos pendentes de todas as disciplinas
             let pendingTopicsPool = [];
             activeSubjects.forEach(sub => {
                 sub.topics.forEach(t => {
@@ -1514,7 +1482,6 @@
                         assignedItems.push(pendingTopicsPool[poolIndex % pendingTopicsPool.length]);
                         poolIndex++;
                     } else {
-                        // Se não houver tópicos pendentes, usa a matéria base
                         const fallbackSub = activeSubjects[i % activeSubjects.length];
                         assignedItems.push({
                             subjectId: fallbackSub.id,
@@ -1552,7 +1519,6 @@
             }).join('');
         }
 
-        // --- CRONÔMETRO / POMODORO ---
         window.setTimerMode = function(mode) {
             timerMode = mode;
             document.querySelectorAll('[id^="mode-"]').forEach(btn => {
@@ -1645,7 +1611,6 @@
             showToast("Sessão registada com sucesso!");
         };
 
-        // --- CADERNO DE ERROS ---
         function renderErrorsView() {
             const container = document.getElementById('errors-list-container');
             if (!container) return;
@@ -1671,7 +1636,6 @@
             saveUserDataToFirebase();
         };
 
-        // --- NOTAS EM PASTAS ---
         function renderNotesView() {
             const foldersContainer = document.getElementById('folders-list-container');
             if (!foldersContainer) return;
@@ -1711,7 +1675,6 @@
             saveUserDataToFirebase();
         };
 
-        // --- EVOLUÇÃO & ARQUIVO ---
         function renderArchiveView() {
             const editalContainer = document.getElementById('archived-edital-container');
             const cyclesContainer = document.getElementById('archived-cycles-container');
@@ -1741,7 +1704,6 @@
             `).join('');
         }
 
-        // --- MODAL HANDLERS & FORMS ---
         window.openModal = function(modalId) {
             document.getElementById(modalId).classList.remove('hidden');
         };
@@ -1839,7 +1801,6 @@
             showToast("Nota salva com sucesso!");
         };
 
-        // --- CHARTS & THEME ---
         function initCharts() {
             const ctxHours = document.getElementById('hoursChart')?.getContext('2d');
             if (ctxHours) {
