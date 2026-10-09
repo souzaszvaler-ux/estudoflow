@@ -213,7 +213,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano foi congelado em HTML estático bruto no armazenamento local. Ele é 100% imune a edições no edital ou sincronizações com a nuvem.</p>
+                    <p class="text-xs text-zinc-400">Este plano encontra-se congelado de forma permanente. Nenhuma alteração no edital ou sincronização com a nuvem irá modificá-lo.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -593,6 +593,7 @@
         let cadernoErros = [];
         let userFolders = [];
         let planosSemanaisArquivados = [];
+        let frozenHtml = "";
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let dailySubjectsCount = 2;
         let planoGerado = false;
@@ -710,6 +711,7 @@
                 cadernoErros, 
                 userFolders, 
                 planosSemanaisArquivados,
+                frozenHtml,
                 weeklyHoursConfig, 
                 dailySubjectsCount, 
                 planoGerado 
@@ -730,6 +732,7 @@
                         cadernoErros = data.cadernoErros || [];
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
+                        frozenHtml = data.frozenHtml || "";
                         planoGerado = data.planoGerado || false;
                         
                         if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
@@ -745,6 +748,7 @@
                         subjects = [];
                         userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
                         planosSemanaisArquivados = [];
+                        frozenHtml = "";
                     }
                     renderApp();
                 })
@@ -903,7 +907,7 @@
                 historicoSemanal = [];
                 cadernoErros = [];
                 planosSemanaisArquivados = [];
-                localStorage.removeItem('estudoflow_frozen_html');
+                frozenHtml = "";
                 planoGerado = false;
                 saveUserData();
                 renderApp();
@@ -920,7 +924,7 @@
                 version: "1.0",
                 date: new Date().toISOString(),
                 subjects: subjects,
-                frozenHtml: localStorage.getItem('estudoflow_frozen_html'),
+                frozenHtml: frozenHtml,
                 planoGerado: planoGerado,
                 weeklyHoursConfig: weeklyHoursConfig,
                 dailySubjectsCount: dailySubjectsCount
@@ -944,7 +948,7 @@
                     if (content.subjects && Array.isArray(content.subjects)) {
                         subjects = content.subjects;
                         if (content.frozenHtml) {
-                            localStorage.setItem('estudoflow_frozen_html', content.frozenHtml);
+                            frozenHtml = content.frozenHtml;
                             planoGerado = true;
                         }
                         if (content.weeklyHoursConfig) weeklyHoursConfig = content.weeklyHoursConfig;
@@ -1120,7 +1124,6 @@
             const container = document.getElementById('dailyNotificationContent');
             if (!container) return;
 
-            const frozenHtml = localStorage.getItem('estudoflow_frozen_html');
             if (!frozenHtml || subjects.length === 0) {
                 container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Gere um plano de estudos e cadastre matérias para visualizar o resumo diário.</p>`;
                 document.getElementById('notificationModal').classList.remove('hidden');
@@ -1158,7 +1161,6 @@
             const container = document.getElementById('smartPlanContainer');
             if (!container) return;
 
-            const frozenHtml = localStorage.getItem('estudoflow_frozen_html');
             if (!frozenHtml) {
                 container.innerHTML = `
                     <div class="text-center py-12 space-y-3">
@@ -1175,7 +1177,6 @@
                 return;
             }
 
-            // Injeta diretamente o HTML congelado sem reprocessamento dinâmico
             container.innerHTML = frozenHtml;
             lucide.createIcons();
         }
@@ -1541,14 +1542,13 @@
                 `;
             });
 
-            // SALVA DIRETAMENTE NO LOCALSTORAGE DE FORMA ABSOLUTA E ISOLADA
-            localStorage.setItem('estudoflow_frozen_html', generatedHtml);
+            frozenHtml = generatedHtml;
             planoGerado = true;
             
             saveUserData();
             fecharModalPlano();
             renderSmartPlan();
-            alert("Plano de estudos fixado e isolado com sucesso!");
+            alert("Plano de estudos fixado e salvo com sucesso!");
         }
 
         function fecharSemana() {
@@ -1561,7 +1561,7 @@
                 });
 
                 historicoSemanal.push({ date: new Date().toLocaleDateString(), subjects: JSON.parse(JSON.stringify(subjects)) });
-                localStorage.removeItem('estudoflow_frozen_html');
+                frozenHtml = "";
                 planoGerado = false;
                 saveUserData();
                 renderApp();
@@ -1574,7 +1574,7 @@
                 historicoDiario = [];
                 historicoSemanal = [];
                 planosSemanaisArquivados = [];
-                localStorage.removeItem('estudoflow_frozen_html');
+                frozenHtml = "";
                 planoGerado = false;
                 saveUserData();
                 renderSmartPlan();
