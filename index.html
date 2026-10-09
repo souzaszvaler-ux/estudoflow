@@ -40,22 +40,22 @@
 </head>
 <body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-200">
 
-    <!-- TELA DE LOGIN / AUTENTICAÇÃO -->
-    <div id="auth-screen" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <!-- TELA DE LOGIN / AUTENTICAÇÃO OBRIGATÓRIA -->
+    <div id="auth-screen" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden p-8 space-y-6">
             <div class="text-center space-y-2">
                 <div class="inline-flex bg-indigo-600 text-white p-3 rounded-2xl shadow-lg shadow-indigo-500/30 items-center justify-center mb-1">
                     <i class="fa-solid fa-graduation-cap text-2xl"></i>
                 </div>
                 <h2 class="text-2xl font-bold tracking-tight">EstudoFlow PRO</h2>
-                <p id="auth-subtitle" class="text-xs text-slate-500 dark:text-slate-400">Entre com a sua conta para sincronizar os seus estudos na nuvem.</p>
+                <p id="auth-subtitle" class="text-xs text-slate-500 dark:text-slate-400">Faça login para aceder aos seus dados e estudos sincronizados.</p>
             </div>
 
             <!-- Formulário de Email e Senha -->
             <form onsubmit="handleEmailAuth(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">E-mail</label>
-                    <input type="email5" id="auth-email" placeholder="seu@email.com" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    <input type="email" id="auth-email" placeholder="seu@email.com" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Palavra-passe</label>
@@ -66,7 +66,7 @@
                 </button>
             </form>
 
-            <div class="relative flex py-2 items-center">
+            <div class="relative flex py-1 items-center">
                 <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
                 <span class="flex-shrink mx-4 text-xs text-slate-400 uppercase tracking-widest">ou</span>
                 <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
@@ -142,8 +142,8 @@
             <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                        <span id="sync-indicator" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                        <span id="sync-text">Conectado</span>
+                        <span id="sync-indicator" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span id="sync-text">Sincronizado</span>
                     </span>
                     <div class="flex items-center space-x-2">
                         <button onclick="logoutUser()" title="Terminar Sessão" class="text-slate-500 dark:text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
@@ -173,7 +173,7 @@
                         <i class="fa-solid fa-plus"></i>
                         <span>Registar Estudo</span>
                     </button>
-                    <button onclick="manualSync()" class="flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all text-slate-700 dark:text-slate-200" title="Sincronizar com Firebase">
+                    <button onclick="manualSync()" class="flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all text-slate-700 dark:text-slate-200" title="Sincronizar">
                         <i id="sync-icon" class="fa-solid fa-rotate"></i>
                         <span class="hidden md:inline">Sincronizar</span>
                     </button>
@@ -704,7 +704,7 @@
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                // Monitorar estado de autenticação do Firebase
+                // Controlo estrito de autenticação
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
@@ -719,16 +719,11 @@
                     }
                 });
             } catch (e) {
-                console.warn('Firebase initialization offline mode:', e);
-                document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('sync-indicator').className = 'w-2 h-2 rounded-full bg-amber-500';
-                document.getElementById('sync-text').innerText = 'Modo Local';
-                document.getElementById('user-uid-box').innerText = 'ID: LocalStorage';
-                renderAll();
+                console.warn('Firebase connection error:', e);
+                alert("Erro ao ligar ao Firebase. Verifique a configuração.");
             }
         });
 
-        // Alternar entre Entrar e Registar
         window.toggleAuthMode = function() {
             isSignUpMode = !isSignUpMode;
             const btn = document.getElementById('auth-submit-btn');
@@ -737,16 +732,15 @@
 
             if (isSignUpMode) {
                 btn.innerText = 'Criar Conta';
-                subtitle.innerText = 'Registe-se para guardar os seus dados de estudos na nuvem.';
+                subtitle.innerText = 'Registe-se com e-mail e palavra-passe para guardar os seus estudos na nuvem.';
                 toggleBtn.innerText = 'Já tem uma conta? Faça login';
             } else {
                 btn.innerText = 'Entrar com E-mail';
-                subtitle.innerText = 'Entre com a sua conta para sincronizar os seus estudos na nuvem.';
+                subtitle.innerText = 'Faça login para aceder aos seus dados e estudos sincronizados.';
                 toggleBtn.innerText = 'Não tem uma conta? Crie uma agora';
             }
         };
 
-        // Autenticação com Email e Senha
         window.handleEmailAuth = async function(e) {
             e.preventDefault();
             const email = document.getElementById('auth-email').value;
@@ -755,7 +749,7 @@
             try {
                 if (isSignUpMode) {
                     await createUserWithEmailAndPassword(auth, email, password);
-                    showToast("Conta criada com sucesso!");
+                    showToast("Conta criada e sessão iniciada com sucesso!");
                 } else {
                     await signInWithEmailAndPassword(auth, email, password);
                     showToast("Sessão iniciada com sucesso!");
@@ -765,7 +759,6 @@
             }
         };
 
-        // Login com Google
         window.loginWithGoogle = async function() {
             const provider = new GoogleAuthProvider();
             try {
@@ -776,12 +769,14 @@
             }
         };
 
-        // Terminar Sessão (Logout)
         window.logoutUser = async function() {
             if (auth) {
-                await signOut(auth);
-                showToast("Sessão encerrada.");
+                try {
+                    await signOut(auth);
+                } catch(e) {}
             }
+            document.getElementById('auth-screen').classList.remove('hidden');
+            showToast("Sessão encerrada.");
         };
 
         function loadUserDataFromFirebase() {
@@ -822,7 +817,7 @@
             setTimeout(() => {
                 icon.classList.remove('fa-spin');
                 renderAll();
-                showToast("Sincronizado com sucesso!");
+                showToast("Dados sincronizados com sucesso!");
             }, 600);
         };
 
