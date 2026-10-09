@@ -107,7 +107,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v3.8</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v3.9</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -311,12 +311,17 @@
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
-                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Semanal por Disponibilidade</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Defina quantas horas tem disponíveis por dia para gerar o seu ciclo adaptativo.</p>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Semanal Adaptativo</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Distribua horas e quantidade de matérias por dia com base no seu edital.</p>
                             </div>
-                            <button onclick="openModal('availability-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md shadow-indigo-500/20">
-                                <i class="fa-solid fa-sliders mr-2"></i> Configurar Disponibilidade Horária
-                            </button>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="openModal('availability-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md shadow-indigo-500/20">
+                                    <i class="fa-solid fa-sliders mr-2"></i> Configurar Ciclo / Horas
+                                </button>
+                                <button id="finish-cycle-btn" onclick="finishCurrentCycle()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md">
+                                    <i class="fa-solid fa-check-double mr-2"></i> Finalizar Ciclo Semanal
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Resumo de Horas da Semana -->
@@ -324,7 +329,7 @@
                             <!-- Preenchido dinamicamente -->
                         </div>
 
-                        <!-- Lista de Ciclos Gerados por Dia -->
+                        <!-- Lista de Ciclos Gerados por Dia com Assuntos do Edital -->
                         <div id="cycle-items-container" class="space-y-4">
                             <!-- Preenchido dinamicamente -->
                         </div>
@@ -429,16 +434,27 @@
 
                 <!-- TAB: EVOLUÇÃO & ARQUIVO -->
                 <div id="tab-evolucao" class="tab-content hidden space-y-6">
-                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <div class="flex items-center justify-between mb-6">
-                            <div>
-                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Histórico de Editais Anteriores Arquivados</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consulte o desempenho e conclusão de editais passados salvos na nuvem.</p>
+                    <div class="space-y-6">
+                        <!-- Histórico de Ciclos Semanais Concluídos -->
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-1">Ciclos Semanais Concluídos</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Métricas e histórico de ciclos anteriores finalizados.</p>
+                            <div id="archived-cycles-container" class="space-y-3">
+                                <!-- Preenchido dinamicamente -->
                             </div>
                         </div>
 
-                        <div id="archived-edital-container" class="space-y-4">
-                            <!-- Injetado dinamicamente -->
+                        <!-- Histórico de Editais Anteriores Arquivados -->
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-800 dark:text-white">Editais Anteriores Arquivados</h3>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consulte o desempenho e conclusão de editais passados.</p>
+                                </div>
+                            </div>
+                            <div id="archived-edital-container" class="space-y-4">
+                                <!-- Injetado dinamicamente -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -493,48 +509,85 @@
         </div>
     </div>
 
-    <!-- MODAL: Weekly Availability Config -->
+    <!-- MODAL: Weekly Availability & Subjects Count Config -->
     <div id="availability-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-xl rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Disponibilidade de Horas por Dia</h3>
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Configurar Ciclo Semanal (Horas e Matérias por Dia)</h3>
                 <button onclick="closeModal('availability-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form onsubmit="handleAvailabilitySubmit(event)" class="p-6 space-y-4">
-                <p class="text-xs text-slate-500 dark:text-slate-400">Defina quantas horas pretende estudar em cada dia da semana. O ciclo distribuirá as disciplinas automaticamente.</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-1">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Segunda-feira</label>
-                        <input type="number" step="0.5" min="0" max="24" id="avail-seg" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Defina quantas horas e quantas matérias pretende estudar em cada dia da semana.</p>
+                <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Segunda-feira</span>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 uppercase">Horas</label>
+                            <input type="number" step="0.5" min="0" max="24" id="avail-seg-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 uppercase">Matérias/Dia</label>
+                            <input type="number" min="1" max="5" id="avail-seg-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Terça-feira</label>
-                        <input type="number" step="0.5" min="0" max="24" id="avail-ter" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Terça-feira</span>
+                        <div>
+                            <input type="number" step="0.5" min="0" max="24" id="avail-ter-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
+                        <div>
+                            <input type="number" min="1" max="5" id="avail-ter-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Quarta-feira</label>
-                        <input type="number" step="0.5" min="0" max="24" id="avail-qua" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Quarta-feira</span>
+                        <div>
+                            <input type="number" step="0.5" min="0" max="24" id="avail-qua-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
+                        <div>
+                            <input type="number" min="1" max="5" id="avail-qua-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Quinta-feira</label>
-                        <input type="number" step="0.5" min="0" max="24" id="avail-qui" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Quinta-feira</span>
+                        <div>
+                            <input type="number" step="0.5" min="0" max="24" id="avail-qui-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
+                        <div>
+                            <input type="number" min="1" max="5" id="avail-qui-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Sexta-feira</label>
-                        <input type="number" step="0.5" min="0" max="24" id="avail-sex" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Sexta-feira</span>
+                        <div>
+                            <input type="number" step="0.5" min="0" max="24" id="avail-sex-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
+                        <div>
+                            <input type="number" min="1" max="5" id="avail-sex-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Sábado</label>
-                        <input type="number" step="0.5" min="0" max="24" id="avail-sab" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Sábado</span>
+                        <div>
+                            <input type="number" step="0.5" min="0" max="24" id="avail-sab-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
+                        <div>
+                            <input type="number" min="1" max="5" id="avail-sab-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
                     </div>
-                    <div class="sm:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Domingo</label>
-                        <input type="number" step="0.5" min="0" max="24" id="avail-dom" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Domingo</span>
+                        <div>
+                            <input type="number" step="0.5" min="0" max="24" id="avail-dom-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
+                        <div>
+                            <input type="number" min="1" max="5" id="avail-dom-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        </div>
                     </div>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                     <button type="button" onclick="closeModal('availability-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/25">Gerar Ciclo Semanal</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/25">Gerar / Atualizar Ciclo</button>
                 </div>
             </form>
         </div>
@@ -788,9 +841,16 @@
                 { id: 'note-1', folderId: 'fold-1', title: 'Artigo 5º - Resumo Geral', content: 'Todos são iguais perante a lei sem distinção...', date: new Date().toISOString() }
             ],
             weeklyAvailability: {
-                seg: 4, ter: 4, qua: 4, qui: 4, sex: 4, sab: 6, dom: 2
+                seg: { hours: 4, count: 2 },
+                ter: { hours: 4, count: 2 },
+                qua: { hours: 4, count: 2 },
+                qui: { hours: 4, count: 2 },
+                sex: { hours: 4, count: 2 },
+                sab: { hours: 6, count: 3 },
+                dom: { hours: 2, count: 1 }
             },
-            archives: []
+            archives: [],
+            archivedCycles: []
         };
 
         let hoursChartInstance = null;
@@ -966,8 +1026,24 @@
                     if (data && data.state) {
                         state = data.state;
                         if (!state.weeklyAvailability) {
-                            state.weeklyAvailability = { seg: 4, ter: 4, qua: 4, qui: 4, sex: 4, sab: 6, dom: 2 };
+                            state.weeklyAvailability = {
+                                seg: { hours: 4, count: 2 },
+                                ter: { hours: 4, count: 2 },
+                                qua: { hours: 4, count: 2 },
+                                qui: { hours: 4, count: 2 },
+                                sex: { hours: 4, count: 2 },
+                                sab: { hours: 6, count: 3 },
+                                dom: { hours: 2, count: 1 }
+                            };
                         }
+                        // Compatibilidade com formato antigo se houver
+                        Object.keys(state.weeklyAvailability).forEach(k => {
+                            if (typeof state.weeklyAvailability[k] === 'number') {
+                                const h = state.weeklyAvailability[k];
+                                state.weeklyAvailability[k] = { hours: h, count: h >= 4 ? 2 : 1 };
+                            }
+                        });
+                        if (!state.archivedCycles) state.archivedCycles = [];
                         renderAll();
                     }
                 } else {
@@ -1296,33 +1372,64 @@
             showToast("Edital arquivado com sucesso!");
         };
 
-        // --- CICLO DE ESTUDOS BASEADO NA DISPONIBILIDADE HORÁRIA ---
+        // --- CICLO DE ESTUDOS BASEADO NO EDITAL E DISPONIBILIDADE ---
         window.handleAvailabilitySubmit = function(e) {
             e.preventDefault();
             state.weeklyAvailability = {
-                seg: parseFloat(document.getElementById('avail-seg').value) || 0,
-                ter: parseFloat(document.getElementById('avail-ter').value) || 0,
-                qua: parseFloat(document.getElementById('avail-qua').value) || 0,
-                qui: parseFloat(document.getElementById('avail-qui').value) || 0,
-                sex: parseFloat(document.getElementById('avail-sex').value) || 0,
-                sab: parseFloat(document.getElementById('avail-sab').value) || 0,
-                dom: parseFloat(document.getElementById('avail-dom').value) || 0
+                seg: { hours: parseFloat(document.getElementById('avail-seg-h').value) || 0, count: parseInt(document.getElementById('avail-seg-c').value) || 2 },
+                ter: { hours: parseFloat(document.getElementById('avail-ter-h').value) || 0, count: parseInt(document.getElementById('avail-ter-c').value) || 2 },
+                qua: { hours: parseFloat(document.getElementById('avail-qua-h').value) || 0, count: parseInt(document.getElementById('avail-qua-c').value) || 2 },
+                qui: { hours: parseFloat(document.getElementById('avail-qui-h').value) || 0, count: parseInt(document.getElementById('avail-qui-c').value) || 2 },
+                sex: { hours: parseFloat(document.getElementById('avail-sex-h').value) || 0, count: parseInt(document.getElementById('avail-sex-c').value) || 2 },
+                sab: { hours: parseFloat(document.getElementById('avail-sab-h').value) || 0, count: parseInt(document.getElementById('avail-sab-c').value) || 3 },
+                dom: { hours: parseFloat(document.getElementById('avail-dom-h').value) || 0, count: parseInt(document.getElementById('avail-dom-c').value) || 1 }
             };
             closeModal('availability-modal');
             saveUserDataToFirebase();
-            showToast("Ciclo semanal gerado com base na sua disponibilidade!");
+            showToast("Ciclo semanal gerado com sucesso!");
+        };
+
+        window.finishCurrentCycle = function() {
+            let totalWeeklyHours = 0;
+            const av = state.weeklyAvailability;
+            ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom'].forEach(d => {
+                totalWeeklyHours += av[d].hours;
+            });
+
+            const cycleRecord = {
+                id: crypto.randomUUID(),
+                date: new Date().toISOString(),
+                totalHours: totalWeeklyHours,
+                title: `Ciclo Semanal - ${new Date().toLocaleDateString()}`
+            };
+
+            if (!state.archivedCycles) state.archivedCycles = [];
+            state.archivedCycles.push(cycleRecord);
+            saveUserDataToFirebase();
+            showToast("Ciclo semanal finalizado e guardado no histórico! Pode gerar um novo.");
         };
 
         function renderCycleView() {
             const summaryContainer = document.getElementById('weekly-availability-summary');
             const itemsContainer = document.getElementById('cycle-items-container');
+            const finishBtn = document.getElementById('finish-cycle-btn');
             if (!summaryContainer || !itemsContainer) return;
 
-            const av = state.weeklyAvailability || { seg: 4, ter: 4, qua: 4, qui: 4, sex: 4, sab: 6, dom: 2 };
+            const av = state.weeklyAvailability || {
+                seg: { hours: 4, count: 2 },
+                ter: { hours: 4, count: 2 },
+                qua: { hours: 4, count: 2 },
+                qui: { hours: 4, count: 2 },
+                sex: { hours: 4, count: 2 },
+                sab: { hours: 6, count: 3 },
+                dom: { hours: 2, count: 1 }
+            };
             
             ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom'].forEach(day => {
-                const input = document.getElementById(`avail-${day}`);
-                if (input) input.value = av[day];
+                const hInput = document.getElementById(`avail-${day}-h`);
+                const cInput = document.getElementById(`avail-${day}-c`);
+                if (hInput) hInput.value = av[day].hours;
+                if (cInput) cInput.value = av[day].count;
             });
 
             const daysMap = [
@@ -1335,29 +1442,60 @@
                 { key: 'dom', label: 'Domingo' }
             ];
 
-            let totalWeeklyHours = Object.values(av).reduce((a, b) => a + b, 0);
+            let totalWeeklyHours = 0;
+            let hasActiveDays = false;
+
+            daysMap.forEach(d => {
+                totalWeeklyHours += av[d.key].hours;
+                if (av[d.key].hours > 0) hasActiveDays = true;
+            });
+
+            if (finishBtn) {
+                if (hasActiveDays) finishBtn.classList.remove('hidden');
+                else finishBtn.classList.add('hidden');
+            }
 
             summaryContainer.innerHTML = daysMap.map(d => `
                 <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
                     <p class="text-[10px] font-semibold text-slate-400 uppercase">${d.label}</p>
-                    <p class="text-base font-bold text-indigo-600 dark:text-indigo-400 mt-1">${av[d.key]}h</p>
+                    <p class="text-base font-bold text-indigo-600 dark:text-indigo-400 mt-1">${av[d.key].hours}h</p>
+                    <span class="text-[10px] text-slate-500">${av[d.key].count} matéria(s)</span>
                 </div>
             `).join('') + `
                 <div class="bg-indigo-50 dark:bg-indigo-950/40 p-3 rounded-xl border border-indigo-200 dark:border-indigo-900 col-span-2 sm:col-span-4 lg:col-span-7 flex items-center justify-between">
-                    <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Total de Carga Horária Semanal Disponível:</span>
+                    <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Carga Horária Semanal Total:</span>
                     <span class="text-sm font-extrabold text-indigo-700 dark:text-indigo-300">${totalWeeklyHours} horas</span>
                 </div>
             `;
 
             const activeSubjects = state.subjects;
             if (activeSubjects.length === 0) {
-                itemsContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Cadastre disciplinas no Edital para gerar o ciclo.</p>';
+                itemsContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Cadastre disciplinas no Edital para gerar o ciclo com base no progresso.</p>';
                 return;
             }
 
-            let subIndex = 0;
+            // Recoller tópicos pendentes de todas as disciplinas
+            let pendingTopicsPool = [];
+            activeSubjects.forEach(sub => {
+                sub.topics.forEach(t => {
+                    if (t.status !== 'concluido') {
+                        pendingTopicsPool.push({
+                            subjectId: sub.id,
+                            subjectName: sub.name,
+                            subjectColor: sub.color,
+                            topicTitle: t.title
+                        });
+                    }
+                });
+            });
+
+            let poolIndex = 0;
+
             itemsContainer.innerHTML = daysMap.map(d => {
-                const hours = av[d.key];
+                const dayData = av[d.key];
+                const hours = dayData.hours;
+                const count = dayData.count;
+
                 if (hours <= 0) {
                     return `
                         <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between shadow-sm opacity-60">
@@ -1370,29 +1508,43 @@
                     `;
                 }
 
-                const assignedSubs = [];
-                let countToAssign = hours >= 4 ? 2 : 1;
-                for (let i = 0; i < countToAssign; i++) {
-                    assignedSubs.push(activeSubjects[subIndex % activeSubjects.length]);
-                    subIndex++;
+                const assignedItems = [];
+                for (let i = 0; i < count; i++) {
+                    if (pendingTopicsPool.length > 0) {
+                        assignedItems.push(pendingTopicsPool[poolIndex % pendingTopicsPool.length]);
+                        poolIndex++;
+                    } else {
+                        // Se não houver tópicos pendentes, usa a matéria base
+                        const fallbackSub = activeSubjects[i % activeSubjects.length];
+                        assignedItems.push({
+                            subjectId: fallbackSub.id,
+                            subjectName: fallbackSub.name,
+                            subjectColor: fallbackSub.color,
+                            topicTitle: 'Revisão Geral / Edital Concluído'
+                        });
+                    }
                 }
 
                 return `
-                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-sm">
-                                ${hours}h
-                            </div>
-                            <div>
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-xs">
+                                    ${hours}h
+                                </div>
                                 <h4 class="font-bold text-base text-slate-800 dark:text-slate-100">${d.label}</h4>
-                                <p class="text-xs text-slate-400">Bloco de estudo adaptado à disponibilidade diária</p>
                             </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${count} bloco(s)</span>
                         </div>
-                        <div class="flex items-center space-x-2 flex-wrap gap-2">
-                            ${assignedSubs.map(sub => `
-                                <span class="text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700" style="background-color: ${sub.color}20; color:${sub.color}">
-                                    <i class="fa-solid fa-book-open mr-1.5"></i> ${sub.name}
-                                </span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            ${assignedItems.map(item => `
+                                <div class="bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${item.subjectColor}"></span>
+                                        <span class="text-xs font-bold" style="color: ${item.subjectColor}">${item.subjectName}</span>
+                                    </div>
+                                    <p class="text-xs font-medium text-slate-700 dark:text-slate-200"><i class="fa-solid fa-book-bookmark mr-1.5 text-slate-400"></i> ${item.topicTitle}</p>
+                                </div>
                             `).join('')}
                         </div>
                     </div>
@@ -1561,10 +1713,11 @@
 
         // --- EVOLUÇÃO & ARQUIVO ---
         function renderArchiveView() {
-            const container = document.getElementById('archived-edital-container');
-            if (!container) return;
+            const editalContainer = document.getElementById('archived-edital-container');
+            const cyclesContainer = document.getElementById('archived-cycles-container');
+            if (!editalContainer || !cyclesContainer) return;
 
-            container.innerHTML = state.archives.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhum edital arquivado até o momento.</p>' : state.archives.map(arch => `
+            editalContainer.innerHTML = state.archives.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhum edital arquivado até o momento.</p>' : state.archives.map(arch => `
                 <div class="bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex items-center justify-between shadow-sm">
                     <div>
                         <h4 class="font-bold text-base text-slate-800 dark:text-slate-100">${arch.name}</h4>
@@ -1574,6 +1727,16 @@
                         <span class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">${arch.percentage}%</span>
                         <p class="text-xs text-slate-400">${arch.doneTopics} / ${arch.totalTopics} tópicos</p>
                     </div>
+                </div>
+            `).join('');
+
+            cyclesContainer.innerHTML = (!state.archivedCycles || state.archivedCycles.length === 0) ? '<p class="text-xs text-slate-400 italic">Nenhum ciclo semanal finalizado ainda.</p>' : state.archivedCycles.map(cyc => `
+                <div class="bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">${cyc.title}</h4>
+                        <p class="text-xs text-slate-400">Finalizado em: ${new Date(cyc.date).toLocaleDateString()}</p>
+                    </div>
+                    <span class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">${cyc.totalHours}h planeadas</span>
                 </div>
             `).join('');
         }
