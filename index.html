@@ -107,7 +107,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v4.2</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v4.3</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -790,7 +790,6 @@
         let isSignUpMode = false;
         let deferredPrompt = null;
 
-        // Estado padrão 100% limpo (sem disciplinas pré-definidas)
         const defaultState = {
             subjects: [],
             studyLogs: [],
@@ -965,7 +964,7 @@
             
             if (unsubscribeData) unsubscribeData();
 
-            unsubscribeData = onSnapshot(docRef, (docSnap) => {
+            unsubscribeData = onSnapshot(docRef, async (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     if (data && data.state) {
@@ -979,7 +978,9 @@
                         renderAll();
                     }
                 } else {
-                    saveUserDataToFirebase();
+                    await setDoc(docRef, { state: defaultState, updatedAt: new Date().toISOString() });
+                    state = JSON.parse(JSON.stringify(defaultState));
+                    renderAll();
                 }
             }, (error) => {
                 console.error("Firestore sync error:", error);
@@ -991,9 +992,10 @@
             if (!db || !userId) return;
             try {
                 const docRef = doc(db, 'artifacts', appId, 'users', userId, 'estudoflow_data', 'main');
-                await setDoc(docRef, { state, updatedAt: new Date().toISOString() });
+                await setDoc(docRef, { state, updatedAt: new Date().toISOString() }, { merge: true });
             } catch (e) {
                 console.error("Error saving data:", e);
+                alert("Erro ao salvar dados na nuvem. Verifique a sua conexão.");
             }
         };
 
