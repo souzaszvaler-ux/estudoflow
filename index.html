@@ -10,9 +10,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="EstudoFlow PRO">
-    <link rel="apple-touch-icon" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/graduation-cap.svg">
-    
-    <link rel="manifest" id="pwa-manifest">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -108,7 +107,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v3.7</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v3.8</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -152,11 +151,11 @@
             <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 space-y-3">
                 <button id="install-pwa-btn" onclick="installAppPrompt()" class="w-full hidden items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2.5 rounded-xl text-xs font-semibold shadow-md transition-all">
                     <i class="fa-solid fa-download"></i>
-                    <span>Instalar App no Telemóvel</span>
+                    <span>Instalar Aplicação</span>
                 </button>
                 <button onclick="requestNotificationPermission()" class="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition-all">
                     <i class="fa-solid fa-bell"></i>
-                    <span>Ativar Lembretes (WhatsApp Style)</span>
+                    <span>Ativar Lembretes Diários</span>
                 </button>
 
                 <div class="flex items-center justify-between pt-1">
@@ -835,27 +834,15 @@
             }
         });
 
-        // --- PWA SETUP & INSTALLATION ---
+        // --- PWA SETUP & SERVICE WORKER REGISTRATION ---
         function setupPWA() {
-            // Gerar manifest dinamicamente para suportar instalação mobile/desktop
-            const manifestData = {
-                name: "EstudoFlow PRO",
-                short_name: "EstudoFlow",
-                start_url: "./",
-                display: "standalone",
-                background_color: "#0f172a",
-                theme_color: "#4f46e5",
-                icons: [
-                    {
-                        src: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/graduation-cap.svg",
-                        sizes: "512x512",
-                        type: "image/svg+xml"
-                    }
-                ]
-            };
-            const stringManifest = JSON.stringify(manifestData);
-            const blob = new Blob([stringManifest], {type: 'application/json'});
-            document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./sw.js')
+                        .then(reg => console.log('Service Worker registado com sucesso:', reg.scope))
+                        .catch(err => console.log('Falha ao registar o Service Worker:', err));
+                });
+            }
 
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
@@ -874,11 +861,11 @@
                 }
                 deferredPrompt = null;
             } else {
-                alert("Para instalar no telemóvel: abra o menu do seu navegador (Chrome/Safari) e selecione 'Adicionar ao Ecrã Inicial' ou 'Instalar Aplicação'.");
+                alert("Para instalar: abra o menu do seu navegador (Chrome/Safari) e selecione 'Adicionar ao Ecrã Inicial' ou 'Instalar Aplicação'.");
             }
         };
 
-        // --- NOTIFICAÇÕES DIÁRIAS (WHATSAPP STYLE) ---
+        // --- NOTIFICAÇÕES DIÁRIAS ---
         window.requestNotificationPermission = async function() {
             if (!("Notification" in window)) {
                 alert("Este navegador não suporta notificações.");
@@ -889,7 +876,7 @@
                 showToast("Lembretes ativados com sucesso! Receberá notificações diárias de estudo.");
                 new Notification("EstudoFlow PRO 📚", {
                     body: "Notificações ativadas! Vamos rumo à aprovação nos concursos!",
-                    icon: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/graduation-cap.svg"
+                    icon: "icon.png"
                 });
             } else {
                 alert("Permissão de notificações negada nas definições do navegador.");
@@ -898,14 +885,13 @@
 
         function setupDailyNotifications() {
             if (Notification.permission === "granted") {
-                // Simula lembrete diário estilo WhatsApp caso o utilizador esteja ativo
                 const lastReminder = localStorage.getItem('estudoflow_last_notif');
                 const today = new Date().toDateString();
                 if (lastReminder !== today) {
                     setTimeout(() => {
                         new Notification("EstudoFlow PRO 🔔", {
-                            body: "Mensagem nova: A sua meta diária de estudos está à sua espera! Vamos focar?",
-                            icon: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/graduation-cap.svg"
+                            body: "A sua meta diária de estudos está à sua espera! Vamos focar?",
+                            icon: "icon.png"
                         });
                         localStorage.setItem('estudoflow_last_notif', today);
                     }, 5000);
