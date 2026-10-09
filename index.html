@@ -721,7 +721,7 @@
         }
 
         function saveUserData() {
-            if (!currentUser) return;
+            if (!currentUser) return Promise.resolve();
             const data = { 
                 subjects, 
                 historicoDiario, 
@@ -735,8 +735,11 @@
                 dailySubjectsCount, 
                 planoGerado 
             };
-            firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
-                .catch(err => console.error("Erro ao salvar dados:", err));
+            return firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
+                .catch(err => {
+                    console.error("Erro ao salvar dados:", err);
+                    throw err;
+                });
         }
 
         function loadUserData() {
@@ -925,21 +928,28 @@
 
         function reiniciarNovoEdital() {
             if (confirm("ATENÇÃO: Deseja arquivar o edital atual no histórico e iniciar um novo edital em branco?")) {
-                if (subjects && subjects.length > 0) {
-                    if (!editaisArquivados) editaisArquivados = [];
-                    editaisArquivados.unshift({
-                        date: new Date().toLocaleDateString('pt-BR'),
-                        subjects: JSON.parse(JSON.stringify(subjects))
-                    });
-                }
+                if (!editaisArquivados) editaisArquivados = [];
+                
+                // Cria uma cópia profunda de segurança do estado atual das matérias
+                const editalParaArquivar = {
+                    date: new Date().toLocaleDateString('pt-BR'),
+                    subjects: JSON.parse(JSON.stringify(subjects || []))
+                };
+                
+                editaisArquivados.unshift(editalParaArquivar);
 
+                // Limpa estado atual
                 subjects = [];
                 savedSmartPlan = null;
                 planoGerado = false;
                 
-                saveUserData();
-                renderApp();
-                alert("Edital anterior arquivado com sucesso! Pronto para um novo edital.");
+                // Salva de forma síncrona/garantida no Firebase e depois renderiza
+                saveUserData().then(() => {
+                    renderApp();
+                    alert("Edital anterior arquivado com sucesso e novo edital iniciado!");
+                }).catch(err => {
+                    alert("Erro ao sincronizar com o Firebase: " + err.message);
+                });
             }
         }
 
@@ -958,7 +968,7 @@
                         <button type="button" onclick="excluirEditalArquivado(${idx})" class="text-red-400 hover:text-red-300 text-[10px]">Excluir do Histórico</button>
                     </div>
                     <div class="space-y-1.5 pt-1">
-                        ${editalObj.subjects.map(sub => {
+                        ${editalObj.subjects && editalObj.subjects.length > 0 ? editalObj.subjects.map(sub => {
                             const totalT = sub.topics ? sub.topics.length : 0;
                             const doneT = sub.topics ? sub.topics.filter(t => t.done).length : 0;
                             const pct = totalT > 0 ? Math.round((doneT / totalT) * 100) : 0;
@@ -971,7 +981,7 @@
                                     <span class="text-[10px] font-bold text-blue-400">${(sub.hoursStudied || 0).toFixed(1)}h</span>
                                 </div>
                             `;
-                        }).join('')}
+                        }).join('') : '<p class="text-[11px] text-zinc-500 italic">Nenhuma matéria registrada neste edital.</p>'}
                     </div>
                 </div>
             `).join('');
