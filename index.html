@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full bg-black text-slate-100">
+<html lang="pt-BR" class="h-full bg-slate-950 text-slate-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EstudoFlow PRO</title>
+    <title>EstudoFlow PRO - Dashboard</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#020617">
 
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg>">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -39,22 +39,23 @@
     <style>
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-panel { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.4); }
     </style>
 </head>
-<body class="h-full flex flex-col font-sans antialiased bg-black text-slate-100 select-none">
+<body class="h-full flex flex-col font-sans antialiased bg-slate-950 text-slate-100 select-none">
 
     <!-- Tela de Autenticação -->
-    <div id="authScreen" class="fixed inset-0 bg-black z-50 flex items-center justify-center p-4">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-3xl w-full max-w-sm p-6 space-y-5 shadow-2xl">
+    <div id="authScreen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+        <div class="glass-panel rounded-3xl w-full max-w-sm p-7 space-y-6 shadow-2xl">
             <div class="text-center space-y-2">
-                <div class="inline-flex p-3 bg-zinc-900 border border-zinc-700 rounded-2xl text-blue-400 mb-1">
-                    <i data-lucide="shield" class="w-8 h-8"></i>
+                <div class="inline-flex p-3.5 bg-blue-600/10 border border-blue-500/20 rounded-2xl text-blue-400 mb-1 shadow-inner">
+                    <i data-lucide="layout-dashboard" class="w-8 h-8"></i>
                 </div>
-                <h1 class="text-2xl font-black text-white">EstudoFlow <span class="text-blue-500">PRO</span></h1>
-                <p class="text-xs text-zinc-400" id="authSubtitle">Acesse para sincronizar em todos os dispositivos</p>
+                <h1 class="text-2xl font-black tracking-tight text-white">EstudoFlow <span class="text-blue-500">PRO</span></h1>
+                <p class="text-xs text-slate-400" id="authSubtitle">Dashboard de Alta Performance para Concursos</p>
             </div>
 
-            <button type="button" onclick="loginWithGoogle()" class="w-full bg-zinc-900 hover:bg-zinc-800 text-white font-semibold py-3 px-4 rounded-xl text-sm border border-zinc-700 flex items-center justify-center space-x-2 transition shadow-md">
+            <button type="button" onclick="loginWithGoogle()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-xl text-xs border border-slate-700/80 flex items-center justify-center space-x-2.5 transition shadow-lg">
                 <svg class="w-4 h-4" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -64,229 +65,272 @@
                 <span>Continuar com o Google</span>
             </button>
 
-            <div class="flex items-center space-x-2 my-2">
-                <div class="flex-1 border-t border-zinc-800"></div>
-                <span class="text-[10px] text-zinc-500 uppercase tracking-wider">ou e-mail</span>
-                <div class="flex-1 border-t border-zinc-800"></div>
+            <div class="flex items-center space-x-2 my-1">
+                <div class="flex-1 border-t border-slate-800"></div>
+                <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">ou e-mail</span>
+                <div class="flex-1 border-t border-slate-800"></div>
             </div>
 
-            <form id="authForm" onsubmit="handleAuth(event)" class="space-y-3">
+            <form id="authForm" onsubmit="handleAuth(event)" class="space-y-3.5">
                 <div>
-                    <label class="block text-xs text-zinc-400 mb-1">E-mail</label>
-                    <input type="email" id="authEmail" required placeholder="seu@email.com" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                    <label class="block text-[11px] font-medium text-slate-400 mb-1">E-mail</label>
+                    <input type="email" id="authEmail" required placeholder="seu@email.com" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
                 </div>
                 <div>
                     <div class="flex justify-between items-center mb-1">
-                        <label class="block text-xs text-zinc-400">Senha</label>
-                        <button type="button" onclick="resetPassword()" class="text-[10px] text-blue-400 hover:underline">Esqueceu / Criar senha?</button>
+                        <label class="block text-[11px] font-medium text-slate-400">Senha</label>
+                        <button type="button" onclick="resetPassword()" class="text-[10px] text-blue-400 hover:underline">Esqueceu / Criar?</button>
                     </div>
-                    <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                    <input type="password" id="authPassword" required placeholder="••••••••" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition">
                 </div>
 
-                <button type="submit" id="btnAuthSubmit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-blue-600/20">
-                    Entrar
+                <button type="submit" id="btnAuthSubmit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-blue-600/25">
+                    Entrar no Dashboard
                 </button>
             </form>
 
             <div class="text-center pt-1">
-                <button type="button" onclick="toggleAuthMode()" id="btnToggleAuth" class="text-xs text-zinc-400 hover:text-white transition">
+                <button type="button" onclick="toggleAuthMode()" id="btnToggleAuth" class="text-xs text-slate-400 hover:text-white transition">
                     Não tem conta? <span class="text-blue-400 font-bold">Cadastre-se</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Interface Principal -->
-    <div id="appInterface" class="h-full flex flex-col hidden">
-        <header class="bg-black/90 backdrop-blur border-b border-zinc-800 sticky top-0 z-40 pt-2">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <div class="p-2 bg-zinc-900 border border-zinc-700 rounded-xl text-blue-400">
-                        <i data-lucide="shield" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-lg font-black tracking-wide text-white">
-                            EstudoFlow <span class="text-blue-500">PRO</span>
-                        </h1>
-                    </div>
+    <!-- Interface Principal (Dashboard Shell) -->
+    <div id="appInterface" class="h-full flex flex-col hidden overflow-hidden">
+        
+        <!-- Header Superior tipo Topbar Dashboard -->
+        <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl text-white shadow-md shadow-blue-500/20">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <button type="button" onclick="dispararNotificacaoDiaria()" class="bg-blue-950/80 hover:bg-blue-900 border border-blue-800 text-blue-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-lg" title="Ver Resumo e Notificação do Dia">
-                        <i data-lucide="bell" class="w-4 h-4"></i>
-                        <span>Aviso Diário</span>
-                    </button>
-                    <button type="button" onclick="fecharSemana()" class="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-800 text-emerald-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-lg">
-                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-                        <span>Fechar Semana</span>
-                    </button>
-                    <button type="button" onclick="logout()" class="p-2 text-zinc-400 hover:text-red-400 transition border border-zinc-800 rounded-xl bg-zinc-950" title="Sair da Conta">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
-                    </button>
+                <div>
+                    <h1 class="text-sm font-black tracking-tight text-white flex items-center space-x-2">
+                        <span>EstudoFlow</span>
+                        <span class="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">PRO</span>
+                    </h1>
                 </div>
+            </div>
+
+            <!-- Ações Rápidas Topo -->
+            <div class="flex items-center space-x-2.5">
+                <button type="button" onclick="dispararNotificacaoDiaria()" class="bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 text-blue-400 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition shadow-sm" title="Aviso Diário">
+                    <i data-lucide="bell" class="w-3.5 h-3.5"></i>
+                    <span class="hidden md:inline">Aviso Diário</span>
+                </button>
+                <button type="button" onclick="fecharSemana()" class="bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-800/50 text-emerald-400 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition shadow-sm">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                    <span class="hidden md:inline">Fechar Semana</span>
+                </button>
+                <button type="button" onclick="logout()" class="p-2 text-slate-400 hover:text-red-400 transition border border-slate-800 rounded-xl bg-slate-900/50" title="Sair da Conta">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
             </div>
         </header>
 
-        <!-- Main Content -->
-        <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 pb-64 overflow-y-auto hide-scrollbar">
-            <!-- ABA 1: EDITAL -->
-            <section id="tab-cronograma" class="space-y-5 tab-content">
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-1 shadow-md">
-                        <div class="flex items-center justify-between text-zinc-400">
-                            <span class="text-[10px] font-bold uppercase tracking-wider">Horas Totais</span>
-                            <i data-lucide="clock" class="w-4 h-4 text-blue-400"></i>
+        <!-- Container Scrollável do Dashboard -->
+        <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 lg:p-8 pb-36 overflow-y-auto hide-scrollbar space-y-6">
+            
+            <!-- ABA 1: EDITAL & DASHBOARD GERAL -->
+            <section id="tab-cronograma" class="space-y-6 tab-content">
+                
+                <!-- Cards de Estatísticas do Dashboard -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="glass-panel rounded-2xl p-4 space-y-2 shadow-lg relative overflow-hidden">
+                        <div class="absolute -right-3 -bottom-3 text-blue-500/10 pointer-events-none">
+                            <i data-lucide="clock" class="w-20 h-20"></i>
+                        </div>
+                        <div class="flex items-center justify-between text-slate-400">
+                            <span class="text-[11px] font-bold uppercase tracking-wider">Horas Totais</span>
+                            <div class="p-1.5 bg-blue-500/10 rounded-lg text-blue-400"><i data-lucide="clock" class="w-3.5 h-3.5"></i></div>
                         </div>
                         <div id="statTotalHours" class="text-2xl font-black text-white">0h</div>
-                        <p class="text-[10px] text-zinc-500" id="statWeeklyHours">0h nesta semana</p>
+                        <p class="text-[10px] text-slate-400 font-medium" id="statWeeklyHours">0h nesta semana</p>
                     </div>
 
-                    <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-1 shadow-md">
-                        <div class="flex items-center justify-between text-zinc-400">
-                            <span class="text-[10px] font-bold uppercase tracking-wider">Questões Finais</span>
-                            <i data-lucide="target" class="w-4 h-4 text-emerald-400"></i>
+                    <div class="glass-panel rounded-2xl p-4 space-y-2 shadow-lg relative overflow-hidden">
+                        <div class="absolute -right-3 -bottom-3 text-emerald-500/10 pointer-events-none">
+                            <i data-lucide="target" class="w-20 h-20"></i>
+                        </div>
+                        <div class="flex items-center justify-between text-slate-400">
+                            <span class="text-[11px] font-bold uppercase tracking-wider">Questões Finais</span>
+                            <div class="p-1.5 bg-emerald-500/10 rounded-lg text-emerald-400"><i data-lucide="target" class="w-3.5 h-3.5"></i></div>
                         </div>
                         <div id="statTotalQuestions" class="text-2xl font-black text-white">0</div>
-                        <p class="text-[10px] text-zinc-500" id="statAccuracy">0% acertos no total</p>
+                        <p class="text-[10px] text-slate-400 font-medium" id="statAccuracy">0% acertos no total</p>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-4 space-y-2 shadow-lg col-span-2 lg:col-span-2 flex flex-col justify-between">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-200 uppercase tracking-wider text-[11px]">Progresso Geral do Edital</span>
+                            <span id="globalPercent" class="font-black text-blue-400 text-base">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-900 h-3 rounded-full overflow-hidden border border-slate-800 p-0.5">
+                            <div id="globalProgressBar" class="bg-gradient-to-r from-blue-600 to-indigo-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between items-center text-[11px] text-slate-400 pt-1">
+                            <span id="statWeeklyTopics">0 / 0 tópicos concluídos</span>
+                            <span class="text-blue-400 font-semibold">Meta de Aprovação</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-2 shadow-md">
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="font-bold text-zinc-300">Progresso Geral do Edital</span>
-                        <span id="globalPercent" class="font-black text-blue-500 text-sm">0%</span>
+                <!-- Barra de Ferramentas / Ações do Edital -->
+                <div class="glass-panel rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+                    <div class="flex items-center space-x-2">
+                        <div class="p-1.5 bg-blue-600/10 rounded-lg text-blue-400"><i data-lucide="list-checks" class="w-4 h-4"></i></div>
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-200">Disciplinas & Tópicos Verticalizados</h2>
                     </div>
-                    <div class="w-full bg-zinc-900 h-2.5 rounded-full overflow-hidden border border-zinc-800">
-                        <div id="globalProgressBar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
-                    </div>
-                    <p id="statWeeklyTopics" class="text-[10px] text-zinc-500 pt-0.5">0 / 0 tópicos concluídos</p>
-                </div>
-
-                <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1.5">
-                        <i data-lucide="list-checks" class="w-4 h-4 text-blue-500"></i>
-                        <span>Disciplinas do Edital</span>
-                    </h2>
                     <div class="flex flex-wrap gap-2">
-                        <button type="button" onclick="abrirModalImportacao()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                        <button type="button" onclick="abrirModalImportacao()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-md shadow-blue-600/20">
                             <i data-lucide="file-up" class="w-3.5 h-3.5"></i>
                             <span>Importar</span>
                         </button>
-                        <button type="button" onclick="exportarBackupJSON()" class="bg-zinc-900 hover:bg-zinc-800 text-emerald-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Baixar arquivo de backup do edital">
+                        <button type="button" onclick="exportarBackupJSON()" class="bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-slate-700/60 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Baixar backup JSON">
                             <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                            <span>Salvar Arquivo</span>
+                            <span>Salvar</span>
                         </button>
-                        <label class="bg-zinc-900 hover:bg-zinc-800 text-amber-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition cursor-pointer" title="Restaurar de arquivo JSON">
+                        <label class="bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-700/60 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition cursor-pointer" title="Restaurar backup">
                             <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-                            <span>Restaurar Arquivo</span>
+                            <span>Restaurar</span>
                             <input type="file" accept=".json" onchange="importarBackupJSON(event)" class="hidden">
                         </label>
-                        <button type="button" onclick="abrirModalPlano()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                        <button type="button" onclick="abrirModalPlano()" class="bg-slate-900 hover:bg-slate-800 text-blue-400 border border-slate-700/60 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                             <span>Gerar Plano</span>
                         </button>
-                        <button type="button" onclick="openSubjectModal()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                        <button type="button" onclick="openSubjectModal()" class="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/60 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                            <span>Add Matéria</span>
+                            <span>Matéria</span>
                         </button>
                     </div>
                 </div>
 
-                <div id="scheduleContainer" class="space-y-4 mb-20"></div>
+                <!-- Lista de Matérias do Edital -->
+                <div id="scheduleContainer" class="space-y-4 pb-12"></div>
             </section>
 
             <!-- ABA 2: PLANO INTELIGENTE -->
-            <section id="tab-plano" class="space-y-4 tab-content hidden">
-                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-base font-bold text-white flex items-center space-x-2">
-                            <i data-lucide="sparkles" class="w-5 h-5 text-blue-500"></i>
-                            <span>Plano da Semana Atual (100% Estático e Blindado)</span>
-                        </h2>
+            <section id="tab-plano" class="space-y-6 tab-content hidden">
+                <div class="glass-panel rounded-3xl p-6 space-y-4 shadow-xl">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="p-2 bg-blue-600/10 text-blue-400 rounded-xl"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+                            <div>
+                                <h2 class="text-base font-bold text-white">Plano da Semana Atual</h2>
+                                <p class="text-xs text-slate-400">Planejamento estático otimizado por prioridade de desempenho.</p>
+                            </div>
+                        </div>
                         <div class="flex space-x-2">
-                            <button type="button" onclick="reiniciarNovoEdital()" class="bg-red-950/80 hover:bg-red-900 text-red-400 border border-red-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Limpar tudo e iniciar novo edital">
+                            <button type="button" onclick="reiniciarNovoEdital()" class="bg-red-950/60 hover:bg-red-900/70 text-red-400 border border-red-800/50 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Arquivar edital atual e iniciar novo">
                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                 <span>Zerar Edital</span>
                             </button>
-                            <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                            <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                                 <i data-lucide="settings" class="w-3.5 h-3.5"></i>
-                                <span>Gerar Novo Plano</span>
+                                <span>Configurar Metas</span>
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano está perfeitamente congelado e imune a alterações acidentais de outros menus.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
-                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4 mt-6">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-base font-bold text-white flex items-center space-x-2">
-                            <i data-lucide="archive" class="w-5 h-5 text-amber-500"></i>
-                            <span>Planos Semanais Anteriores (Histórico)</span>
-                        </h2>
+                <div class="glass-panel rounded-3xl p-6 space-y-4 shadow-xl">
+                    <div class="flex items-center space-x-2.5 border-b border-slate-800/80 pb-4">
+                        <div class="p-2 bg-amber-500/10 text-amber-400 rounded-xl"><i data-lucide="archive" class="w-5 h-5"></i></div>
+                        <div>
+                            <h2 class="text-base font-bold text-white">Planos Semanais Anteriores</h2>
+                            <p class="text-xs text-slate-400">Histórico de ciclos de estudo já concluídos e arquivados.</p>
+                        </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Acompanhe aqui os ciclos de estudo semanais que já foram concluídos e arquivados.</p>
                     <div id="planosAnterioresContainer" class="space-y-3 pt-1">
-                        <p class="text-xs text-zinc-500 italic">Nenhum plano semanal arquivado ainda.</p>
+                        <p class="text-xs text-slate-500 italic">Nenhum plano semanal arquivado ainda.</p>
                     </div>
                 </div>
             </section>
 
             <!-- ABA 3: EVOLUÇÃO / HISTÓRICO -->
-            <section id="tab-historico" class="space-y-4 tab-content hidden">
-                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-base font-bold text-white flex items-center space-x-2">
-                            <i data-lucide="history" class="w-5 h-5 text-blue-500"></i>
-                            <span>Evolução Diária e Semanal</span>
-                        </h2>
-                        <button type="button" onclick="limparHistorico()" class="bg-red-950/80 hover:bg-red-900 border border-red-800 text-red-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+            <section id="tab-historico" class="space-y-6 tab-content hidden">
+                <div class="glass-panel rounded-3xl p-6 space-y-5 shadow-xl">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="p-2 bg-indigo-600/10 text-indigo-400 rounded-xl"><i data-lucide="history" class="w-5 h-5"></i></div>
+                            <div>
+                                <h2 class="text-base font-bold text-white">Evolução & Editais Anteriores</h2>
+                                <p class="text-xs text-slate-400">Acompanhe seu progresso de longo prazo e ciclos passados.</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="limparHistorico()" class="bg-red-950/60 hover:bg-red-900/70 border border-red-800/50 text-red-400 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                             <span>Limpar Histórico</span>
                         </button>
                     </div>
-                    <div id="historicoSemanalList" class="space-y-3"></div>
+                    
+                    <div class="space-y-3 pt-2">
+                        <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center space-x-1.5">
+                            <i data-lucide="folder-archive" class="w-4 h-4"></i>
+                            <span>Editais Anteriores Arquivados</span>
+                        </h3>
+                        <div id="editaisArquivadosList" class="space-y-3">
+                            <p class="text-xs text-slate-500 italic">Nenhum edital anterior arquivado ainda.</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-5 border-t border-slate-800/80">
+                        <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider mb-3 flex items-center space-x-1.5">
+                            <i data-lucide="activity" class="w-4 h-4"></i>
+                            <span>Evolução Diária de Tópicos</span>
+                        </h3>
+                        <div id="historicoSemanalList" class="space-y-3"></div>
+                    </div>
                 </div>
             </section>
 
             <!-- ABA 4: CADERNO DE ERROS -->
-            <section id="tab-erros" class="space-y-4 tab-content hidden">
-                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-base font-bold text-white flex items-center space-x-2">
-                            <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-500"></i>
-                            <span>Caderno de Erros por Assuntos</span>
-                        </h2>
-                        <button type="button" onclick="openErrorModal()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+            <section id="tab-erros" class="space-y-6 tab-content hidden">
+                <div class="glass-panel rounded-3xl p-6 space-y-4 shadow-xl">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="p-2 bg-amber-500/10 text-amber-400 rounded-xl"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+                            <div>
+                                <h2 class="text-base font-bold text-white">Caderno de Erros por Assuntos</h2>
+                                <p class="text-xs text-slate-400">Revise os pontos críticos mapeados durante suas baterias de questões.</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="openErrorModal()" class="bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-md shadow-amber-600/20">
                             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                             <span>Registrar Erro</span>
                         </button>
                     </div>
-                    <p class="text-xs text-zinc-400">Acompanhe e filtre os erros cometidos em cada matéria e tópico.</p>
-                    <div id="cadernoErrosList" class="space-y-3"></div>
+                    <div id="cadernoErrosList" class="space-y-3 pt-1"></div>
                 </div>
             </section>
 
             <!-- ABA 5: NOTAS EM PASTAS -->
-            <section id="tab-notas" class="space-y-4 tab-content hidden">
-                <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-base font-bold text-white flex items-center space-x-2">
-                            <i data-lucide="folder" class="w-5 h-5 text-blue-500"></i>
-                            <span>Pastas e Blocos de Notas</span>
-                        </h2>
+            <section id="tab-notas" class="space-y-6 tab-content hidden">
+                <div class="glass-panel rounded-3xl p-6 space-y-4 shadow-xl">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="p-2 bg-blue-600/10 text-blue-400 rounded-xl"><i data-lucide="folder" class="w-5 h-5"></i></div>
+                            <div>
+                                <h2 class="text-base font-bold text-white">Pastas e Blocos de Notas</h2>
+                                <p class="text-xs text-slate-400">Resumos estruturados e anotações categorizadas por disciplina.</p>
+                            </div>
+                        </div>
                         <div class="flex space-x-2">
-                            <button type="button" onclick="openFolderModal()" class="bg-zinc-900 hover:bg-zinc-800 text-blue-400 border border-zinc-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                            <button type="button" onclick="openFolderModal()" class="bg-slate-900 hover:bg-slate-800 text-blue-400 border border-slate-700/60 px-3 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                                 <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i>
-                                <span>Nova Pasta</span>
+                                <span>Pasta</span>
                             </button>
-                            <button type="button" onclick="openNoteModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                            <button type="button" onclick="openNoteModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
                                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                                <span>Nova Nota</span>
+                                <span>Nota</span>
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Organize suas anotações em pastas temáticas (Ex: Português, Constitucional).</p>
-                    <div id="foldersContainer" class="space-y-4"></div>
+                    <div id="foldersContainer" class="space-y-4 pt-1"></div>
                 </div>
             </section>
 
@@ -294,69 +338,69 @@
             <section id="tab-timer" class="space-y-6 tab-content hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- POMODORO -->
-                    <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 text-center space-y-4 shadow-2xl flex flex-col justify-between">
+                    <div class="glass-panel rounded-3xl p-6 text-center space-y-5 shadow-xl flex flex-col justify-between">
                         <div>
-                            <div class="flex items-center justify-center space-x-2 mb-3">
-                                <i data-lucide="timer" class="w-5 h-5 text-blue-500"></i>
+                            <div class="flex items-center justify-center space-x-2 mb-4">
+                                <div class="p-2 bg-blue-600/10 text-blue-400 rounded-xl"><i data-lucide="timer" class="w-5 h-5"></i></div>
                                 <h3 class="text-base font-bold text-white">Ciclo Pomodoro</h3>
                             </div>
 
-                            <div class="space-y-2 text-left">
-                                <label class="block text-[11px] text-zinc-400">Matéria para o Pomodoro:</label>
-                                <select id="pomoSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                            <div class="space-y-1.5 text-left mb-4">
+                                <label class="block text-[11px] font-medium text-slate-400">Matéria para o Foco:</label>
+                                <select id="pomoSubjectSelect" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
                                     <option value="">-- Selecione a matéria --</option>
                                 </select>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-2 text-xs my-3">
-                                <div class="bg-black p-2 border border-zinc-800 rounded-xl">
-                                    <label class="block text-[10px] text-zinc-400 mb-1">Foco (min)</label>
-                                    <input type="number" id="pomoWorkTime" value="25" min="1" max="120" onchange="resetPomoTimer()" class="w-full bg-zinc-900 border border-zinc-700 rounded text-center text-white py-1 font-bold">
+                            <div class="grid grid-cols-2 gap-3 text-xs mb-4">
+                                <div class="bg-slate-900/80 p-3 border border-slate-800 rounded-xl">
+                                    <label class="block text-[10px] text-slate-400 mb-1 uppercase font-bold tracking-wider">Foco (min)</label>
+                                    <input type="number" id="pomoWorkTime" value="25" min="1" max="120" onchange="resetPomoTimer()" class="w-full bg-slate-950 border border-slate-700 rounded-lg text-center text-white py-1.5 font-black text-sm">
                                 </div>
-                                <div class="bg-black p-2 border border-zinc-800 rounded-xl">
-                                    <label class="block text-[10px] text-zinc-400 mb-1">Pausa (min)</label>
-                                    <input type="number" id="pomoBreakTime" value="5" min="1" max="60" onchange="resetPomoTimer()" class="w-full bg-zinc-900 border border-zinc-700 rounded text-center text-white py-1 font-bold">
+                                <div class="bg-slate-900/80 p-3 border border-slate-800 rounded-xl">
+                                    <label class="block text-[10px] text-slate-400 mb-1 uppercase font-bold tracking-wider">Pausa (min)</label>
+                                    <input type="number" id="pomoBreakTime" value="5" min="1" max="60" onchange="resetPomoTimer()" class="w-full bg-slate-950 border border-slate-700 rounded-lg text-center text-white py-1.5 font-black text-sm">
                                 </div>
                             </div>
 
-                            <div id="pomoStatus" class="text-[11px] font-bold text-blue-400 uppercase tracking-widest">Sessão de Foco</div>
-                            <div id="pomoDisplay" class="text-4xl font-black font-mono text-white tracking-wider my-3">25:00</div>
+                            <div id="pomoStatus" class="text-[11px] font-extrabold text-blue-400 uppercase tracking-widest">Sessão de Foco</div>
+                            <div id="pomoDisplay" class="text-5xl font-black font-mono text-white tracking-wider my-3">25:00</div>
                         </div>
 
                         <div class="flex space-x-2 pt-2">
-                            <button type="button" id="btnPomoStart" onclick="togglePomoTimer()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                            <button type="button" id="btnPomoStart" onclick="togglePomoTimer()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-blue-600/20">
                                 Iniciar Foco
                             </button>
-                            <button type="button" onclick="resetPomoTimer()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-zinc-800 px-3 py-2.5 rounded-xl text-xs transition">
+                            <button type="button" onclick="resetPomoTimer()" class="bg-slate-900 hover:bg-slate-800 text-slate-400 border border-slate-800 px-4 py-3 rounded-xl text-xs transition">
                                 Zerar
                             </button>
                         </div>
                     </div>
 
                     <!-- CRONÔMETRO LIVRE -->
-                    <div class="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 text-center space-y-4 shadow-2xl flex flex-col justify-between">
+                    <div class="glass-panel rounded-3xl p-6 text-center space-y-5 shadow-xl flex flex-col justify-between">
                         <div>
-                            <div class="flex items-center justify-center space-x-2 mb-3">
-                                <i data-lucide="play-circle" class="w-5 h-5 text-emerald-500"></i>
+                            <div class="flex items-center justify-center space-x-2 mb-4">
+                                <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl"><i data-lucide="play-circle" class="w-5 h-5"></i></div>
                                 <h3 class="text-base font-bold text-white">Cronômetro Livre</h3>
                             </div>
 
-                            <div class="space-y-2 text-left">
-                                <label class="block text-[11px] text-zinc-400">Matéria para o Cronômetro Livre:</label>
-                                <select id="freeSubjectSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                            <div class="space-y-1.5 text-left mb-4">
+                                <label class="block text-[11px] font-medium text-slate-400">Matéria para Contagem:</label>
+                                <select id="freeSubjectSelect" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
                                     <option value="">-- Selecione a matéria --</option>
                                 </select>
                             </div>
 
-                            <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-widest my-3">Contagem Progressiva</div>
-                            <div id="freeDisplay" class="text-4xl font-black font-mono text-white tracking-wider my-3">00:00:00</div>
+                            <div class="text-[11px] font-extrabold text-emerald-400 uppercase tracking-widest mb-1 mt-6">Contagem Progressiva</div>
+                            <div id="freeDisplay" class="text-5xl font-black font-mono text-white tracking-wider my-4">00:00:00</div>
                         </div>
 
                         <div class="flex space-x-2 pt-2">
-                            <button type="button" id="btnFreeStart" onclick="toggleFreeTimer()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                            <button type="button" id="btnFreeStart" onclick="toggleFreeTimer()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-emerald-600/20">
                                 Iniciar Livre
                             </button>
-                            <button type="button" onclick="resetFreeTimer()" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-zinc-800 px-3 py-2.5 rounded-xl text-xs transition">
+                            <button type="button" onclick="resetFreeTimer()" class="bg-slate-900 hover:bg-slate-800 text-slate-400 border border-slate-800 px-4 py-3 rounded-xl text-xs transition">
                                 Zerar
                             </button>
                         </div>
@@ -365,221 +409,221 @@
             </section>
         </main>
 
-        <!-- Navegação Inferior -->
-        <nav class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur border-t border-zinc-800 z-40 px-2 py-2">
-            <div class="max-w-md mx-auto flex justify-around items-center">
-                <button type="button" onclick="switchTab('cronograma')" id="nav-cronograma" class="flex flex-col items-center space-y-1 text-blue-500 font-bold transition">
+        <!-- Navegação Inferior estilo Dock Dashboard Mobile/Desktop -->
+        <nav class="fixed bottom-3 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:max-w-xl bg-slate-900/90 backdrop-blur-xl border border-slate-800/80 z-40 px-3 py-2 rounded-2xl shadow-2xl shadow-black/80">
+            <div class="flex justify-around items-center">
+                <button type="button" onclick="switchTab('cronograma')" id="nav-cronograma" class="flex flex-col items-center space-y-1 text-blue-500 font-bold transition p-1.5">
                     <i data-lucide="calendar" class="w-5 h-5"></i>
-                    <span class="text-[9px]">Edital</span>
+                    <span class="text-[10px]">Edital</span>
                 </button>
-                <button type="button" onclick="switchTab('plano')" id="nav-plano" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                <button type="button" onclick="switchTab('plano')" id="nav-plano" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-200 transition p-1.5">
                     <i data-lucide="sparkles" class="w-5 h-5"></i>
-                    <span class="text-[9px]">Plano</span>
+                    <span class="text-[10px]">Plano</span>
                 </button>
-                <button type="button" onclick="switchTab('historico')" id="nav-historico" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                <button type="button" onclick="switchTab('historico')" id="nav-historico" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-200 transition p-1.5">
                     <i data-lucide="history" class="w-5 h-5"></i>
-                    <span class="text-[9px]">Evolução</span>
+                    <span class="text-[10px]">Evolução</span>
                 </button>
-                <button type="button" onclick="switchTab('erros')" id="nav-erros" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                <button type="button" onclick="switchTab('erros')" id="nav-erros" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-200 transition p-1.5">
                     <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-                    <span class="text-[9px]">Erros</span>
+                    <span class="text-[10px]">Erros</span>
                 </button>
-                <button type="button" onclick="switchTab('notas')" id="nav-notas" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                <button type="button" onclick="switchTab('notas')" id="nav-notas" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-200 transition p-1.5">
                     <i data-lucide="folder" class="w-5 h-5"></i>
-                    <span class="text-[9px]">Notas</span>
+                    <span class="text-[10px]">Notas</span>
                 </button>
-                <button type="button" onclick="switchTab('timer')" id="nav-timer" class="flex flex-col items-center space-y-1 text-zinc-500 hover:text-zinc-300 transition">
+                <button type="button" onclick="switchTab('timer')" id="nav-timer" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-slate-200 transition p-1.5">
                     <i data-lucide="timer" class="w-5 h-5"></i>
-                    <span class="text-[9px]">Timer</span>
+                    <span class="text-[10px]">Timer</span>
                 </button>
             </div>
         </nav>
     </div>
 
-    <!-- MODAIS -->
-    <div id="folderModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
-            <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
+    <!-- MODAIS DO SISTEMA -->
+    <div id="folderModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-blue-400 flex items-center space-x-2">
                 <i data-lucide="folder-plus" class="w-5 h-5"></i>
                 <span>Nova Pasta de Notas</span>
             </h3>
             <input type="hidden" id="editingFolderId" value="">
             <div>
-                <label class="block text-xs text-zinc-400 mb-1">Nome da Pasta</label>
-                <input type="text" id="modalFolderName" placeholder="Ex: Direito Constitucional" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                <label class="block text-xs text-slate-400 mb-1">Nome da Pasta</label>
+                <input type="text" id="modalFolderName" placeholder="Ex: Direito Constitucional" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
             </div>
-            <div class="flex space-x-2 pt-2">
-                <button type="button" onclick="closeFolderModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="saveFolder()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Salvar Pasta</button>
+            <div class="flex space-x-2.5 pt-2">
+                <button type="button" onclick="closeFolderModal()" class="flex-1 bg-slate-900 text-slate-300 py-2.5 rounded-xl text-xs font-semibold border border-slate-800">Cancelar</button>
+                <button type="button" onclick="saveFolder()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-xs font-semibold transition shadow-md">Salvar Pasta</button>
             </div>
         </div>
     </div>
 
-    <div id="noteModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
-            <h3 id="noteModalTitle" class="text-base font-bold text-blue-500 flex items-center space-x-2">
+    <div id="noteModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel rounded-3xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+            <h3 id="noteModalTitle" class="text-base font-bold text-blue-400 flex items-center space-x-2">
                 <i data-lucide="file-text" class="w-5 h-5"></i>
                 <span>Novo Bloco de Notas</span>
             </h3>
             <input type="hidden" id="editingNoteId" value="">
             <div>
-                <label class="block text-xs text-zinc-400 mb-1">Pasta Destino</label>
-                <select id="modalNoteFolderSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                <label class="block text-xs text-slate-400 mb-1">Pasta Destino</label>
+                <select id="modalNoteFolderSelect" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
                     <option value="">-- Selecione a Pasta --</option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs text-zinc-400 mb-1">Título da Nota</label>
-                <input type="text" id="modalNoteTitle" placeholder="Ex: Estado, governo e administração pública" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                <label class="block text-xs text-slate-400 mb-1">Título da Nota</label>
+                <input type="text" id="modalNoteTitle" placeholder="Ex: Atributos dos Atos Administrativos" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
             </div>
             <div>
-                <label class="block text-xs text-zinc-400 mb-1">Conteúdo Ampliado</label>
-                <textarea id="modalNoteContent" rows="10" placeholder="Escreva suas anotações aqui..." class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-y font-mono leading-relaxed"></textarea>
+                <label class="block text-xs text-slate-400 mb-1">Conteúdo</label>
+                <textarea id="modalNoteContent" rows="8" placeholder="Escreva suas anotações aqui..." class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3.5 text-xs text-white focus:outline-none resize-y font-mono leading-relaxed"></textarea>
             </div>
             <div class="flex space-x-3 pt-2">
-                <button type="button" onclick="closeNoteModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-3 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="saveNote()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl text-sm font-semibold transition">Salvar Nota</button>
+                <button type="button" onclick="closeNoteModal()" class="flex-1 bg-slate-900 text-slate-300 py-3 rounded-xl text-xs font-semibold border border-slate-800">Cancelar</button>
+                <button type="button" onclick="saveNote()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl text-xs font-semibold transition shadow-md">Salvar Nota</button>
             </div>
         </div>
     </div>
 
-    <div id="notificationModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+    <div id="notificationModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl">
             <div class="flex items-center space-x-3 text-blue-400">
                 <i data-lucide="bell" class="w-6 h-6"></i>
-                <h3 class="text-base font-bold text-white">Resumo e Notificação Diária</h3>
+                <h3 class="text-base font-bold text-white">Resumo e Aviso Diário</h3>
             </div>
-            <p class="text-xs text-zinc-400">Aqui está o seu planejamento de estudo normal e revisões para hoje:</p>
+            <p class="text-xs text-slate-400">Planejamento e tarefas recomendadas para hoje:</p>
             <div id="dailyNotificationContent" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
             <div class="pt-2">
-                <button type="button" onclick="fecharModalNotificacao()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl text-sm font-semibold transition">Entendido</button>
+                <button type="button" onclick="fecharModalNotificacao()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl text-xs font-semibold transition shadow-md">Entendido</button>
             </div>
         </div>
     </div>
 
-    <div id="importModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
-            <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
+    <div id="importModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel rounded-3xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-blue-400 flex items-center space-x-2">
                 <i data-lucide="file-up" class="w-5 h-5"></i>
                 <span>Importar Edital Verticalizado</span>
             </h3>
-            <p class="text-xs text-zinc-400">Cole o edital abaixo. Linhas em MAIÚSCULAS serão lidas como matérias e as linhas seguintes como tópicos.</p>
-            <textarea id="editalText" rows="10" placeholder="PORTUGUÊS&#10;1. Compreensão de texto&#10;2. Ortografia&#10;&#10;DIREITO CONSTITUCIONAL&#10;1. Direitos Fundamentais" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white focus:outline-none resize-none font-mono"></textarea>
-            <div class="flex space-x-2 pt-2">
-                <button type="button" onclick="fecharModalImportacao()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="processarEditalLocal()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Importar Edital</button>
+            <p class="text-xs text-slate-400">Cole o edital abaixo. Linhas em MAIÚSCULAS serão lidas como matérias e as linhas seguintes como tópicos.</p>
+            <textarea id="editalText" rows="10" placeholder="PORTUGUÊS&#10;1. Compreensão de texto&#10;2. Ortografia&#10;&#10;DIREITO CONSTITUCIONAL&#10;1. Direitos Fundamentais" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3.5 text-xs text-white focus:outline-none resize-none font-mono"></textarea>
+            <div class="flex space-x-2.5 pt-2">
+                <button type="button" onclick="fecharModalImportacao()" class="flex-1 bg-slate-900 text-slate-300 py-3 rounded-xl text-xs font-semibold border border-slate-800">Cancelar</button>
+                <button type="button" onclick="processarEditalLocal()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl text-xs font-semibold transition shadow-md">Importar Edital</button>
             </div>
         </div>
     </div>
 
-    <div id="planModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 class="text-base font-bold text-blue-500 flex items-center space-x-2">
+    <div id="planModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 class="text-base font-bold text-blue-400 flex items-center space-x-2">
                 <i data-lucide="sparkles" class="w-5 h-5"></i>
                 <span>Configurar Novas Metas</span>
             </h3>
-            <p class="text-xs text-zinc-400">Defina as horas e disciplinas para gerar ou atualizar o plano fixo da semana.</p>
-            <div class="bg-black p-3 border border-zinc-800 rounded-xl space-y-2">
-                <label class="block text-xs text-zinc-300 font-bold">Disciplinas Normais por Dia:</label>
-                <input type="number" id="dailySubjectsCount" value="2" min="1" max="6" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1.5 font-bold text-sm">
+            <p class="text-xs text-slate-400">Defina as horas diárias e disciplinas para gerar o plano estático da semana.</p>
+            <div class="bg-slate-900 p-3.5 border border-slate-800 rounded-2xl space-y-2">
+                <label class="block text-xs text-slate-200 font-bold">Disciplinas por Dia:</label>
+                <input type="number" id="dailySubjectsCount" value="2" min="1" max="6" class="w-full bg-slate-950 border border-slate-700 rounded-xl text-center text-white py-2 font-black text-sm">
             </div>
             <div id="planSubjectsList" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
-            <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-zinc-800">
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Segunda</span><input type="number" id="day_seg" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Terça</span><input type="number" id="day_ter" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Quarta</span><input type="number" id="day_qua" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Quinta</span><input type="number" id="day_qui" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Sexta</span><input type="number" id="day_sex" value="3" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between"><span class="text-zinc-300 font-bold">Sábado</span><input type="number" id="day_sab" value="4" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
-                <div class="bg-black p-2 border border-zinc-800 rounded-xl flex items-center justify-between col-span-2"><span class="text-zinc-300 font-bold">Domingo</span><input type="number" id="day_dom" value="2" min="0" max="24" class="w-14 bg-zinc-900 border border-zinc-700 rounded-lg text-center text-white py-1 font-bold"></div>
+            <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-800">
+                <div class="bg-slate-900 p-2.5 border border-slate-800 rounded-xl flex items-center justify-between"><span class="text-slate-300 font-bold">Segunda</span><input type="number" id="day_seg" value="3" min="0" max="24" class="w-14 bg-slate-950 border border-slate-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-slate-900 p-2.5 border border-slate-800 rounded-xl flex items-center justify-between"><span class="text-slate-300 font-bold">Terça</span><input type="number" id="day_ter" value="3" min="0" max="24" class="w-14 bg-slate-950 border border-slate-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-slate-900 p-2.5 border border-slate-800 rounded-xl flex items-center justify-between"><span class="text-slate-300 font-bold">Quarta</span><input type="number" id="day_qua" value="3" min="0" max="24" class="w-14 bg-slate-950 border border-slate-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-slate-900 p-2.5 border border-slate-800 rounded-xl flex items-center justify-between"><span class="text-slate-300 font-bold">Quinta</span><input type="number" id="day_qui" value="3" min="0" max="24" class="w-14 bg-slate-950 border border-slate-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-slate-900 p-2.5 border border-slate-800 rounded-xl flex items-center justify-between"><span class="text-slate-300 font-bold">Sexta</span><input type="number" id="day_sex" value="3" min="0" max="24" class="w-14 bg-slate-950 border border-slate-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-slate-900 p-2.5 border border-slate-800 rounded-xl flex items-center justify-between"><span class="text-slate-300 font-bold">Sábado</span><input type="number" id="day_sab" value="4" min="0" max="24" class="w-14 bg-slate-950 border border-slate-700 rounded-lg text-center text-white py-1 font-bold"></div>
+                <div class="bg-slate-900 p-2.5 border border-slate-800 rounded-xl flex items-center justify-between col-span-2"><span class="text-slate-300 font-bold">Domingo</span><input type="number" id="day_dom" value="2" min="0" max="24" class="w-14 bg-slate-950 border border-slate-700 rounded-lg text-center text-white py-1 font-bold"></div>
             </div>
-            <div class="flex space-x-2 pt-2">
-                <button type="button" onclick="fecharModalPlano()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Metas e Gerar Plano</button>
+            <div class="flex space-x-2.5 pt-2">
+                <button type="button" onclick="fecharModalPlano()" class="flex-1 bg-slate-900 text-slate-300 py-3 rounded-xl text-xs font-semibold border border-slate-800">Cancelar</button>
+                <button type="button" onclick="gerarPlanoInteligente()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl text-xs font-semibold transition shadow-md">Salvar Metas</button>
             </div>
         </div>
     </div>
 
-    <div id="subjectModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+    <div id="subjectModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl">
             <h3 id="subjectModalTitle" class="text-base font-bold text-white">Adicionar Matéria</h3>
             <input type="hidden" id="editingSubjectId" value="">
             <div>
-                <label class="block text-xs text-zinc-400 mb-1">Nome da Matéria</label>
-                <input type="text" id="modalSubjectName" placeholder="Ex: Matemática" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                <label class="block text-xs text-slate-400 mb-1">Nome da Matéria</label>
+                <input type="text" id="modalSubjectName" placeholder="Ex: Direito Administrativo" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs text-zinc-400 mb-1">Peso (1 a 5)</label>
-                    <input type="number" id="modalSubjectWeight" min="1" max="5" value="1" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                    <label class="block text-xs text-slate-400 mb-1">Peso (1 a 5)</label>
+                    <input type="number" id="modalSubjectWeight" min="1" max="5" value="1" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs text-zinc-400 mb-1">Horas Feitas</label>
-                    <input type="number" id="modalSubjectHours" min="0" step="0.5" value="0" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                    <label class="block text-xs text-slate-400 mb-1">Horas Feitas</label>
+                    <input type="number" id="modalSubjectHours" min="0" step="0.5" value="0" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500">
                 </div>
             </div>
             <div>
-                <label class="block text-xs text-zinc-400 mb-1">Tópicos (um por linha)</label>
-                <textarea id="modalSubjectTopics" rows="4" placeholder="Álgebra Básica&#10;Equações do 2º Grau" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-blue-500"></textarea>
+                <label class="block text-xs text-slate-400 mb-1">Tópicos (um por linha)</label>
+                <textarea id="modalSubjectTopics" rows="4" placeholder="Tópico 1&#10;Tópico 2" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-blue-500"></textarea>
             </div>
-            <div class="flex space-x-2 pt-2">
-                <button type="button" onclick="closeSubjectModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="saveSubject()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar</button>
+            <div class="flex space-x-2.5 pt-2">
+                <button type="button" onclick="closeSubjectModal()" class="flex-1 bg-slate-900 text-slate-300 py-3 rounded-xl text-xs font-semibold border border-slate-800">Cancelar</button>
+                <button type="button" onclick="saveSubject()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl text-xs font-semibold transition shadow-md">Salvar</button>
             </div>
         </div>
     </div>
 
-    <div id="errorModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
-            <h3 class="text-base font-bold text-amber-500 flex items-center space-x-2">
+    <div id="errorModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel rounded-3xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-amber-400 flex items-center space-x-2">
                 <i data-lucide="alert-triangle" class="w-5 h-5"></i>
                 <span>Registrar Erro no Caderno</span>
             </h3>
             <div>
-                <label class="block text-xs text-zinc-400 mb-1">Matéria</label>
-                <select id="errorSubjectSelect" onchange="updateErrorTopicsSelect()" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                <label class="block text-xs text-slate-400 mb-1">Matéria</label>
+                <select id="errorSubjectSelect" onchange="updateErrorTopicsSelect()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
                     <option value="">-- Selecione a matéria --</option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs text-zinc-400 mb-1">Assunto / Tópico</label>
-                <select id="errorTopicSelect" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                <label class="block text-xs text-slate-400 mb-1">Assunto / Tópico</label>
+                <select id="errorTopicSelect" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
                     <option value="">-- Selecione o tópico --</option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs text-zinc-400 mb-1">Descrição / Motivo do Erro</label>
-                <textarea id="errorDescription" rows="3" placeholder="Ex: Confundi o prazo..." class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none resize-none"></textarea>
+                <label class="block text-xs text-slate-400 mb-1">Descrição / Motivo do Erro</label>
+                <textarea id="errorDescription" rows="3" placeholder="Ex: Confundi os prazos de recurso..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none resize-none"></textarea>
             </div>
-            <div class="flex space-x-2 pt-2">
-                <button type="button" onclick="closeErrorModal()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="saveErrorRecord()" class="flex-1 bg-amber-600 text-white py-2.5 rounded-xl text-sm font-semibold">Salvar Erro</button>
+            <div class="flex space-x-2.5 pt-2">
+                <button type="button" onclick="closeErrorModal()" class="flex-1 bg-slate-900 text-slate-300 py-3 rounded-xl text-xs font-semibold border border-slate-800">Cancelar</button>
+                <button type="button" onclick="saveErrorRecord()" class="flex-1 bg-amber-600 text-white py-3 rounded-xl text-xs font-semibold transition shadow-md">Salvar Erro</button>
             </div>
         </div>
     </div>
 
-    <div id="approvalModal" class="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl text-center">
-            <div class="inline-flex p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-400 mb-1">
+    <div id="approvalModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl text-center">
+            <div class="inline-flex p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-amber-400 mb-1">
                 <i data-lucide="award" class="w-8 h-8"></i>
             </div>
             <h3 class="text-base font-bold text-white">Validação de Aproveitamento</h3>
-            <p class="text-xs text-zinc-400">Para concluir este tópico, informe o resultado dos seus exercícios de fixação (Mínimo de 80% exigido).</p>
+            <p class="text-xs text-slate-400">Para concluir este tópico, informe o resultado dos exercícios (Mínimo de 80% exigido).</p>
             <input type="hidden" id="pendingSubjectIndex" value="">
             <input type="hidden" id="pendingTopicIndex" value="">
             <div class="grid grid-cols-2 gap-3 text-left">
-                <div>
-                    <label class="block text-[11px] text-zinc-400 mb-1">Total de Questões</label>
-                    <input type="number" id="inputTotalQ" min="1" value="10" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white text-center font-bold focus:outline-none focus:border-blue-500">
+                <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Total Questões</label>
+                    <input type="number" id="inputTotalQ" min="1" value="10" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white text-center font-black focus:outline-none">
                 </div>
-                <div>
-                    <label class="block text-[11px] text-zinc-400 mb-1">Acertos</label>
-                    <input type="number" id="inputCorrectQ" min="0" value="8" class="w-full bg-black border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white text-center font-bold focus:outline-none focus:border-blue-500">
+                <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800">
+                    <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Acertos</label>
+                    <input type="number" id="inputCorrectQ" min="0" value="8" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white text-center font-black focus:outline-none">
                 </div>
             </div>
-            <div class="flex space-x-2 pt-2">
-                <button type="button" onclick="cancelTopicApproval()" class="flex-1 bg-zinc-900 text-zinc-300 py-2.5 rounded-xl text-sm font-semibold border border-zinc-800">Cancelar</button>
-                <button type="button" onclick="confirmTopicApproval()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold">Validar e Concluir</button>
+            <div class="flex space-x-2.5 pt-2">
+                <button type="button" onclick="cancelTopicApproval()" class="flex-1 bg-slate-900 text-slate-300 py-3 rounded-xl text-xs font-semibold border border-slate-800">Cancelar</button>
+                <button type="button" onclick="confirmTopicApproval()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl text-xs font-semibold transition shadow-md">Validar e Concluir</button>
             </div>
         </div>
     </div>
@@ -590,10 +634,11 @@
         let subjects = [];
         let historicoDiario = [];
         let historicoSemanal = [];
+        let editaisArquivados = [];
         let cadernoErros = [];
         let userFolders = [];
         let planosSemanaisArquivados = [];
-        let frozenPlanHtml = ""; // Variável central do plano congelado
+        let savedSmartPlan = null;
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let dailySubjectsCount = 2;
         let planoGerado = false;
@@ -609,7 +654,7 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             lucide.createIcons();
-
+            
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
             }
@@ -635,12 +680,12 @@
             const btnToggle = document.getElementById('btnToggleAuth');
 
             if (isSignUpMode) {
-                subtitle.textContent = "Crie sua conta para começar a estudar";
+                subtitle.textContent = "Crie sua conta no dashboard para começar";
                 btnSubmit.textContent = "Cadastrar";
                 btnToggle.innerHTML = 'Já tem conta? <span class="text-blue-400 font-bold">Faça login</span>';
             } else {
-                subtitle.textContent = "Acesse para sincronizar em todos os dispositivos";
-                btnSubmit.textContent = "Entrar";
+                subtitle.textContent = "Dashboard de Alta Performance para Concursos";
+                btnSubmit.textContent = "Entrar no Dashboard";
                 btnToggle.innerHTML = 'Não tem conta? <span class="text-blue-400 font-bold">Cadastre-se</span>';
             }
         }
@@ -686,38 +731,45 @@
 
             document.querySelectorAll('nav button').forEach(btn => {
                 btn.classList.remove('text-blue-500', 'font-bold');
-                btn.classList.add('text-zinc-500');
+                btn.classList.add('text-slate-400');
             });
             const activeNav = document.getElementById(`nav-${tabId}`);
             if (activeNav) {
-                activeNav.classList.remove('text-zinc-500');
+                activeNav.classList.remove('text-slate-400');
                 activeNav.classList.add('text-blue-500', 'font-bold');
             }
             if (tabId === 'plano') {
                 renderSmartPlan();
                 renderPlanosArquivados();
             }
-            if (tabId === 'historico') renderHistorico();
+            if (tabId === 'historico') {
+                renderHistorico();
+                renderEditaisArquivados();
+            }
             if (tabId === 'erros') renderCadernoErros();
             if (tabId === 'notas') renderNotas();
         }
 
         function saveUserData() {
-            if (!currentUser) return;
+            if (!currentUser) return Promise.resolve();
             const data = { 
                 subjects, 
                 historicoDiario, 
                 historicoSemanal, 
+                editaisArquivados,
                 cadernoErros, 
                 userFolders, 
-                planosSemanaisArquivados,
-                frozenPlanHtml,
+                planosSemanaisArquivados, 
+                savedSmartPlan, 
                 weeklyHoursConfig, 
                 dailySubjectsCount, 
                 planoGerado 
             };
-            firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
-                .catch(err => console.error("Erro ao salvar dados:", err));
+            return firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
+                .catch(err => {
+                    console.error("Erro ao salvar dados:", err);
+                    throw err;
+                });
         }
 
         function loadUserData() {
@@ -729,26 +781,26 @@
                         subjects = data.subjects || [];
                         historicoDiario = data.historicoDiario || [];
                         historicoSemanal = data.historicoSemanal || [];
+                        editaisArquivados = data.editaisArquivados || [];
                         cadernoErros = data.cadernoErros || [];
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
-                        frozenPlanHtml = data.frozenPlanHtml || "";
-                        planoGerado = data.planoGerado || false;
+                        savedSmartPlan = data.savedSmartPlan || null;
                         
-                        if (data.userNotes && data.userNotes.length > 0 && userFolders.length === 0) {
-                            userFolders.push({ id: 'geral', name: 'Geral', notes: data.userNotes });
-                        }
                         if (userFolders.length === 0) {
                             userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
                         }
 
                         if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
                         if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
+                        if (data.planoGerado !== undefined) planoGerado = data.planoGerado;
                     } else {
                         subjects = [];
                         userFolders = [{ id: 'geral', name: 'Geral', notes: [] }];
                         planosSemanaisArquivados = [];
-                        frozenPlanHtml = "";
+                        editaisArquivados = [];
+                        savedSmartPlan = null;
+                        planoGerado = false;
                     }
                     renderApp();
                 })
@@ -762,6 +814,7 @@
             renderSmartPlan();
             renderPlanosArquivados();
             renderHistorico();
+            renderEditaisArquivados();
             renderCadernoErros();
             renderNotas();
             lucide.createIcons();
@@ -864,35 +917,60 @@
             const container = document.getElementById('scheduleContainer');
             if (!container) return;
             if (subjects.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-zinc-500 text-xs">Nenhuma matéria cadastrada. Clique em "Add Matéria" ou "Importar".</div>`;
+                container.innerHTML = `
+                    <div class="glass-panel rounded-3xl p-12 text-center space-y-3">
+                        <div class="inline-flex p-3 bg-slate-900 border border-slate-800 rounded-2xl text-blue-400">
+                            <i data-lucide="layers" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-xs text-slate-400">Nenhuma matéria cadastrada no edital.</p>
+                        <button type="button" onclick="openSubjectModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md">
+                            Adicionar Primeira Matéria
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
                 return;
             }
 
             container.innerHTML = subjects.map((sub, sIndex) => {
                 const isMin = sub.minimized || false;
+                const totalT = sub.topics ? sub.topics.length : 0;
+                const doneT = sub.topics ? sub.topics.filter(t => t.done).length : 0;
+                const pct = totalT > 0 ? Math.round((doneT / totalT) * 100) : 0;
+
                 return `
-                <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3">
+                <div class="glass-panel rounded-2xl p-5 space-y-4 shadow-lg">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <button type="button" onclick="toggleMinimize(${sIndex})" class="text-zinc-400 hover:text-white transition" title="${isMin ? 'Maximizar Tópicos' : 'Minimizar Tópicos'}">
+                        <div class="flex items-center space-x-3">
+                            <button type="button" onclick="toggleMinimize(${sIndex})" class="text-slate-400 hover:text-white transition p-1 bg-slate-900/60 rounded-lg border border-slate-800" title="${isMin ? 'Maximizar' : 'Minimizar'}">
                                 <i data-lucide="${isMin ? 'chevron-right' : 'chevron-down'}" class="w-4 h-4"></i>
                             </button>
-                            <h3 class="font-bold text-sm text-white">${sub.name} <span class="text-[10px] text-zinc-500 font-normal">(Peso ${sub.weight || 1})</span></h3>
+                            <div>
+                                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
+                                    <span>${sub.name}</span>
+                                    <span class="text-[10px] bg-slate-900 border border-slate-800 text-slate-400 px-2 py-0.5 rounded-md">Peso ${sub.weight || 1}</span>
+                                </h3>
+                                <p class="text-[10px] text-slate-400 mt-0.5">${doneT} de ${totalT} tópicos (${pct}%) • ${(sub.hoursStudied || 0).toFixed(1)}h de estudo</p>
+                            </div>
                         </div>
-                        <div class="flex items-center space-x-2.5 text-xs text-zinc-400">
-                            <span>${(sub.hoursStudied || 0).toFixed(1)}h estudadas</span>
-                            <button type="button" onclick="zerarQuestoes(${sIndex})" class="text-amber-400 hover:text-amber-300" title="Zerar Questões"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i></button>
-                            <button type="button" onclick="openSubjectModal(${sIndex})" class="text-blue-400 hover:text-blue-300" title="Editar Matéria"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
-                            <button type="button" onclick="deleteSubject(${sIndex})" class="text-red-400 hover:text-red-300" title="Excluir Matéria"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
+                        <div class="flex items-center space-x-2 text-xs">
+                            <button type="button" onclick="zerarQuestoes(${sIndex})" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-amber-400 rounded-xl transition" title="Zerar Questões"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i></button>
+                            <button type="button" onclick="openSubjectModal(${sIndex})" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-blue-400 rounded-xl transition" title="Editar Matéria"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                            <button type="button" onclick="deleteSubject(${sIndex})" class="p-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-red-400 rounded-xl transition" title="Excluir Matéria"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button>
                         </div>
                     </div>
-                    <div class="space-y-1.5 pl-2 border-l border-zinc-800 ${isMin ? 'hidden' : ''}">
+                    
+                    <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800/80">
+                        <div class="bg-blue-600 h-full transition-all duration-300" style="width: ${pct}%"></div>
+                    </div>
+
+                    <div class="space-y-2 pl-2 border-l-2 border-slate-800 ${isMin ? 'hidden' : ''}">
                         ${sub.topics && sub.topics.length > 0 ? sub.topics.map((top, tIndex) => `
-                            <label class="flex items-center space-x-2 text-xs text-zinc-300 cursor-pointer">
-                                <input type="checkbox" ${top.done ? 'checked' : ''} onclick="event.preventDefault(); handleTopicCheck(${sIndex},${tIndex})" class="rounded bg-black border-zinc-700 text-blue-600 focus:ring-0">
-                                <span class="${top.done ? 'line-through text-zinc-500' : ''}">${top.name}</span>
+                            <label class="flex items-center space-x-2.5 text-xs text-slate-300 cursor-pointer bg-slate-900/40 p-2.5 rounded-xl border border-slate-800/50 hover:bg-slate-900/80 transition">
+                                <input type="checkbox" ${top.done ? 'checked' : ''} onclick="event.preventDefault(); handleTopicCheck(${sIndex},${tIndex})" class="rounded bg-slate-950 border-slate-700 text-blue-600 focus:ring-0 w-4 h-4">
+                                <span class="${top.done ? 'line-through text-slate-500 font-normal' : 'font-medium text-slate-200'}">${top.name}</span>
                             </label>
-                        `).join('') : '<p class="text-[11px] text-zinc-600">Nenhum tópico cadastrado.</p>'}
+                        `).join('') : '<p class="text-[11px] text-slate-500 italic pl-2">Nenhum tópico cadastrado.</p>'}
                     </div>
                 </div>
             `;
@@ -901,17 +979,68 @@
         }
 
         function reiniciarNovoEdital() {
-            if (confirm("ATENÇÃO: Deseja apagar todas as matérias atuais e reiniciar os dados para um novo edital?")) {
+            if (confirm("ATENÇÃO: Deseja arquivar o edital atual no histórico e iniciar um novo edital em branco?")) {
+                if (!editaisArquivados) editaisArquivados = [];
+                
+                const editalParaArquivar = {
+                    date: new Date().toLocaleDateString('pt-BR'),
+                    subjects: JSON.parse(JSON.stringify(subjects || []))
+                };
+                
+                editaisArquivados.unshift(editalParaArquivar);
                 subjects = [];
-                historicoDiario = [];
-                historicoSemanal = [];
-                cadernoErros = [];
-                planosSemanaisArquivados = [];
-                frozenPlanHtml = "";
+                savedSmartPlan = null;
                 planoGerado = false;
+                
+                saveUserData().then(() => {
+                    renderApp();
+                    alert("Edital anterior arquivado com sucesso e novo edital iniciado!");
+                }).catch(err => {
+                    alert("Erro ao sincronizar com o Firebase: " + err.message);
+                });
+            }
+        }
+
+        function renderEditaisArquivados() {
+            const container = document.getElementById('editaisArquivadosList');
+            if (!container) return;
+            if (!editaisArquivados || editaisArquivados.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 italic">Nenhum edital anterior arquivado ainda.</p>`;
+                return;
+            }
+
+            container.innerHTML = editaisArquivados.map((editalObj, idx) => `
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between text-xs font-bold text-amber-400 border-b border-slate-800 pb-2">
+                        <span>Edital Arquivado em: ${editalObj.date}</span>
+                        <button type="button" onclick="excluirEditalArquivado(${idx})" class="text-red-400 hover:text-red-300 text-[10px] bg-red-950/50 px-2 py-1 rounded-lg border border-red-900/50">Excluir</button>
+                    </div>
+                    <div class="space-y-2 pt-1">
+                        ${editalObj.subjects && editalObj.subjects.length > 0 ? editalObj.subjects.map(sub => {
+                            const totalT = sub.topics ? sub.topics.length : 0;
+                            const doneT = sub.topics ? sub.topics.filter(t => t.done).length : 0;
+                            const pct = totalT > 0 ? Math.round((doneT / totalT) * 100) : 0;
+                            return `
+                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 text-xs flex items-center justify-between">
+                                    <div>
+                                        <span class="font-bold text-white">${sub.name}</span>
+                                        <span class="block text-[10px] text-slate-400">${doneT} / ${totalT} tópicos (${pct}%)</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-blue-400 bg-blue-950/40 px-2.5 py-1 rounded-lg border border-blue-900/40">${(sub.hoursStudied || 0).toFixed(1)}h</span>
+                                </div>
+                            `;
+                        }).join('') : '<p class="text-[11px] text-slate-500 italic">Nenhuma matéria registrada.</p>'}
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function excluirEditalArquivado(idx) {
+            if (confirm("Deseja excluir permanentemente este edital arquivado?")) {
+                editaisArquivados.splice(idx, 1);
                 saveUserData();
-                renderApp();
-                alert("Dados reiniciados com sucesso!");
+                renderEditaisArquivados();
             }
         }
 
@@ -921,10 +1050,10 @@
                 return;
             }
             const backupData = {
-                version: "1.0",
+                version: "2.0",
                 date: new Date().toISOString(),
                 subjects: subjects,
-                frozenPlanHtml: frozenPlanHtml,
+                savedSmartPlan: savedSmartPlan,
                 planoGerado: planoGerado,
                 weeklyHoursConfig: weeklyHoursConfig,
                 dailySubjectsCount: dailySubjectsCount
@@ -932,7 +1061,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `estudoflow_backup_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.json`);
+            downloadAnchor.setAttribute("download", `estudoflow_dashboard_backup_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
@@ -947,16 +1076,14 @@
                     const content = JSON.parse(e.target.result);
                     if (content.subjects && Array.isArray(content.subjects)) {
                         subjects = content.subjects;
-                        if (content.frozenPlanHtml) {
-                            frozenPlanHtml = content.frozenPlanHtml;
-                            planoGerado = true;
-                        }
+                        if (content.savedSmartPlan !== undefined) savedSmartPlan = content.savedSmartPlan;
+                        if (content.planoGerado !== undefined) planoGerado = content.planoGerado;
                         if (content.weeklyHoursConfig) weeklyHoursConfig = content.weeklyHoursConfig;
                         if (content.dailySubjectsCount !== undefined) dailySubjectsCount = content.dailySubjectsCount;
                         
                         saveUserData();
                         renderApp();
-                        alert("Edital e configurações restaurados com sucesso do arquivo!");
+                        alert("Dashboard restaurado com sucesso!");
                     } else {
                         alert("Arquivo de backup inválido.");
                     }
@@ -1077,31 +1204,31 @@
             }
 
             container.innerHTML = userFolders.map((folder, fIndex) => `
-                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-3">
-                    <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
-                        <div class="flex items-center space-x-2">
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-md">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div class="flex items-center space-x-2.5">
                             <i data-lucide="folder" class="w-4 h-4 text-blue-400"></i>
-                            <h3 class="font-bold text-sm text-white">${folder.name} <span class="text-[10px] text-zinc-500 font-normal">(${folder.notes ? folder.notes.length : 0} notas)</span></h3>
+                            <h3 class="font-bold text-sm text-white">${folder.name} <span class="text-[10px] text-slate-400 font-normal">(${folder.notes ? folder.notes.length : 0} notas)</span></h3>
                         </div>
                         <div class="flex items-center space-x-3 text-xs">
-                            <button type="button" onclick="openNoteModal(${fIndex})" class="text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1" title="Adicionar nota">
-                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            <button type="button" onclick="openNoteModal(${fIndex})" class="text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1 bg-blue-950/50 px-2.5 py-1 rounded-lg border border-blue-900/50">
+                                <i data-lucide="plus" class="w-3 h-3"></i>
                                 <span>Nota</span>
                             </button>
                             ${userFolders.length > 1 ? `
-                            <button type="button" onclick="deleteFolder(${fIndex})" class="text-red-400 hover:text-red-300" title="Excluir Pasta">
+                            <button type="button" onclick="deleteFolder(${fIndex})" class="text-red-400 hover:text-red-300 p-1 bg-red-950/40 rounded-lg border border-red-950">
                                 <i data-lucide="trash" class="w-3.5 h-3.5"></i>
                             </button>` : ''}
                         </div>
                     </div>
-                    <div class="space-y-2 pl-2">
+                    <div class="space-y-3 pl-1">
                         ${folder.notes && folder.notes.length > 0 ? folder.notes.map((note, nIndex) => `
-                            <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl space-y-1.5">
+                            <div class="bg-slate-950 border border-slate-800/80 p-4 rounded-xl space-y-2 shadow-sm">
                                 <div class="flex items-center justify-between text-xs">
-                                    <span class="font-bold text-white">• ${note.title}</span>
-                                    <span class="text-[10px] text-zinc-500">${note.date}</span>
+                                    <span class="font-bold text-white flex items-center space-x-1.5"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span><span>${note.title}</span></span>
+                                    <span class="text-[10px] text-slate-500">${note.date}</span>
                                 </div>
-                                <p class="text-xs text-zinc-300 font-mono whitespace-pre-wrap bg-black/40 p-2 rounded-lg border border-zinc-800/50">${note.content || 'Sem conteúdo.'}</p>
+                                <p class="text-xs text-slate-300 font-mono whitespace-pre-wrap bg-slate-900/60 p-3 rounded-lg border border-slate-800/60 leading-relaxed">${note.content || 'Sem conteúdo.'}</p>
                                 <div class="flex justify-end space-x-3 pt-1">
                                     <button type="button" onclick="openNoteModal(${fIndex},${nIndex})" class="text-[11px] text-blue-400 hover:text-blue-300 font-semibold flex items-center space-x-1">
                                         <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
@@ -1113,7 +1240,7 @@
                                     </button>
                                 </div>
                             </div>
-                        `).join('') : '<p class="text-[11px] text-zinc-600 italic">Nenhuma nota nesta pasta.</p>'}
+                        `).join('') : '<p class="text-[11px] text-slate-500 italic">Nenhuma nota nesta pasta.</p>'}
                     </div>
                 </div>
             `).join('');
@@ -1124,13 +1251,39 @@
             const container = document.getElementById('dailyNotificationContent');
             if (!container) return;
 
-            if (!frozenPlanHtml || subjects.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Gere um plano de estudos e cadastre matérias para visualizar o resumo diário.</p>`;
+            if (!planoGerado || subjects.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Gere um plano de estudos para visualizar o resumo diário.</p>`;
                 document.getElementById('notificationModal').classList.remove('hidden');
                 return;
             }
 
-            container.innerHTML = `<div class="bg-black border border-zinc-800 rounded-xl p-3 text-xs text-zinc-300">O seu plano semanal está fixado e operacional. Consulte a aba Plano para ver os detalhes diários.</div>`;
+            const dayMap = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
+            const todayKey = dayMap[new Date().getDay()];
+            const dayNames = { seg: 'Segunda-feira', ter: 'Terça-feira', qua: 'Quarta-feira', qui: 'Quinta-feira', sex: 'Sexta-feira', sab: 'Sábado', dom: 'Domingo' };
+            const hoursVal = weeklyHoursConfig[todayKey] || 0;
+
+            if (hoursVal <= 0) {
+                container.innerHTML = `<div class="bg-slate-900 border border-slate-800 rounded-xl p-3 text-center text-xs text-slate-300">Hoje é dia de descanso (${dayNames[todayKey]})!</div>`;
+                document.getElementById('notificationModal').classList.remove('hidden');
+                return;
+            }
+
+            if (savedSmartPlan && savedSmartPlan[todayKey]) {
+                let dayData = savedSmartPlan[todayKey];
+                let html = `<div class="text-xs font-bold text-blue-400 mb-2">📅 Cronograma para hoje (${dayNames[todayKey]}):</div>`;
+                dayData.tasks.forEach((task, idx) => {
+                    html += `
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-1">
+                            <div class="font-bold text-white text-xs">${idx + 1}. ${task.subjectName}</div>
+                            <div class="text-[11px] text-slate-300">• Tópico: ${task.topicName}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Nenhum plano configurado para hoje.</p>`;
+            }
+
             document.getElementById('notificationModal').classList.remove('hidden');
         }
 
@@ -1142,16 +1295,16 @@
             const container = document.getElementById('planosAnterioresContainer');
             if (!container) return;
             if (!planosSemanaisArquivados || planosSemanaisArquivados.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 italic">Nenhum plano semanal arquivado ainda.</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-500 italic">Nenhum plano semanal arquivado ainda.</p>`;
                 return;
             }
             container.innerHTML = planosSemanaisArquivados.map(planoObj => `
-                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-3">
-                    <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                         <span class="text-xs font-bold text-amber-400">📅 Ciclo Fechado em: ${planoObj.date}</span>
-                        <span class="text-[10px] bg-zinc-900 text-zinc-400 px-2 py-0.5 rounded border border-zinc-800">Arquivado</span>
+                        <span class="text-[10px] bg-slate-950 text-slate-400 px-2 py-0.5 rounded border border-slate-800">Arquivado</span>
                     </div>
-                    <div class="space-y-2 text-xs text-zinc-300">${planoObj.summaryHtml}</div>
+                    <div class="space-y-2 text-xs text-slate-300">${planoObj.summaryHtml}</div>
                 </div>
             `).join('');
             lucide.createIcons();
@@ -1161,14 +1314,14 @@
             const container = document.getElementById('smartPlanContainer');
             if (!container) return;
 
-            if (!frozenPlanHtml) {
+            if (!planoGerado || !savedSmartPlan) {
                 container.innerHTML = `
                     <div class="text-center py-12 space-y-3">
-                        <div class="inline-flex p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-blue-400">
+                        <div class="inline-flex p-3.5 bg-slate-900 border border-slate-800 rounded-2xl text-blue-400">
                             <i data-lucide="sparkles" class="w-6 h-6"></i>
                         </div>
-                        <p class="text-xs text-zinc-400">Nenhum plano gerado ainda.</p>
-                        <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md">
+                        <p class="text-xs text-slate-400">Nenhum plano gerado ainda.</p>
+                        <button type="button" onclick="abrirModalPlano()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-md">
                             Configurar e Gerar Plano
                         </button>
                     </div>
@@ -1177,8 +1330,68 @@
                 return;
             }
 
-            container.innerHTML = frozenPlanHtml;
+            const daysOrder = [
+                { id: 'seg', name: 'Segunda-feira' },
+                { id: 'ter', name: 'Terça-feira' },
+                { id: 'qua', name: 'Quarta-feira' },
+                { id: 'qui', name: 'Quinta-feira' },
+                { id: 'sex', name: 'Sexta-feira' },
+                { id: 'sab', name: 'Sábado' },
+                { id: 'dom', name: 'Domingo' }
+            ];
+
+            container.innerHTML = daysOrder.map(dayInfo => {
+                const dayData = savedSmartPlan[dayInfo.id];
+                if (!dayData || dayData.hours <= 0) {
+                    return `
+                        <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
+                            <span class="text-xs font-bold text-slate-400">${dayInfo.name}</span>
+                            <span class="text-[11px] text-slate-500">Descanso / 0h</span>
+                        </div>
+                    `;
+                }
+
+                const tasksHtml = dayData.tasks.map((task, tIdx) => {
+                    return `
+                        <div class="bg-slate-950 border border-slate-800/80 p-3.5 rounded-xl flex items-center justify-between shadow-sm">
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2 text-xs">
+                                    <span class="font-bold text-white">${tIdx + 1}. Estudo: ${task.subjectName}</span>
+                                </div>
+                                <div class="text-[11px] text-slate-300 pl-2 border-l-2 border-blue-600">
+                                    <span class="text-[10px] text-slate-500 uppercase block font-semibold">Tópico Fixado:</span>
+                                    ${task.topicName}
+                                </div>
+                            </div>
+                            <div>
+                                <label class="flex items-center space-x-1.5 cursor-pointer bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
+                                    <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleDayTaskDone('${dayInfo.id}', ${tIdx})" class="rounded bg-slate-950 border-slate-700 text-emerald-500 focus:ring-0 w-4 h-4">
+                                    <span class="text-[11px] font-bold ${task.done ? 'text-emerald-400' : 'text-slate-400'}">${task.done ? 'OK' : 'Pendente'}</span>
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${dayInfo.name}</span>
+                            <span class="text-xs font-bold text-slate-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">${dayData.hours}h totais</span>
+                        </div>
+                        <div class="space-y-2 pt-1">${tasksHtml}</div>
+                    </div>
+                `;
+            }).join('');
             lucide.createIcons();
+        }
+
+        function toggleDayTaskDone(dayId, taskIndex) {
+            if (savedSmartPlan && savedSmartPlan[dayId] && savedSmartPlan[dayId].tasks[taskIndex]) {
+                savedSmartPlan[dayId].tasks[taskIndex].done = !savedSmartPlan[dayId].tasks[taskIndex].done;
+                saveUserData();
+                renderSmartPlan();
+            }
         }
 
         function handleTopicCheck(sIndex, tIndex) {
@@ -1229,7 +1442,7 @@
             updateStats();
             
             document.getElementById('approvalModal').classList.add('hidden');
-            alert("Tópico concluído! O progresso do edital foi atualizado sem alterar o plano semanal.");
+            alert("Tópico concluído! O progresso do edital foi atualizado.");
         }
 
         function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
@@ -1249,22 +1462,22 @@
             const container = document.getElementById('historicoSemanalList');
             if (!container) return;
             if (!historicoDiario || historicoDiario.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum registro no histórico ainda.</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Nenhum registro no histórico diário ainda.</p>`;
                 return;
             }
             container.innerHTML = historicoDiario.map(dia => `
-                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2 mb-3">
-                    <div class="flex items-center justify-between text-xs font-bold text-blue-400 border-b border-zinc-900 pb-1.5">
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2.5 mb-3">
+                    <div class="flex items-center justify-between text-xs font-bold text-blue-400 border-b border-slate-800 pb-1.5">
                         <span>Data: ${dia.date}</span>
                     </div>
-                    <div class="space-y-1.5 pt-1">
+                    <div class="space-y-2 pt-1">
                         ${dia.itens.map(item => `
-                            <div class="flex items-center justify-between text-xs bg-zinc-900/50 p-2 rounded-xl border border-zinc-800/60">
+                            <div class="flex items-center justify-between text-xs bg-slate-950 p-3 rounded-xl border border-slate-800/80">
                                 <div>
                                     <span class="font-bold text-white">${item.subject}</span>
-                                    <span class="block text-[11px] text-zinc-400">• ${item.topic}</span>
+                                    <span class="block text-[11px] text-slate-400">• ${item.topic}</span>
                                 </div>
-                                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-1 rounded-lg">${item.accuracy}%</span>
+                                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-900/50">${item.accuracy}%</span>
                             </div>
                         `).join('')}
                     </div>
@@ -1336,21 +1549,21 @@
             const container = document.getElementById('cadernoErrosList');
             if (!container) return;
             if (!cadernoErros || cadernoErros.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Nenhum erro registrado.</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">Nenhum erro registrado no caderno.</p>`;
                 return;
             }
             container.innerHTML = cadernoErros.map((err, eIndex) => `
-                <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2">
-                    <div class="flex items-center justify-between text-xs border-b border-zinc-900 pb-1.5">
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-2.5">
+                    <div class="flex items-center justify-between text-xs border-b border-slate-800 pb-2">
                         <span class="font-bold text-amber-400">${err.subject}</span>
-                        <span class="text-[10px] text-zinc-500">${err.date}</span>
+                        <span class="text-[10px] text-slate-500">${err.date}</span>
                     </div>
                     <div>
                         <span class="text-xs font-bold text-white block">• Assunto: ${err.topic}</span>
-                        <p class="text-xs text-zinc-300 mt-1 bg-zinc-900/50 p-2.5 rounded-xl">${err.description}</p>
+                        <p class="text-xs text-slate-300 mt-1.5 bg-slate-950 p-3 rounded-xl border border-slate-800/80">${err.description}</p>
                     </div>
                     <div class="flex justify-end pt-1">
-                        <button type="button" onclick="deleteErrorRecord(${eIndex})" class="text-[11px] text-red-400">Remover</button>
+                        <button type="button" onclick="deleteErrorRecord(${eIndex})" class="text-[11px] text-red-400 hover:text-red-300 bg-red-950/40 px-2.5 py-1 rounded-lg border border-red-900/50">Remover</button>
                     </div>
                 </div>
             `).join('');
@@ -1403,12 +1616,12 @@
         function abrirModalPlano() { 
             const listContainer = document.getElementById('planSubjectsList');
             if (subjects.length === 0) {
-                listContainer.innerHTML = '<p class="text-xs text-zinc-500 text-center py-2">Cadastre matérias primeiro.</p>';
+                listContainer.innerHTML = '<p class="text-xs text-slate-500 text-center py-2">Cadastre matérias primeiro.</p>';
             } else {
                 listContainer.innerHTML = subjects.map((sub, idx) => `
-                    <label class="flex items-center justify-between bg-black p-2.5 border border-zinc-800 rounded-xl cursor-pointer">
-                        <span class="text-xs text-zinc-300 font-bold">${sub.name}</span>
-                        <input type="checkbox" data-sub-index="${idx}" ${sub.includeInPlan !== false ? 'checked' : ''} class="rounded bg-zinc-900 border-zinc-700 text-blue-600 focus:ring-0">
+                    <label class="flex items-center justify-between bg-slate-950 p-3 border border-slate-800 rounded-xl cursor-pointer">
+                        <span class="text-xs text-slate-200 font-bold">${sub.name}</span>
+                        <input type="checkbox" data-sub-index="${idx}" ${sub.includeInPlan !== false ? 'checked' : ''} class="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0 w-4 h-4">
                     </label>
                 `).join('');
             }
@@ -1482,74 +1695,50 @@
             scoredSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
 
             const daysConfig = [
-                { id: 'seg', name: 'Segunda-feira', hours: weeklyHoursConfig.seg },
-                { id: 'ter', name: 'Terça-feira', hours: weeklyHoursConfig.ter },
-                { id: 'qua', name: 'Quarta-feira', hours: weeklyHoursConfig.qua },
-                { id: 'qui', name: 'Quinta-feira', hours: weeklyHoursConfig.qui },
-                { id: 'sex', name: 'Sexta-feira', hours: weeklyHoursConfig.sex },
-                { id: 'sab', name: 'Sábado', hours: weeklyHoursConfig.sab },
-                { id: 'dom', name: 'Domingo', hours: weeklyHoursConfig.dom }
+                { id: 'seg', hours: weeklyHoursConfig.seg },
+                { id: 'ter', hours: weeklyHoursConfig.ter },
+                { id: 'qua', hours: weeklyHoursConfig.qua },
+                { id: 'qui', hours: weeklyHoursConfig.qui },
+                { id: 'sex', hours: weeklyHoursConfig.sex },
+                { id: 'sab', hours: weeklyHoursConfig.sab },
+                { id: 'dom', hours: weeklyHoursConfig.dom }
             ];
 
-            let generatedHtml = '';
+            let newSmartPlan = {};
             let normPtr = 0;
 
             daysConfig.forEach(day => {
                 if (day.hours <= 0) {
-                    generatedHtml += `
-                        <div class="bg-black border border-zinc-800 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
-                            <span class="text-xs font-bold text-zinc-400">${day.name}</span>
-                            <span class="text-[11px] text-zinc-500">Descanso / 0h</span>
-                        </div>
-                    `;
+                    newSmartPlan[day.id] = { hours: 0, tasks: [] };
                     return;
                 }
 
-                let tasksHtml = '';
+                let tasksForDay = [];
                 for (let i = 0; i < dailySubjectsCount; i++) {
                     let sub = scoredSubjects[normPtr % scoredSubjects.length];
                     let topicsList = sub.topics || [];
-                    let topicObj = topicsList.length > 0 ? topicsList[normPtr % topicsList.length] : null;
-                    let topicName = topicObj ? String(topicObj.name) : "Revisão geral";
+                    let topicName = topicsList.length > 0 ? topicsList[Math.floor(Math.random() * topicsList.length)].name : "Revisão geral";
                     
-                    tasksHtml += `
-                        <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl flex items-center justify-between">
-                            <div class="space-y-1">
-                                <div class="flex items-center space-x-2 text-xs">
-                                    <span class="font-bold text-white">${i + 1}. Estudo: ${String(sub.name)}</span>
-                                </div>
-                                <div class="text-[11px] text-zinc-300 pl-2 border-l-2 border-blue-600">
-                                    <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Tópico Fixado:</span>
-                                    ${topicName}
-                                </div>
-                            </div>
-                            <div>
-                                <span class="text-[11px] font-bold text-zinc-400 bg-black/60 px-3 py-1.5 rounded-xl border border-zinc-800">Pendente</span>
-                            </div>
-                        </div>
-                    `;
+                    tasksForDay.push({
+                        subjectName: sub.name,
+                        topicName: topicName,
+                        done: false
+                    });
                     normPtr++;
                 }
 
-                generatedHtml += `
-                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
-                            <span class="text-xs font-bold text-zinc-300">${day.hours}h totais</span>
-                        </div>
-                        <div class="space-y-2 pt-1">${tasksHtml}</div>
-                    </div>
-                `;
+                newSmartPlan[day.id] = {
+                    hours: day.hours,
+                    tasks: tasksForDay
+                };
             });
 
-            // ATRIBUIÇÃO DIRETA DA STRING ESTÁTICA
-            frozenPlanHtml = generatedHtml;
+            savedSmartPlan = newSmartPlan;
             planoGerado = true;
-            
             saveUserData();
             fecharModalPlano();
             renderSmartPlan();
-            alert("Plano de estudos fixado e salvo com sucesso!");
+            alert("Plano de estudos fixo gerado com sucesso!");
         }
 
         function fecharSemana() {
@@ -1562,25 +1751,27 @@
                 });
 
                 historicoSemanal.push({ date: new Date().toLocaleDateString(), subjects: JSON.parse(JSON.stringify(subjects)) });
-                frozenPlanHtml = "";
+                savedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderApp();
-                alert("Semana fechada e arquivada com sucesso! Clique em 'Gerar Novo Plano' para criar o plano da próxima semana.");
+                alert("Semana fechada e arquivada com sucesso!");
             }
         }
 
         function limparHistorico() {
-            if (confirm("Deseja limpar todo o histórico e planos arquivados?")) {
+            if (confirm("Deseja limpar todo o histórico e editais arquivados?")) {
                 historicoDiario = [];
                 historicoSemanal = [];
+                editaisArquivados = [];
                 planosSemanaisArquivados = [];
-                frozenPlanHtml = "";
+                savedSmartPlan = null;
                 planoGerado = false;
                 saveUserData();
                 renderSmartPlan();
                 renderPlanosArquivados();
                 renderHistorico();
+                renderEditaisArquivados();
             }
         }
 
@@ -1624,7 +1815,7 @@
             pomoSeconds = (parseInt(document.getElementById('pomoWorkTime').value) || 25) * 60;
             updatePomoDisplay();
             document.getElementById('btnPomoStart').textContent = "Iniciar Foco";
-            document.getElementById('btnPomoStart').className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
+            document.getElementById('btnPomoStart').className = "flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-blue-600/20";
         }
 
         function updatePomoDisplay() {
@@ -1672,7 +1863,7 @@
             freeSeconds = 0;
             updateFreeDisplay();
             document.getElementById('btnFreeStart').textContent = "Iniciar Livre";
-            document.getElementById('btnFreeStart').className = "flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition";
+            document.getElementById('btnFreeStart').className = "flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-emerald-600/20";
         }
 
         function updateFreeDisplay() {
