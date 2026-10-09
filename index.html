@@ -635,14 +635,14 @@
 
         const appId = 'estudoflow-pro-default';
         
-        // Configuração real do Firebase (substitua pelas suas chaves caso necessário)
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "COLOQUE_SUA_API_KEY",
+        // --- COLOQUE ABAIXO AS SUAS CREDENCIAIS REAIS DO FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "COLOQUE_SUA_API_KEY_AQUI",
             authDomain: "seu-projeto.firebaseapp.com",
-            projectId: "seu-projeto",
+            projectId: "seu-projeto-id",
             storageBucket: "seu-projeto.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456:web:abcd"
+            messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+            appId: "SEU_APP_ID"
         };
 
         let app, db, auth, userId = null;
@@ -706,7 +706,6 @@
         window.addEventListener('DOMContentLoaded', async () => {
             initTheme();
             initCharts();
-            setupTabs();
             
             try {
                 app = initializeApp(firebaseConfig);
