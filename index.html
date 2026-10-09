@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="h-full">
+<html lang="pt-PT" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -75,7 +75,7 @@
                 </button>
                 <button onclick="switchTab('timer')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50" data-tab="timer">
                     <i class="fa-solid fa-stopwatch w-5 text-center"></i>
-                    <span>Cronômetro / Pomodoro</span>
+                    <span>Cronómetro / Pomodoro</span>
                 </button>
                 <button onclick="switchTab('erros')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50" data-tab="erros">
                     <i class="fa-solid fa-triangle-exclamation w-5 text-center"></i>
@@ -96,13 +96,13 @@
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                         <span id="sync-indicator" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                        <span id="sync-text">Conectando Nuvem...</span>
+                        <span id="sync-text">A ligar à Nuvem...</span>
                     </span>
                     <button onclick="toggleTheme()" class="text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
                         <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
                     </button>
                 </div>
-                <div id="user-uid-box" class="text-[10px] text-slate-400 dark:text-slate-500 truncate select-all font-mono">ID: Sincronizando...</div>
+                <div id="user-uid-box" class="text-[10px] text-slate-400 dark:text-slate-500 truncate select-all font-mono">ID: A sincronizar...</div>
             </div>
         </aside>
 
@@ -167,7 +167,7 @@
                         </div>
                         <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
                             <div>
-                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Erros Registrados</p>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Erros Registados</p>
                                 <h3 id="stat-total-errors" class="text-2xl font-bold mt-1">0</h3>
                                 <span class="text-xs text-amber-600 dark:text-amber-400 font-medium mt-1 inline-block">Caderno de Erros</span>
                             </div>
@@ -244,7 +244,7 @@
                                 <h3 class="text-lg font-bold">Ciclo de Estudos Adaptativo</h3>
                                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Siga sua sequência rotativa de disciplinas otimizada.</p>
                             </div>
-                            <button onclick="openModal('new-cycle-item-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                            <button onclick="openModal('new-cycle-item-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all hidden">
                                 <i class="fa-solid fa-plus mr-1.5"></i> Adicionar ao Ciclo
                             </button>
                         </div>
@@ -261,10 +261,10 @@
                         <div class="flex justify-center space-x-2 mb-6 bg-slate-100 dark:bg-slate-700/50 p-1.5 rounded-xl">
                             <button onclick="setTimerMode('pomodoro')" id="mode-pomodoro-btn" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-white dark:bg-slate-600 shadow-sm">Pomodoro (25m)</button>
                             <button onclick="setTimerMode('shortBreak')" id="mode-shortBreak-btn" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-500">Pausa Curta (5m)</button>
-                            <button onclick="setTimerMode('stopwatch')" id="mode-stopwatch-btn" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-500">Cronômetro Livre</button>
+                            <button onclick="setTimerMode('stopwatch')" id="mode-stopwatch-btn" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-500">Cronómetro Livre</button>
                         </div>
 
-                        <div class="mb-6">
+                        <div class="mb-6 text-left">
                             <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Matéria em Estudo</label>
                             <select id="timer-subject-select" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                 <!-- Preenchido dinamicamente -->
@@ -303,7 +303,7 @@
                                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Revise o que errou em simulados e questões de concursos.</p>
                             </div>
                             <button onclick="openModal('new-error-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
-                                <i class="fa-solid fa-plus mr-1.5"></i> Novo Registro de Erro
+                                <i class="fa-solid fa-plus mr-1.5"></i> Novo Registo de Erro
                             </button>
                         </div>
 
@@ -466,7 +466,7 @@
     <div id="new-error-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <h3 class="font-bold text-lg">Novo Registro no Caderno de Erros</h3>
+                <h3 class="font-bold text-lg">Novo Registo no Caderno de Erros</h3>
                 <button onclick="closeModal('new-error-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form onsubmit="handleNewErrorSubmit(event)" class="p-6 space-y-4">
@@ -649,6 +649,10 @@
             initCharts();
             setupTabs();
             
+            setTimeout(() => {
+                updateCharts();
+            }, 250);
+            
             try {
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
@@ -737,7 +741,7 @@
                 dashboard: 'Dashboard Geral',
                 edital: 'Edital Verticalizado',
                 ciclo: 'Ciclo de Estudos',
-                timer: 'Cronômetro & Pomodoro',
+                timer: 'Cronómetro & Pomodoro',
                 erros: 'Caderno de Erros',
                 notas: 'Notas e Resumos',
                 evolucao: 'Evolução & Arquivo'
@@ -748,7 +752,9 @@
                 document.getElementById('sidebar').classList.add('-translate-x-full');
             }
             
-            if (tabId === 'dashboard') updateCharts();
+            if (tabId === 'dashboard') {
+                setTimeout(() => updateCharts(), 50);
+            }
         };
 
         window.toggleMobileSidebar = function() {
@@ -914,10 +920,11 @@
 
         window.deleteSubject = function(subjectId) {
             state.subjects = state.subjects.filter(s => s.id !== subjectId);
+            state.cycle = state.cycle.filter(c => c.subjectId !== subjectId);
             saveUserDataToFirebase();
         };
 
-        // --- CORREÇÃO DEFINITIVA DA FUNÇÃO ZERAR EDITAL ---
+        // --- ZERAR EDITAL & ARQUIVO ---
         window.openResetEditalModal = function() {
             openModal('reset-edital-modal');
         };
@@ -1082,7 +1089,7 @@
                 minutes,
                 questions: 0,
                 correct: 0,
-                notes: 'Sessão Cronômetro'
+                notes: 'Sessão Cronómetro'
             });
 
             pauseTimer();
@@ -1279,6 +1286,7 @@
         function initCharts() {
             const ctxHours = document.getElementById('hoursChart')?.getContext('2d');
             if (ctxHours) {
+                if (hoursChartInstance) hoursChartInstance.destroy();
                 hoursChartInstance = new Chart(ctxHours, {
                     type: 'bar',
                     data: {
@@ -1296,13 +1304,14 @@
 
             const ctxSub = document.getElementById('subjectsChart')?.getContext('2d');
             if (ctxSub) {
+                if (subjectsChartInstance) subjectsChartInstance.destroy();
                 subjectsChartInstance = new Chart(ctxSub, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Constitucional', 'Português', 'Outros'],
+                        labels: state.subjects.map(s => s.name),
                         datasets: [{
-                            data: [50, 30, 20],
-                            backgroundColor: ['#6366f1', '#10b981', '#f59e0b']
+                            data: state.subjects.map(() => Math.floor(Math.random() * 20) + 5),
+                            backgroundColor: state.subjects.map(s => s.color)
                         }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
@@ -1311,7 +1320,24 @@
         }
 
         function updateCharts() {
-            if (!hoursChartInstance || !subjectsChartInstance) return;
+            if (!hoursChartInstance || !subjectsChartInstance) {
+                initCharts();
+                return;
+            }
+            
+            // Atualizar dados de matérias no doughnut chart
+            subjectsChartInstance.data.labels = state.subjects.map(s => s.name);
+            if (subjectsChartInstance.data.datasets[0]) {
+                subjectsChartInstance.data.datasets[0].data = state.subjects.map(sub => {
+                    let count = 0;
+                    state.studyLogs.forEach(l => {
+                        if (l.subjectId === sub.id) count += (l.hours + (l.minutes / 60));
+                    });
+                    return count > 0 ? count.toFixed(1) : 1;
+                });
+                subjectsChartInstance.data.datasets[0].backgroundColor = state.subjects.map(s => s.color);
+            }
+
             hoursChartInstance.update();
             subjectsChartInstance.update();
         }
