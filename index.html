@@ -40,6 +40,53 @@
 </head>
 <body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-200">
 
+    <!-- TELA DE LOGIN / AUTENTICAÇÃO -->
+    <div id="auth-screen" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden p-8 space-y-6">
+            <div class="text-center space-y-2">
+                <div class="inline-flex bg-indigo-600 text-white p-3 rounded-2xl shadow-lg shadow-indigo-500/30 items-center justify-center mb-1">
+                    <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold tracking-tight">EstudoFlow PRO</h2>
+                <p id="auth-subtitle" class="text-xs text-slate-500 dark:text-slate-400">Entre com a sua conta para sincronizar os seus estudos na nuvem.</p>
+            </div>
+
+            <!-- Formulário de Email e Senha -->
+            <form onsubmit="handleEmailAuth(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">E-mail</label>
+                    <input type="email5" id="auth-email" placeholder="seu@email.com" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Palavra-passe</label>
+                    <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <button type="submit" id="auth-submit-btn" class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-lg shadow-indigo-500/30 transition-all">
+                    Entrar com E-mail
+                </button>
+            </form>
+
+            <div class="relative flex py-2 items-center">
+                <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                <span class="flex-shrink mx-4 text-xs text-slate-400 uppercase tracking-widest">ou</span>
+                <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+            </div>
+
+            <!-- Login com Google -->
+            <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center space-x-3 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 py-3 rounded-xl font-semibold text-sm transition-all shadow-sm">
+                <i class="fa-brands fa-google text-red-500"></i>
+                <span>Continuar com o Google</span>
+            </button>
+
+            <!-- Alternar entre Login e Criar Conta -->
+            <div class="text-center pt-2">
+                <button type="button" onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                    Não tem uma conta? Crie uma agora
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="app" class="flex h-full w-full overflow-hidden">
         
         <!-- Sidebar Navigation -->
@@ -96,13 +143,18 @@
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                         <span id="sync-indicator" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                        <span id="sync-text">A ligar à Nuvem...</span>
+                        <span id="sync-text">Conectado</span>
                     </span>
-                    <button onclick="toggleTheme()" class="text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
-                        <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
-                    </button>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="logoutUser()" title="Terminar Sessão" class="text-slate-500 dark:text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
+                            <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                        </button>
+                        <button onclick="toggleTheme()" class="text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
+                            <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
+                        </button>
+                    </div>
                 </div>
-                <div id="user-uid-box" class="text-[10px] text-slate-400 dark:text-slate-500 truncate select-all font-mono">ID: A sincronizar...</div>
+                <div id="user-uid-box" class="text-[10px] text-slate-400 dark:text-slate-500 truncate select-all font-mono">ID: A carregar...</div>
             </div>
         </aside>
 
@@ -244,9 +296,6 @@
                                 <h3 class="text-lg font-bold">Ciclo de Estudos Adaptativo</h3>
                                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Siga sua sequência rotativa de disciplinas otimizada.</p>
                             </div>
-                            <button onclick="openModal('new-cycle-item-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all hidden">
-                                <i class="fa-solid fa-plus mr-1.5"></i> Adicionar ao Ciclo
-                            </button>
                         </div>
 
                         <div id="cycle-items-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -581,7 +630,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'estudoflow-pro-default';
@@ -589,6 +638,7 @@
 
         let app, db, auth, userId = null;
         let unsubscribeData = null;
+        let isSignUpMode = false;
 
         // Application State
         let state = {
@@ -642,47 +692,104 @@
         let timerSecondsLeft = 25 * 60;
         let timerTotalSeconds = 25 * 60;
         let timerRunning = false;
-        let timerMode = 'pomodoro'; // pomodoro, shortBreak, stopwatch
+        let timerMode = 'pomodoro';
 
         window.addEventListener('DOMContentLoaded', async () => {
             initTheme();
             initCharts();
             setupTabs();
             
-            setTimeout(() => {
-                updateCharts();
-            }, 250);
-            
             try {
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                userId = auth.currentUser?.uid || crypto.randomUUID();
-                document.getElementById('user-uid-box').innerText = `ID: ${userId}`;
-                document.getElementById('sync-indicator').className = 'w-2 h-2 rounded-full bg-emerald-500';
-                document.getElementById('sync-text').innerText = 'Nuvem Sincronizada';
-
-                loadUserDataFromFirebase();
+                // Monitorar estado de autenticação do Firebase
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('user-uid-box').innerText = `ID: ${user.email || userId}`;
+                        document.getElementById('sync-indicator').className = 'w-2 h-2 rounded-full bg-emerald-500';
+                        document.getElementById('sync-text').innerText = 'Sincronizado';
+                        document.getElementById('auth-screen').classList.add('hidden');
+                        loadUserDataFromFirebase();
+                    } else {
+                        userId = null;
+                        document.getElementById('auth-screen').classList.remove('hidden');
+                    }
+                });
             } catch (e) {
-                console.warn('Firebase initialization offline/fallback mode:', e);
+                console.warn('Firebase initialization offline mode:', e);
+                document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('sync-indicator').className = 'w-2 h-2 rounded-full bg-amber-500';
                 document.getElementById('sync-text').innerText = 'Modo Local';
-                document.getElementById('user-uid-box').innerText = 'ID: LocalStorage Mode';
+                document.getElementById('user-uid-box').innerText = 'ID: LocalStorage';
                 renderAll();
             }
         });
+
+        // Alternar entre Entrar e Registar
+        window.toggleAuthMode = function() {
+            isSignUpMode = !isSignUpMode;
+            const btn = document.getElementById('auth-submit-btn');
+            const toggleBtn = document.getElementById('auth-toggle-btn');
+            const subtitle = document.getElementById('auth-subtitle');
+
+            if (isSignUpMode) {
+                btn.innerText = 'Criar Conta';
+                subtitle.innerText = 'Registe-se para guardar os seus dados de estudos na nuvem.';
+                toggleBtn.innerText = 'Já tem uma conta? Faça login';
+            } else {
+                btn.innerText = 'Entrar com E-mail';
+                subtitle.innerText = 'Entre com a sua conta para sincronizar os seus estudos na nuvem.';
+                toggleBtn.innerText = 'Não tem uma conta? Crie uma agora';
+            }
+        };
+
+        // Autenticação com Email e Senha
+        window.handleEmailAuth = async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+
+            try {
+                if (isSignUpMode) {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    showToast("Conta criada com sucesso!");
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showToast("Sessão iniciada com sucesso!");
+                }
+            } catch (error) {
+                alert("Erro na Autenticação: " + error.message);
+            }
+        };
+
+        // Login com Google
+        window.loginWithGoogle = async function() {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+                showToast("Login com Google efetuado com sucesso!");
+            } catch (error) {
+                alert("Erro no Login com Google: " + error.message);
+            }
+        };
+
+        // Terminar Sessão (Logout)
+        window.logoutUser = async function() {
+            if (auth) {
+                await signOut(auth);
+                showToast("Sessão encerrada.");
+            }
+        };
 
         function loadUserDataFromFirebase() {
             if (!db || !userId) return;
             const docRef = doc(db, 'artifacts', appId, 'users', userId, 'estudoflow_data', 'main');
             
+            if (unsubscribeData) unsubscribeData();
+
             unsubscribeData = onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
@@ -704,7 +811,6 @@
             try {
                 const docRef = doc(db, 'artifacts', appId, 'users', userId, 'estudoflow_data', 'main');
                 await setDoc(docRef, { state, updatedAt: new Date().toISOString() });
-                showToast("Dados salvos na nuvem com sucesso!");
             } catch (e) {
                 console.error("Error saving data:", e);
             }
@@ -716,7 +822,7 @@
             setTimeout(() => {
                 icon.classList.remove('fa-spin');
                 renderAll();
-                showToast("Dados atualizados com sucesso!");
+                showToast("Sincronizado com sucesso!");
             }, 600);
         };
 
@@ -977,10 +1083,7 @@
             const container = document.getElementById('cycle-items-container');
             if (!container) return;
 
-            container.innerHTML = state.cycle.map((item, idx) => {
-                const sub = state.subjects.find(s => s.id === item.subjectId);
-                if (!sub) return '';
-
+            container.innerHTML = state.subjects.map((sub, idx) => {
                 return `
                     <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex items-center justify-between shadow-sm">
                         <div class="flex items-center space-x-4">
@@ -989,21 +1092,13 @@
                             </div>
                             <div>
                                 <h4 class="font-bold text-base" style="color: ${sub.color}">${sub.name}</h4>
-                                <span class="text-xs text-slate-400">Disciplina do Ciclo</span>
+                                <span class="text-xs text-slate-400">Disciplina do Edital</span>
                             </div>
                         </div>
-                        <button onclick="removeFromCycle('${item.id}')" class="text-slate-400 hover:text-red-500 p-2">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
                     </div>
                 `;
             }).join('');
         }
-
-        window.removeFromCycle = function(id) {
-            state.cycle = state.cycle.filter(c => c.id !== id);
-            saveUserDataToFirebase();
-        };
 
         // --- CRONÔMETRO / POMODORO ---
         window.setTimerMode = function(mode) {
@@ -1310,7 +1405,7 @@
                     data: {
                         labels: state.subjects.map(s => s.name),
                         datasets: [{
-                            data: state.subjects.map(() => Math.floor(Math.random() * 20) + 5),
+                            data: state.subjects.map(() => 10),
                             backgroundColor: state.subjects.map(s => s.color)
                         }]
                     },
@@ -1325,7 +1420,6 @@
                 return;
             }
             
-            // Atualizar dados de matérias no doughnut chart
             subjectsChartInstance.data.labels = state.subjects.map(s => s.name);
             if (subjectsChartInstance.data.datasets[0]) {
                 subjectsChartInstance.data.datasets[0].data = state.subjects.map(sub => {
