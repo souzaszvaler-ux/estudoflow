@@ -107,7 +107,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v4.0</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v4.2</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -743,7 +743,7 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <h3 class="font-bold text-lg text-slate-800 dark:text-white">Zerar Edital Ativo?</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Esta ação irá desmarcar todos os tópicos concluídos e zerar o contador do edital atual. Deseja prosseguir?</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Esta ação irá apagar todas as disciplinas, tópicos e métricas de estudo associadas. Deseja prosseguir?</p>
             <div class="flex space-x-3 pt-2">
                 <button onclick="closeModal('reset-edital-modal')" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
                 <button onclick="confirmResetEdital()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-500/25">Sim, Zerar</button>
@@ -790,41 +790,15 @@
         let isSignUpMode = false;
         let deferredPrompt = null;
 
-        let state = {
-            subjects: [
-                {
-                    id: 'sub-1',
-                    name: 'Direito Constitucional',
-                    color: '#6366f1',
-                    topics: [
-                        { id: 'top-1', title: 'Princípios Fundamentais', status: 'concluido' },
-                        { id: 'top-2', title: 'Direitos e Garantias Fundamentais', status: 'estudando' },
-                        { id: 'top-3', title: 'Organização do Estado', status: 'nao_iniciado' }
-                    ]
-                },
-                {
-                    id: 'sub-2',
-                    name: 'Português',
-                    color: '#10b981',
-                    topics: [
-                        { id: 'top-4', title: 'Crase e Pontuação', status: 'concluido' },
-                        { id: 'top-5', title: 'Concordância Verbal e Nominal', status: 'nao_iniciado' }
-                    ]
-                }
-            ],
-            studyLogs: [
-                { id: 'log-1', subjectId: 'sub-1', date: new Date().toISOString(), hours: 1, minutes: 30, questions: 25, correct: 20, notes: 'Estudo produtivo de direitos' }
-            ],
-            errors: [
-                { id: 'err-1', subjectId: 'sub-1', topic: 'Direitos Sociais', reason: 'Exceção de eficácia limitada', comment: 'Revisar jurisprudência do STF', date: new Date().toISOString() }
-            ],
+        // Estado padrão 100% limpo (sem disciplinas pré-definidas)
+        const defaultState = {
+            subjects: [],
+            studyLogs: [],
+            errors: [],
             folders: [
-                { id: 'fold-1', name: 'Constitucional Resumos' },
-                { id: 'fold-2', name: 'Português Dicas' }
+                { id: 'fold-1', name: 'Geral' }
             ],
-            notes: [
-                { id: 'note-1', folderId: 'fold-1', title: 'Artigo 5º - Resumo Geral', content: 'Todos são iguais perante a lei sem distinção...', date: new Date().toISOString() }
-            ],
+            notes: [],
             weeklyAvailability: {
                 seg: { hours: 4, count: 2 },
                 ter: { hours: 4, count: 2 },
@@ -837,6 +811,8 @@
             archives: [],
             archivedCycles: []
         };
+
+        let state = JSON.parse(JSON.stringify(defaultState));
 
         let hoursChartInstance = null;
         let subjectsChartInstance = null;
@@ -882,11 +858,8 @@
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('./sw.js')
-                        .then(reg => {
-                            console.log('Service Worker registado:', reg.scope);
-                            reg.update();
-                        })
-                        .catch(err => console.log('Falha ao registar o Service Worker:', err));
+                        .then(reg => reg.update())
+                        .catch(err => console.log('SW error:', err));
                 });
             }
 
@@ -912,16 +885,9 @@
         };
 
         window.requestNotificationPermission = async function() {
-            if (!("Notification" in window)) {
-                alert("Este navegador não suporta notificações.");
-                return;
-            }
+            if (!("Notification" in window)) return;
             const permission = await Notification.requestPermission();
-            if (permission === "granted") {
-                showToast("Lembretes ativados com sucesso!");
-            } else {
-                alert("Permissão de notificações negada.");
-            }
+            if (permission === "granted") showToast("Lembretes ativados com sucesso!");
         };
 
         function setupDailyNotifications() {
@@ -1005,23 +971,11 @@
                     if (data && data.state) {
                         state = data.state;
                         if (!state.weeklyAvailability) {
-                            state.weeklyAvailability = {
-                                seg: { hours: 4, count: 2 },
-                                ter: { hours: 4, count: 2 },
-                                qua: { hours: 4, count: 2 },
-                                qui: { hours: 4, count: 2 },
-                                sex: { hours: 4, count: 2 },
-                                sab: { hours: 6, count: 3 },
-                                dom: { hours: 2, count: 1 }
-                            };
+                            state.weeklyAvailability = JSON.parse(JSON.stringify(defaultState.weeklyAvailability));
                         }
-                        Object.keys(state.weeklyAvailability).forEach(k => {
-                            if (typeof state.weeklyAvailability[k] === 'number') {
-                                const h = state.weeklyAvailability[k];
-                                state.weeklyAvailability[k] = { hours: h, count: h >= 4 ? 2 : 1 };
-                            }
-                        });
                         if (!state.archivedCycles) state.archivedCycles = [];
+                        if (!state.archives) state.archives = [];
+                        if (!state.subjects) state.subjects = [];
                         renderAll();
                     }
                 } else {
@@ -1110,7 +1064,7 @@
                 const el = document.getElementById(id);
                 if (!el) return;
                 const currentVal = el.value;
-                el.innerHTML = state.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+                el.innerHTML = state.subjects.length === 0 ? '<option value="">Nenhuma disciplina cadastrada</option>' : state.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
                 if (currentVal) el.value = currentVal;
             });
 
@@ -1161,6 +1115,20 @@
 
             let totalTopics = 0;
             let doneTopics = 0;
+
+            if (state.subjects.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
+                        <i class="fa-solid fa-folder-open text-3xl text-slate-400 mb-2"></i>
+                        <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Ainda não tem disciplinas cadastradas.</p>
+                        <p class="text-xs text-slate-400 mt-1">Clique em "Nova Disciplina" para começar o seu edital do zero.</p>
+                    </div>
+                `;
+                document.getElementById('edital-progress-text').innerText = 'Progresso Geral: 0%';
+                document.getElementById('edital-topics-count').innerText = '0 / 0 tópicos concluídos';
+                document.getElementById('edital-progress-bar').style.width = '0%';
+                return;
+            }
 
             container.innerHTML = state.subjects.map(sub => {
                 const subTotal = sub.topics.length;
@@ -1302,12 +1270,12 @@
         };
 
         window.confirmResetEdital = function() {
-            state.subjects.forEach(sub => {
-                sub.topics.forEach(t => { t.status = 'nao_iniciado'; });
-            });
+            state.subjects = [];
+            state.studyLogs = [];
+            state.errors = [];
             closeModal('reset-edital-modal');
             saveUserDataToFirebase();
-            showToast("Edital zerado com sucesso!");
+            showToast("Edital e métricas limpos com sucesso!");
         };
 
         window.openArchiveEditalModal = function() {
@@ -1593,6 +1561,10 @@
             const hours = Math.floor(totalSecsStudied / 3600);
             const minutes = Math.floor((totalSecsStudied % 3600) / 60);
             const subjectId = document.getElementById('timer-subject-select').value;
+            if (!subjectId) {
+                showToast("Selecione uma disciplina válida.");
+                return;
+            }
 
             state.studyLogs.push({
                 id: crypto.randomUUID(),
@@ -1615,7 +1587,7 @@
             const container = document.getElementById('errors-list-container');
             if (!container) return;
 
-            container.innerHTML = state.errors.map(err => {
+            container.innerHTML = state.errors.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhum erro registado.</p>' : state.errors.map(err => {
                 const sub = state.subjects.find(s => s.id === err.subjectId);
                 return `
                     <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
@@ -1726,6 +1698,11 @@
             const correct = parseInt(document.getElementById('qs-q-correct').value) || 0;
             const notes = document.getElementById('qs-notes').value;
 
+            if (!subjectId) {
+                showToast("Selecione uma disciplina válida.");
+                return;
+            }
+
             state.studyLogs.push({ id: crypto.randomUUID(), subjectId, date: new Date().toISOString(), hours, minutes, questions, correct, notes });
             closeModal('quick-study-modal');
             saveUserDataToFirebase();
@@ -1769,6 +1746,11 @@
             const reason = document.getElementById('ne-reason').value;
             const comment = document.getElementById('ne-comment').value;
 
+            if (!subjectId) {
+                showToast("Selecione uma disciplina válida.");
+                return;
+            }
+
             state.errors.push({ id: crypto.randomUUID(), subjectId, topic, reason, comment, date: new Date().toISOString() });
             closeModal('new-error-modal');
             saveUserDataToFirebase();
@@ -1811,7 +1793,7 @@
                         labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
                         datasets: [{
                             label: 'Horas',
-                            data: [2, 3.5, 4, 1.5, 3, 5, 4.5],
+                            data: [0, 0, 0, 0, 0, 0, 0],
                             backgroundColor: '#6366f1',
                             borderRadius: 8
                         }]
@@ -1826,10 +1808,10 @@
                 subjectsChartInstance = new Chart(ctxSub, {
                     type: 'doughnut',
                     data: {
-                        labels: state.subjects.map(s => s.name),
+                        labels: [],
                         datasets: [{
-                            data: state.subjects.map(() => 10),
-                            backgroundColor: state.subjects.map(s => s.color)
+                            data: [],
+                            backgroundColor: []
                         }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
@@ -1850,7 +1832,7 @@
                     state.studyLogs.forEach(l => {
                         if (l.subjectId === sub.id) count += (l.hours + (l.minutes / 60));
                     });
-                    return count > 0 ? count.toFixed(1) : 1;
+                    return count > 0 ? count.toFixed(1) : 0;
                 });
                 subjectsChartInstance.data.datasets[0].backgroundColor = state.subjects.map(s => s.color);
             }
