@@ -200,7 +200,7 @@
                     <div class="flex items-center justify-between">
                         <h2 class="text-base font-bold text-white flex items-center space-x-2">
                             <i data-lucide="sparkles" class="w-5 h-5 text-blue-500"></i>
-                            <span>Plano da Semana Atual (100% Imutável e Blindado)</span>
+                            <span>Plano da Semana Atual (100% Estático e Blindado)</span>
                         </h2>
                         <div class="flex space-x-2">
                             <button type="button" onclick="reiniciarNovoEdital()" class="bg-red-950/80 hover:bg-red-900 text-red-400 border border-red-800 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition" title="Limpar tudo e iniciar novo edital">
@@ -213,7 +213,7 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-xs text-zinc-400">Este plano possui trava de sessão absoluta. Nenhuma alteração no edital ou sincronização com a nuvem poderá modificá-lo.</p>
+                    <p class="text-xs text-zinc-400">Este plano foi congelado em HTML estático bruto. Ele não depende de nenhuma função dinâmica e jamais será alterado por edites ou sincronizações.</p>
                     <div id="smartPlanContainer" class="space-y-3 pt-2"></div>
                 </div>
 
@@ -593,7 +593,7 @@
         let cadernoErros = [];
         let userFolders = [];
         let planosSemanaisArquivados = [];
-        let savedSmartPlan = null;
+        let savedSmartPlanHtml = null; // Armazena estaticamente o HTML bruto do plano
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let dailySubjectsCount = 2;
         let planoGerado = false;
@@ -610,15 +610,11 @@
         document.addEventListener("DOMContentLoaded", () => {
             lucide.createIcons();
             
-            // TRAVA DE SESSÃO ABSOLUTA: Carrega plano congelado imediatamente
-            const cachedPlan = sessionStorage.getItem('frozen_estudoflow_plan');
-            if (cachedPlan) {
-                try {
-                    savedSmartPlan = JSON.parse(cachedPlan);
-                    planoGerado = true;
-                } catch(e) {
-                    savedSmartPlan = null;
-                }
+            // Carrega HTML estático congelado imediatamente da sessão
+            const cachedHtml = sessionStorage.getItem('frozen_estudoflow_html');
+            if (cachedHtml) {
+                savedSmartPlanHtml = cachedHtml;
+                planoGerado = true;
             }
 
             if ('serviceWorker' in navigator) {
@@ -722,7 +718,7 @@
                 cadernoErros, 
                 userFolders, 
                 planosSemanaisArquivados,
-                savedSmartPlan, // Salva na nuvem com segurança
+                savedSmartPlanHtml,
                 weeklyHoursConfig, 
                 dailySubjectsCount, 
                 planoGerado 
@@ -744,10 +740,9 @@
                         userFolders = data.userFolders || [];
                         planosSemanaisArquivados = data.planosSemanaisArquivados || [];
                         
-                        // RESTAURAÇÃO PROTEGIDA: Apenas carrega da nuvem se não houver trava ativa na sessão ou se a nuvem possuir
-                        if (!savedSmartPlan && data.savedSmartPlan && Object.keys(data.savedSmartPlan).length > 0) {
-                            savedSmartPlan = data.savedSmartPlan;
-                            sessionStorage.setItem('frozen_estudoflow_plan', JSON.stringify(savedSmartPlan));
+                        if (!savedSmartPlanHtml && data.savedSmartPlanHtml) {
+                            savedSmartPlanHtml = data.savedSmartPlanHtml;
+                            sessionStorage.setItem('frozen_estudoflow_html', savedSmartPlanHtml);
                             planoGerado = true;
                         }
 
@@ -924,8 +919,8 @@
                 historicoSemanal = [];
                 cadernoErros = [];
                 planosSemanaisArquivados = [];
-                savedSmartPlan = null;
-                sessionStorage.removeItem('frozen_estudoflow_plan');
+                savedSmartPlanHtml = null;
+                sessionStorage.removeItem('frozen_estudoflow_html');
                 planoGerado = false;
                 saveUserData();
                 renderApp();
@@ -942,7 +937,7 @@
                 version: "1.0",
                 date: new Date().toISOString(),
                 subjects: subjects,
-                savedSmartPlan: savedSmartPlan,
+                savedSmartPlanHtml: savedSmartPlanHtml,
                 planoGerado: planoGerado,
                 weeklyHoursConfig: weeklyHoursConfig,
                 dailySubjectsCount: dailySubjectsCount
@@ -965,9 +960,9 @@
                     const content = JSON.parse(e.target.result);
                     if (content.subjects && Array.isArray(content.subjects)) {
                         subjects = content.subjects;
-                        if (content.savedSmartPlan !== undefined && content.savedSmartPlan !== null) {
-                            savedSmartPlan = content.savedSmartPlan;
-                            sessionStorage.setItem('frozen_estudoflow_plan', JSON.stringify(savedSmartPlan));
+                        if (content.savedSmartPlanHtml) {
+                            savedSmartPlanHtml = content.savedSmartPlanHtml;
+                            sessionStorage.setItem('frozen_estudoflow_html', savedSmartPlanHtml);
                             planoGerado = true;
                         }
                         if (content.weeklyHoursConfig) weeklyHoursConfig = content.weeklyHoursConfig;
@@ -1143,39 +1138,13 @@
             const container = document.getElementById('dailyNotificationContent');
             if (!container) return;
 
-            if (!savedSmartPlan || subjects.length === 0) {
+            if (!savedSmartPlanHtml || subjects.length === 0) {
                 container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Gere um plano de estudos e cadastre matérias para visualizar o resumo diário.</p>`;
                 document.getElementById('notificationModal').classList.remove('hidden');
                 return;
             }
 
-            const dayMap = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab'];
-            const todayKey = dayMap[new Date().getDay()];
-            const dayNames = { seg: 'Segunda-feira', ter: 'Terça-feira', qua: 'Quarta-feira', qui: 'Quinta-feira', sex: 'Sexta-feira', sab: 'Sábado', dom: 'Domingo' };
-            const hoursVal = weeklyHoursConfig[todayKey] || 0;
-
-            if (hoursVal <= 0) {
-                container.innerHTML = `<div class="bg-black border border-zinc-800 rounded-xl p-3 text-center text-xs text-zinc-400">Hoje é dia de descanso (${dayNames[todayKey]})!</div>`;
-                document.getElementById('notificationModal').classList.remove('hidden');
-                return;
-            }
-
-            if (savedSmartPlan[todayKey]) {
-                let dayData = savedSmartPlan[todayKey];
-                let html = `<div class="text-xs font-bold text-blue-400 mb-2">📅 Cronograma para hoje (${dayNames[todayKey]}):</div>`;
-                dayData.tasks.forEach((task, idx) => {
-                    html += `
-                        <div class="bg-black border border-zinc-800 rounded-xl p-3 space-y-1">
-                            <div class="font-bold text-white text-xs">${idx + 1}. ${task.subjectName}</div>
-                            <div class="text-[11px] text-zinc-300">• Tópico: ${task.topicName}</div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            } else {
-                container.innerHTML = `<p class="text-xs text-zinc-400 text-center py-4">Nenhum plano configurado para hoje.</p>`;
-            }
-
+            container.innerHTML = `<div class="bg-black border border-zinc-800 rounded-xl p-3 text-xs text-zinc-300">O seu plano semanal está fixado e operacional. Consulte a aba Plano para ver os detalhes diários.</div>`;
             document.getElementById('notificationModal').classList.remove('hidden');
         }
 
@@ -1206,7 +1175,7 @@
             const container = document.getElementById('smartPlanContainer');
             if (!container) return;
 
-            if (!savedSmartPlan) {
+            if (!savedSmartPlanHtml) {
                 container.innerHTML = `
                     <div class="text-center py-12 space-y-3">
                         <div class="inline-flex p-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-blue-400">
@@ -1222,69 +1191,9 @@
                 return;
             }
 
-            const daysOrder = [
-                { id: 'seg', name: 'Segunda-feira' },
-                { id: 'ter', name: 'Terça-feira' },
-                { id: 'qua', name: 'Quarta-feira' },
-                { id: 'qui', name: 'Quinta-feira' },
-                { id: 'sex', name: 'Sexta-feira' },
-                { id: 'sab', name: 'Sábado' },
-                { id: 'dom', name: 'Domingo' }
-            ];
-
-            container.innerHTML = daysOrder.map(dayInfo => {
-                const dayData = savedSmartPlan[dayInfo.id];
-                if (!dayData || dayData.hours <= 0) {
-                    return `
-                        <div class="bg-black border border-zinc-800 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
-                            <span class="text-xs font-bold text-zinc-400">${dayInfo.name}</span>
-                            <span class="text-[11px] text-zinc-500">Descanso / 0h</span>
-                        </div>
-                    `;
-                }
-
-                const tasksHtml = dayData.tasks.map((task, tIdx) => {
-                    return `
-                        <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl flex items-center justify-between">
-                            <div class="space-y-1">
-                                <div class="flex items-center space-x-2 text-xs">
-                                    <span class="font-bold text-white">${tIdx + 1}. Estudo: ${task.subjectName}</span>
-                                </div>
-                                <div class="text-[11px] text-zinc-300 pl-2 border-l-2 border-blue-600">
-                                    <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Tópico Fixado:</span>
-                                    ${task.topicName}
-                                </div>
-                            </div>
-                            <div>
-                                <label class="flex items-center space-x-1.5 cursor-pointer bg-black/60 px-3 py-1.5 rounded-xl border border-zinc-800">
-                                    <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleDayTaskDone('${dayInfo.id}', ${tIdx})" class="rounded bg-black border-zinc-700 text-emerald-500 focus:ring-0">
-                                    <span class="text-[11px] font-bold ${task.done ? 'text-emerald-400' : 'text-zinc-400'}">${task.done ? 'OK' : 'Pendente'}</span>
-                                </label>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                return `
-                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${dayInfo.name}</span>
-                            <span class="text-xs font-bold text-zinc-300">${dayData.hours}h totais</span>
-                        </div>
-                        <div class="space-y-2 pt-1">${tasksHtml}</div>
-                    </div>
-                `;
-            }).join('');
+            // Injeta o HTML bruto estático salvo (totalmente imune a recálculos)
+            container.innerHTML = savedSmartPlanHtml;
             lucide.createIcons();
-        }
-
-        function toggleDayTaskDone(dayId, taskIndex) {
-            if (savedSmartPlan && savedSmartPlan[dayId] && savedSmartPlan[dayId].tasks[taskIndex]) {
-                savedSmartPlan[dayId].tasks[taskIndex].done = !savedSmartPlan[dayId].tasks[taskIndex].done;
-                sessionStorage.setItem('frozen_estudoflow_plan', JSON.stringify(savedSmartPlan));
-                saveUserData();
-                renderSmartPlan();
-            }
         }
 
         function handleTopicCheck(sIndex, tIndex) {
@@ -1588,54 +1497,75 @@
             scoredSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
 
             const daysConfig = [
-                { id: 'seg', hours: weeklyHoursConfig.seg },
-                { id: 'ter', hours: weeklyHoursConfig.ter },
-                { id: 'qua', hours: weeklyHoursConfig.qua },
-                { id: 'qui', hours: weeklyHoursConfig.qui },
-                { id: 'sex', hours: weeklyHoursConfig.sex },
-                { id: 'sab', hours: weeklyHoursConfig.sab },
-                { id: 'dom', hours: weeklyHoursConfig.dom }
+                { id: 'seg', name: 'Segunda-feira', hours: weeklyHoursConfig.seg },
+                { id: 'ter', name: 'Terça-feira', hours: weeklyHoursConfig.ter },
+                { id: 'qua', name: 'Quarta-feira', hours: weeklyHoursConfig.qua },
+                { id: 'qui', name: 'Quinta-feira', hours: weeklyHoursConfig.qui },
+                { id: 'sex', name: 'Sexta-feira', hours: weeklyHoursConfig.sex },
+                { id: 'sab', name: 'Sábado', hours: weeklyHoursConfig.sab },
+                { id: 'dom', name: 'Domingo', hours: weeklyHoursConfig.dom }
             ];
 
-            let newSmartPlan = {};
+            let generatedHtml = '';
             let normPtr = 0;
 
             daysConfig.forEach(day => {
                 if (day.hours <= 0) {
-                    newSmartPlan[day.id] = { hours: 0, tasks: [] };
+                    generatedHtml += `
+                        <div class="bg-black border border-zinc-800 rounded-2xl p-3.5 flex items-center justify-between opacity-50">
+                            <span class="text-xs font-bold text-zinc-400">${day.name}</span>
+                            <span class="text-[11px] text-zinc-500">Descanso / 0h</span>
+                        </div>
+                    `;
                     return;
                 }
 
-                let tasksForDay = [];
+                let tasksHtml = '';
                 for (let i = 0; i < dailySubjectsCount; i++) {
                     let sub = scoredSubjects[normPtr % scoredSubjects.length];
                     let topicsList = sub.topics || [];
                     let topicObj = topicsList.length > 0 ? topicsList[normPtr % topicsList.length] : null;
                     let topicName = topicObj ? String(topicObj.name) : "Revisão geral";
                     
-                    tasksForDay.push({
-                        subjectName: String(sub.name),
-                        topicName: topicName,
-                        done: false
-                    });
+                    tasksHtml += `
+                        <div class="bg-zinc-900/60 border border-zinc-800/80 p-3 rounded-xl flex items-center justify-between">
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2 text-xs">
+                                    <span class="font-bold text-white">${i + 1}. Estudo: ${String(sub.name)}</span>
+                                </div>
+                                <div class="text-[11px] text-zinc-300 pl-2 border-l-2 border-blue-600">
+                                    <span class="text-[10px] text-zinc-500 uppercase block font-semibold">Tópico Fixado:</span>
+                                    ${topicName}
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-bold text-zinc-400 bg-black/60 px-3 py-1.5 rounded-xl border border-zinc-800">Pendente</span>
+                            </div>
+                        </div>
+                    `;
                     normPtr++;
                 }
 
-                newSmartPlan[day.id] = {
-                    hours: day.hours,
-                    tasks: tasksForDay
-                };
+                generatedHtml += `
+                    <div class="bg-black border border-zinc-800 rounded-2xl p-4 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">${day.name}</span>
+                            <span class="text-xs font-bold text-zinc-300">${day.hours}h totais</span>
+                        </div>
+                        <div class="space-y-2 pt-1">${tasksHtml}</div>
+                    </div>
+                `;
             });
 
-            // CONGELAMENTO ABSOLUTO NA SESSÃO E NA NUVEM
-            savedSmartPlan = JSON.parse(JSON.stringify(newSmartPlan));
-            sessionStorage.setItem('frozen_estudoflow_plan', JSON.stringify(savedSmartPlan));
+            // SALVA O HTML BRUTO ESTÁTICO DE FORMA DEFINITIVA
+            savedSmartPlanHtml = generatedHtml;
+            sessionStorage.setItem('frozen_estudoflow_html', savedSmartPlanHtml);
             planoGerado = true;
             
             saveUserData();
             fecharModalPlano();
             renderSmartPlan();
-            alert("Plano de estudos fixado e isolado com sucesso!");
+            alert("Plano de estudos fixado em formato estático com sucesso!");
         }
 
         function fecharSemana() {
@@ -1648,8 +1578,8 @@
                 });
 
                 historicoSemanal.push({ date: new Date().toLocaleDateString(), subjects: JSON.parse(JSON.stringify(subjects)) });
-                savedSmartPlan = null;
-                sessionStorage.removeItem('frozen_estudoflow_plan');
+                savedSmartPlanHtml = null;
+                sessionStorage.removeItem('frozen_estudoflow_html');
                 planoGerado = false;
                 saveUserData();
                 renderApp();
@@ -1662,8 +1592,8 @@
                 historicoDiario = [];
                 historicoSemanal = [];
                 planosSemanaisArquivados = [];
-                savedSmartPlan = null;
-                sessionStorage.removeItem('frozen_estudoflow_plan');
+                savedSmartPlanHtml = null;
+                sessionStorage.removeItem('frozen_estudoflow_html');
                 planoGerado = false;
                 saveUserData();
                 renderSmartPlan();
