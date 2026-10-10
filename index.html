@@ -593,7 +593,7 @@
         let cadernoErros = [];
         let userFolders = [];
         let planosSemanaisArquivados = [];
-        let frozenPlanHtml = ""; 
+        let frozenPlanHtml = ""; // Variável central do plano congelado
         let weeklyHoursConfig = { seg: 3, ter: 3, qua: 3, qui: 3, sex: 3, sab: 4, dom: 2 };
         let dailySubjectsCount = 2;
         let planoGerado = false;
@@ -614,6 +614,7 @@
                 navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
             }
 
+            // Carrega instantaneamente dados salvos localmente
             loadLocalData();
 
             firebase.auth().onAuthStateChanged((user) => {
@@ -648,7 +649,7 @@
                     renderApp();
                 }
             } catch (e) {
-                console.warn("Erro ao ler do localStorage:", e);
+                console.warn("Erro ao ler dados locais:", e);
             }
         }
 
@@ -740,18 +741,18 @@
                 planoGerado 
             };
 
-            // 1. Gravação local primária (garante velocidade e funcionamento sem bloqueios)
+            // 1. Salva localmente de forma imediata (sempre funciona sem erros)
             try {
                 localStorage.setItem('estudoflow_pro_offline_state', JSON.stringify(data));
             } catch (e) {
-                console.warn("Erro ao salvar no localStorage:", e);
+                console.warn("Erro ao gravar localmente:", e);
             }
 
-            // 2. Sincronização em nuvem segura (silenciosa, sem alertas irritantes em tela)
+            // 2. Tenta sincronizar silenciosamente com o Firebase sem disparar alertas em tela
             if (currentUser) {
                 firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
                     .catch(err => {
-                        console.warn("Aviso: Sincronização em nuvem ignorada por restrição de regras/rede.", err);
+                        console.warn("Sincronização em nuvem indisponível no momento.", err);
                     });
             }
         }
@@ -780,13 +781,13 @@
 
                         if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
                         if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
-                        
+
                         saveUserData();
                     }
                     renderApp();
                 })
                 .catch(err => {
-                    console.warn("Aviso ao carregar da nuvem, utilizando dados locais.", err);
+                    console.warn("Nuvem indisponível, usando estado local.", err);
                     renderApp();
                 });
         }
@@ -1220,7 +1221,7 @@
         function handleTopicCheck(sIndex, tIndex) {
             const topic = subjects[sIndex].topics[tIndex];
             if (topic.done) {
-                // Apenas desmarca o tópico no edital, sem tocar no plano congelado (`frozenPlanHtml`)
+                // Desmarca no edital SEM mexer na estrutura/conteúdo do ciclo (`frozenPlanHtml`)
                 topic.done = false;
                 saveUserData();
                 renderSchedule();
@@ -1261,13 +1262,13 @@
             
             registrarEvolucioDiaria(subjects[sIndex].name, subjects[sIndex].topics[tIndex].name, percent);
 
-            // Salvamento estrito sem regenerar ou alterar a string do ciclo congelado (`frozenPlanHtml`)
+            // Grava os dados sem regenerar o plano estático congelado
             saveUserData();
             renderSchedule();
             updateStats();
             
             document.getElementById('approvalModal').classList.add('hidden');
-            alert("Tópico concluído! O progresso do edital foi atualizado e o ciclo permaneceu perfeitamente intacto.");
+            alert("Tópico concluído! O progresso do edital foi atualizado e o ciclo permaneceu perfeitamente congelado.");
         }
 
         function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
@@ -1508,13 +1509,15 @@
                 return;
             }
 
+            // Seleciona tópicos ainda não concluídos para montar o ciclo
             const scoredSubjects = activeSubjects.map(sub => {
                 const totalQ = sub.questionsCount || 0;
                 const correctQ = sub.correctCount || 0;
                 const accuracy = totalQ > 0 ? (correctQ / totalQ) * 100 : 100;
                 const weight = sub.weight || 1;
                 const priorityScore = weight * (101 - accuracy);
-                return { ...sub, accuracy, priorityScore };
+                const uncompletedTopics = (sub.topics || []).filter(t => !t.done);
+                return { ...sub, accuracy, priorityScore, uncompletedTopics };
             });
 
             scoredSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
@@ -1546,7 +1549,7 @@
                 let tasksHtml = '';
                 for (let i = 0; i < dailySubjectsCount; i++) {
                     let sub = scoredSubjects[normPtr % scoredSubjects.length];
-                    let topicsList = sub.topics || [];
+                    let topicsList = sub.uncompletedTopics && sub.uncompletedTopics.length > 0 ? sub.uncompletedTopics : sub.topics || [];
                     let topicObj = topicsList.length > 0 ? topicsList[normPtr % topicsList.length] : null;
                     let topicName = topicObj ? String(topicObj.name) : "Revisão geral";
                     
@@ -1580,6 +1583,7 @@
                 `;
             });
 
+            // ATRIBUIÇÃO DIRETA DA STRING ESTÁTICA FIXA
             frozenPlanHtml = generatedHtml;
             planoGerado = true;
             
@@ -1695,7 +1699,7 @@
                 freeIsRunning = true;
                 btn.textContent = "Parar e Salvar";
                 btn.classList.replace('bg-emerald-600', 'bg-amber-600');
-                freeSeconds =0;
+                freeSeconds = 0;
                 freeInterval = setInterval(() => {
                     freeSeconds++;
                     updateFreeDisplay();
@@ -1714,7 +1718,7 @@
 
         function updateFreeDisplay() {
             const h = Math.floor(freeSeconds / 3600);
-            const m = Math.floor((freeSeconds%3600)/60);
+            const m = Math.floor((freeSeconds % 3600) / 60);
             const s = freeSeconds % 60;
             document.getElementById('freeDisplay').textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
