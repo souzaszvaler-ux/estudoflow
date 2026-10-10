@@ -307,8 +307,8 @@
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
-                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Semanal Adaptativo (100% Blindado)</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Este ciclo mantém-se fixo e estático até decidir finalizá-lo.</p>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Semanal Adaptativo (100% Imutável)</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Este ciclo mantém-se totalmente congelado e não se altera ao concluir tópicos no edital.</p>
                             </div>
                             <div class="flex items-center space-x-2 flex-wrap gap-2">
                                 <button onclick="openModal('availability-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md shadow-indigo-500/20">
@@ -580,16 +580,17 @@
         </div>
     </div>
 
-    <!-- MODAL: Topic Completion Verification (80% minimum accuracy) -->
+    <!-- MODAL: Topic Completion Verification & Optional Hours Entry -->
     <div id="topic-accuracy-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden p-6 space-y-4">
             <div class="w-14 h-14 bg-amber-50 dark:bg-amber-950/50 text-amber-600 rounded-full flex items-center justify-center text-2xl mx-auto">
                 <i class="fa-solid fa-bullseye"></i>
             </div>
             <h3 class="font-bold text-lg text-center text-slate-800 dark:text-white">Requisito Mínimo: 80% de Acurácia</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 text-center">Para marcar este tópico como <b class="text-emerald-600">Concluído</b>, informe o seu desempenho nas questões deste assunto (médias necessárias de pelo menos 80% de acertos).</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 text-center">Para marcar este tópico como <b class="text-emerald-600">Concluído</b>, informe o seu desempenho nas questões deste assunto (pelo menos 80% de acertos).</p>
             <input type="hidden" id="ta-subject-id">
             <input type="hidden" id="ta-topic-id">
+            
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Questões Feitas</label>
@@ -600,6 +601,22 @@
                     <input type="number" id="ta-correct" min="0" value="8" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
             </div>
+
+            <div class="bg-indigo-50/50 dark:bg-indigo-950/30 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/50 space-y-2">
+                <label class="block text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Tempo Estudado Neste Tópico (Opcional)</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] text-slate-400 uppercase">Horas</label>
+                        <input type="number" id="ta-hours" min="0" max="23" value="0" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-400 uppercase">Minutos</label>
+                        <input type="number" id="ta-minutes" min="0" max="59" value="0" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100">
+                    </div>
+                </div>
+                <p class="text-[10px] text-slate-400">Se deixar em 0h 0m, nenhuma hora líquida será adicionada.</p>
+            </div>
+
             <div class="flex space-x-3 pt-2">
                 <button type="button" onclick="closeModal('topic-accuracy-modal')" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
                 <button type="button" onclick="verifyAndCompleteTopic()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Verificar & Concluir</button>
@@ -1094,7 +1111,7 @@
             let totalQ = 0;
             let correctQ = 0;
 
-            // Calcula ESTRITAMENTE as sessões reais do histórico de estudos (Sem tempo automático)
+            // Calcula ESTRITAMENTE as sessões reais do histórico de estudos
             if (state.studyLogs && Array.isArray(state.studyLogs)) {
                 state.studyLogs.forEach(l => {
                     totalMins += ((parseInt(l.hours) || 0) * 60) + (parseInt(l.minutes) || 0);
@@ -1221,6 +1238,8 @@
             if (top.status === 'estudando') {
                 document.getElementById('ta-subject-id').value = subjectId;
                 document.getElementById('ta-topic-id').value = topicId;
+                document.getElementById('ta-hours').value = 0;
+                document.getElementById('ta-minutes').value = 0;
                 openModal('topic-accuracy-modal');
             } else if (top.status === 'nao_iniciado') {
                 top.status = 'estudando';
@@ -1236,6 +1255,8 @@
             const topicId = document.getElementById('ta-topic-id').value;
             const totalQ = parseInt(document.getElementById('ta-total').value) || 0;
             const correctQ = parseInt(document.getElementById('ta-correct').value) || 0;
+            const addedHours = parseInt(document.getElementById('ta-hours').value) || 0;
+            const addedMins = parseInt(document.getElementById('ta-minutes').value) || 0;
 
             if (totalQ <= 0) {
                 alert("Insira um número válido de questões.");
@@ -1253,7 +1274,21 @@
                 const top = sub.topics.find(t => t.id === topicId);
                 if (top) {
                     top.status = 'concluido';
-                    // Marcar o tópico NÃO adiciona mais horas automáticas sem consentimento
+                    
+                    // Só adiciona ao histórico de horas líquidas se você inseriu algum tempo válido
+                    if (addedHours > 0 || addedMins > 0 || totalQ > 0) {
+                        if (!state.studyLogs) state.studyLogs = [];
+                        state.studyLogs.push({
+                            id: crypto.randomUUID(),
+                            subjectId,
+                            date: new Date().toISOString(),
+                            hours: addedHours,
+                            minutes: addedMins,
+                            questions: totalQ,
+                            correct: correctQ,
+                            notes: `Conclusão do tópico: ${top.title}`
+                        });
+                    }
                 }
             }
 
@@ -1332,7 +1367,7 @@
                 dom: { hours: parseFloat(document.getElementById('avail-dom-h').value) || 0, count: parseInt(document.getElementById('avail-dom-c').value) || 1 }
             };
             
-            // Força a regeneração de um novo ciclo congelado ao alterar a disponibilidade
+            // Força a regeneração de um novo ciclo congelado ao alterar explicitamente as configurações
             state.frozenCycleHtml = null;
             closeModal('availability-modal');
             saveUserDataToFirebase();
@@ -1419,7 +1454,7 @@
                 </div>
             `;
 
-            // Se o ciclo já estiver congelado, exibe exatamente o HTML guardado sem recalcular
+            // SE O CICLO JÁ ESTIVER CONGELADO: Exibe estritamente o HTML congelado e NÃO re-gera sob hipótese alguma
             if (state.frozenCycleHtml) {
                 itemsContainer.innerHTML = state.frozenCycleHtml;
                 return;
@@ -1506,6 +1541,7 @@
                 `;
             }).join('');
 
+            // Congela e grava o HTML do ciclo gerado
             state.frozenCycleHtml = generatedHtml;
             itemsContainer.innerHTML = generatedHtml;
             saveUserDataToFirebase();
@@ -1748,7 +1784,6 @@
 
             const newSub = { id: crypto.randomUUID(), name, color, topics: [] };
             state.subjects.push(newSub);
-            state.frozenCycleHtml = null; // Regenera ciclo ao incluir nova matéria
 
             closeModal('new-subject-modal');
             document.getElementById('ns-name').value = '';
