@@ -307,8 +307,8 @@
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
-                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Semanal Adaptativo</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Distribua horas e quantidade de matérias por dia com base no seu edital.</p>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Semanal Adaptativo (100% Blindado)</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Este ciclo mantém-se fixo e estático até decidir finalizá-lo.</p>
                             </div>
                             <div class="flex items-center space-x-2 flex-wrap gap-2">
                                 <button onclick="openModal('availability-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md shadow-indigo-500/20">
@@ -808,7 +808,8 @@
                 dom: { hours: 2, count: 1 }
             },
             archives: [],
-            archivedCycles: []
+            archivedCycles: [],
+            frozenCycleHtml: null
         };
 
         // Carrega do armazenamento local de imediato para garantir persistência instantânea
@@ -1000,13 +1001,13 @@
 
             renderAll();
 
-            // Tenta sincronizar com o Firebase em segundo plano sem bloquear a interface
+            // Tenta sincronizar com o Firebase em segundo plano de forma silenciosa
             if (!db || !userId) return;
             try {
                 const docRef = doc(db, 'artifacts', appId, 'users', userId, 'estudoflow_data', 'main');
                 await setDoc(docRef, { state, updatedAt: new Date().toISOString() }, { merge: true });
             } catch (e) {
-                console.warn("Sincronização na nuvem indisponível. Dados salvos localmente no navegador.");
+                console.warn("Sincronização na nuvem em segundo plano indisponível.");
             }
         };
 
@@ -1286,6 +1287,7 @@
             state.subjects = [];
             state.studyLogs = [];
             state.errors = [];
+            state.frozenCycleHtml = null;
             closeModal('reset-edital-modal');
             saveUserDataToFirebase();
             showToast("Edital e métricas limpos com sucesso!");
@@ -1334,9 +1336,12 @@
                 sab: { hours: parseFloat(document.getElementById('avail-sab-h').value) || 0, count: parseInt(document.getElementById('avail-sab-c').value) || 3 },
                 dom: { hours: parseFloat(document.getElementById('avail-dom-h').value) || 0, count: parseInt(document.getElementById('avail-dom-c').value) || 1 }
             };
+            
+            // Força a regeneração de um novo ciclo congelado ao alterar a disponibilidade
+            state.frozenCycleHtml = null;
             closeModal('availability-modal');
             saveUserDataToFirebase();
-            showToast("Ciclo semanal atualizado com sucesso!");
+            showToast("Ciclo semanal gerado e fixado com sucesso!");
         };
 
         window.finishCurrentCycle = function() {
@@ -1355,6 +1360,7 @@
 
             if (!state.archivedCycles) state.archivedCycles = [];
             state.archivedCycles.push(cycleRecord);
+            state.frozenCycleHtml = null; // Libera para gerar um novo ciclo na próxima semana
             saveUserDataToFirebase();
             showToast("Ciclo semanal finalizado e guardado no histórico com sucesso!");
         };
@@ -1418,6 +1424,12 @@
                 </div>
             `;
 
+            // Se o ciclo já estiver congelado, exibe exatamente o HTML guardado sem recalcular
+            if (state.frozenCycleHtml) {
+                itemsContainer.innerHTML = state.frozenCycleHtml;
+                return;
+            }
+
             const activeSubjects = state.subjects;
             if (activeSubjects.length === 0) {
                 itemsContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Cadastre disciplinas no Edital para gerar o ciclo com base no progresso.</p>';
@@ -1440,7 +1452,7 @@
 
             let poolIndex = 0;
 
-            itemsContainer.innerHTML = daysMap.map(d => {
+            const generatedHtml = daysMap.map(d => {
                 const dayData = av[d.key];
                 const hours = dayData.hours;
                 const count = dayData.count;
@@ -1498,6 +1510,10 @@
                     </div>
                 `;
             }).join('');
+
+            state.frozenCycleHtml = generatedHtml;
+            itemsContainer.innerHTML = generatedHtml;
+            saveUserDataToFirebase();
         }
 
         window.setTimerMode = function(mode) {
@@ -1729,6 +1745,7 @@
 
             const newSub = { id: crypto.randomUUID(), name, color, topics: [] };
             state.subjects.push(newSub);
+            state.frozenCycleHtml = null; // Regenera ciclo ao incluir nova matéria
 
             closeModal('new-subject-modal');
             document.getElementById('ns-name').value = '';
