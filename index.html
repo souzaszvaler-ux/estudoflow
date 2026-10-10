@@ -614,7 +614,6 @@
                 navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
             }
 
-            // Carrega instantaneamente do localStorage para evitar tela vazia e perda de dados
             loadLocalData();
 
             firebase.auth().onAuthStateChanged((user) => {
@@ -741,17 +740,19 @@
                 planoGerado 
             };
 
-            // 1. Gravação local imediata para prevenir perda de dados
+            // 1. Gravação local primária (garante velocidade e funcionamento sem bloqueios)
             try {
                 localStorage.setItem('estudoflow_pro_offline_state', JSON.stringify(data));
             } catch (e) {
                 console.warn("Erro ao salvar no localStorage:", e);
             }
 
-            // 2. Sincronização em segundo plano com o Firebase (se autenticado)
+            // 2. Sincronização em nuvem segura (silenciosa, sem alertas irritantes em tela)
             if (currentUser) {
                 firebase.firestore().collection('schedules').doc(currentUser.uid).set(data, { merge: true })
-                    .catch(err => console.warn("Aviso de sincronização na nuvem:", err));
+                    .catch(err => {
+                        console.warn("Aviso: Sincronização em nuvem ignorada por restrição de regras/rede.", err);
+                    });
             }
         }
 
@@ -780,13 +781,12 @@
                         if (data.weeklyHoursConfig) weeklyHoursConfig = data.weeklyHoursConfig;
                         if (data.dailySubjectsCount !== undefined) dailySubjectsCount = data.dailySubjectsCount;
                         
-                        // Atualiza o cache local com os dados da nuvem
                         saveUserData();
                     }
                     renderApp();
                 })
                 .catch(err => {
-                    console.warn("Erro ao buscar dados na nuvem, mantendo dados locais:", err);
+                    console.warn("Aviso ao carregar da nuvem, utilizando dados locais.", err);
                     renderApp();
                 });
         }
@@ -1220,6 +1220,7 @@
         function handleTopicCheck(sIndex, tIndex) {
             const topic = subjects[sIndex].topics[tIndex];
             if (topic.done) {
+                // Apenas desmarca o tópico no edital, sem tocar no plano congelado (`frozenPlanHtml`)
                 topic.done = false;
                 saveUserData();
                 renderSchedule();
@@ -1260,12 +1261,13 @@
             
             registrarEvolucioDiaria(subjects[sIndex].name, subjects[sIndex].topics[tIndex].name, percent);
 
+            // Salvamento estrito sem regenerar ou alterar a string do ciclo congelado (`frozenPlanHtml`)
             saveUserData();
             renderSchedule();
             updateStats();
             
             document.getElementById('approvalModal').classList.add('hidden');
-            alert("Tópico concluído! O progresso do edital foi atualizado sem alterar o plano semanal.");
+            alert("Tópico concluído! O progresso do edital foi atualizado e o ciclo permaneceu perfeitamente intacto.");
         }
 
         function registrarEvolucioDiaria(subjectName, topicName, accuracy) {
@@ -1693,7 +1695,7 @@
                 freeIsRunning = true;
                 btn.textContent = "Parar e Salvar";
                 btn.classList.replace('bg-emerald-600', 'bg-amber-600');
-                freeSeconds = 0;
+                freeSeconds =0;
                 freeInterval = setInterval(() => {
                     freeSeconds++;
                     updateFreeDisplay();
@@ -1712,7 +1714,7 @@
 
         function updateFreeDisplay() {
             const h = Math.floor(freeSeconds / 3600);
-            const m = Math.floor((freeSeconds % 3600) / 60);
+            const m = Math.floor((freeSeconds%3600)/60);
             const s = freeSeconds % 60;
             document.getElementById('freeDisplay').textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
