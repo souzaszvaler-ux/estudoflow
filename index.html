@@ -107,7 +107,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v5.0</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v5.1</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -147,30 +147,21 @@
                 </button>
             </nav>
 
-            <!-- User Sync Status, Backup & Install Footer -->
-            <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 space-y-2">
-                <!-- BOTÕES DE SEGURANÇA DE BACKUP -->
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="exportBackupData()" title="Guardar cópia dos dados em ficheiro" class="flex items-center justify-center space-x-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 py-2 rounded-xl text-[11px] font-semibold transition-all">
-                        <i class="fa-solid fa-download"></i>
-                        <span>Exportar</span>
-                    </button>
-                    <label class="flex items-center justify-center space-x-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 py-2 rounded-xl text-[11px] font-semibold transition-all cursor-pointer">
-                        <i class="fa-solid fa-upload"></i>
-                        <span>Importar</span>
-                        <input type="file" id="import-backup-file" accept=".json" onchange="importBackupData(event)" class="hidden">
-                    </label>
-                </div>
-
-                <button id="install-pwa-btn" onclick="installAppPrompt()" class="w-full hidden items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition-all">
+            <!-- User Sync Status & Footer -->
+            <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 space-y-3">
+                <button id="install-pwa-btn" onclick="installAppPrompt()" class="w-full hidden items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2.5 rounded-xl text-xs font-semibold shadow-md transition-all">
                     <i class="fa-solid fa-download"></i>
                     <span>Instalar Aplicação</span>
+                </button>
+                <button onclick="requestNotificationPermission()" class="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition-all">
+                    <i class="fa-solid fa-bell"></i>
+                    <span>Ativar Lembretes Diários</span>
                 </button>
 
                 <div class="flex items-center justify-between pt-1">
                     <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                         <span id="sync-indicator" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <span id="sync-text">Sincronizado</span>
+                        <span id="sync-text">Sincronizado Internamente</span>
                     </span>
                     <div class="flex items-center space-x-2">
                         <button onclick="logoutUser()" title="Terminar Sessão" class="text-slate-500 dark:text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
@@ -469,7 +460,7 @@
             <form onsubmit="handleQuickStudySubmit(event)" class="p-6 space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Matéria Estudada</label>
-                    <select id="qs-subject" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required></select>
+                    <select id="qs-subject" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></select>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -497,7 +488,7 @@
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal('quick-study-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/25">Registar Horas</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Registar Horas</button>
                 </div>
             </form>
         </div>
@@ -551,7 +542,7 @@
                 </div>
                 <div class="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                     <button type="button" onclick="closeModal('availability-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/25">Gerar / Atualizar Ciclo</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Gerar / Atualizar Ciclo</button>
                 </div>
             </form>
         </div>
@@ -719,7 +710,7 @@
         </div>
     </div>
 
-    <!-- MODAL: Confirmation for Reset Edital -->
+    <!-- MODAL: Reset Edital -->
     <div id="reset-edital-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden text-center p-6 space-y-4">
             <div class="w-14 h-14 bg-red-50 dark:bg-red-950/50 text-red-600 rounded-full flex items-center justify-center text-2xl mx-auto">
@@ -734,7 +725,7 @@
         </div>
     </div>
 
-    <!-- MODAL: Confirmation for Archive Edital -->
+    <!-- MODAL: Archive Edital -->
     <div id="archive-edital-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden p-6 space-y-4">
             <div class="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto">
@@ -795,16 +786,13 @@
             frozenCycleHtml: null
         };
 
-        // MECANISMO DE RESILIÊNCIA E BACKUP DE EMERGÊNCIA CONTRA PERDAS
+        // Carregamento interno seguro com dupla proteção local (sem ficheiros externos)
         function loadStateSafely() {
             try {
                 let savedLocal = localStorage.getItem('estudoflow_local_state');
-                
-                // Se o localStorage principal estiver limpo, tenta recuperar do backup de emergência
                 if (!savedLocal) {
                     savedLocal = localStorage.getItem('estudoflow_backup_emergency');
                 }
-
                 if (!savedLocal) return JSON.parse(JSON.stringify(defaultState));
                 
                 const parsed = JSON.parse(savedLocal);
@@ -856,7 +844,7 @@
                         userId = user.uid;
                         document.getElementById('user-uid-box').innerText = `ID: ${user.email || userId}`;
                         document.getElementById('sync-indicator').className = 'w-2 h-2 rounded-full bg-emerald-500';
-                        document.getElementById('sync-text').innerText = 'Sincronizado';
+                        document.getElementById('sync-text').innerText = 'Sincronizado Internamente';
                         document.getElementById('auth-screen').classList.add('hidden');
                         loadUserDataFromFirebase();
                     } else {
@@ -868,40 +856,6 @@
                 console.warn('Firebase connection error:', e);
             }
         });
-
-        // FUNÇÕES DE EXPORTAR E IMPORTAR BACKUP DE SEGURANÇA
-        window.exportBackupData = function() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `estudoflow_backup_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-            showToast("Backup descarregado com sucesso!");
-        };
-
-        window.importBackupData = function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedState = JSON.parse(e.target.result);
-                    if (importedState && typeof importedState === 'object') {
-                        state = { ...defaultState, ...importedState };
-                        saveUserDataToFirebase();
-                        showToast("Dados do backup restaurados com sucesso!");
-                    } else {
-                        alert("Ficheiro de backup inválido.");
-                    }
-                } catch (err) {
-                    alert("Erro ao ler o ficheiro de backup.");
-                }
-            };
-            reader.readAsText(file);
-        };
 
         function setupPWA() {
             if ('serviceWorker' in navigator) {
@@ -1019,8 +973,6 @@
                     const data = docSnap.data();
                     if (data && data.state) {
                         const cloudState = data.state;
-                        
-                        // Proteção: Só sobrescreve se a nuvem contiver dados de disciplinas válidas
                         if (cloudState.subjects && cloudState.subjects.length > 0) {
                             state = {
                                 ...defaultState,
@@ -1050,11 +1002,12 @@
             });
         }
 
+        // SALVAMENTO INTERNO AUTOMÁTICO EM DUPLA CAMADA (SEM FICHEIROS EXTERNOS)
         window.saveUserDataToFirebase = async function() {
             try {
                 const jsonState = JSON.stringify(state);
                 localStorage.setItem('estudoflow_local_state', jsonState);
-                localStorage.setItem('estudoflow_backup_emergency', jsonState); // Backup duplo automático
+                localStorage.setItem('estudoflow_backup_emergency', jsonState);
             } catch (e) {
                 console.warn("Erro ao salvar no localStorage:", e);
             }
@@ -1076,7 +1029,7 @@
             setTimeout(() => {
                 icon.classList.remove('fa-spin');
                 renderAll();
-                showToast("Dados sincronizados com sucesso!");
+                showToast("Dados sincronizados internamente!");
             }, 600);
         };
 
@@ -1992,3 +1945,4 @@
     </script>
 </body>
 </html>
+  
