@@ -107,7 +107,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v4.5</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v4.6</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -830,8 +830,33 @@
             frozenCycleHtml: null
         };
 
-        let savedLocal = localStorage.getItem('estudoflow_local_state');
-        let state = savedLocal ? JSON.parse(savedLocal) : JSON.parse(JSON.stringify(defaultState));
+        // Função de carregamento seguro com mesclagem para evitar perda de dados em atualizações
+        function loadStateSafely() {
+            try {
+                const savedLocal = localStorage.getItem('estudoflow_local_state');
+                if (!savedLocal) return JSON.parse(JSON.stringify(defaultState));
+                
+                const parsed = JSON.parse(savedLocal);
+                return {
+                    ...defaultState,
+                    ...parsed,
+                    subjects: Array.isArray(parsed.subjects) ? parsed.subjects : defaultState.subjects,
+                    studyLogs: Array.isArray(parsed.studyLogs) ? parsed.studyLogs : defaultState.studyLogs,
+                    errors: Array.isArray(parsed.errors) ? parsed.errors : defaultState.errors,
+                    folders: Array.isArray(parsed.folders) && parsed.folders.length > 0 ? parsed.folders : defaultState.folders,
+                    notes: Array.isArray(parsed.notes) ? parsed.notes : defaultState.notes,
+                    archives: Array.isArray(parsed.archives) ? parsed.archives : defaultState.archives,
+                    archivedCycles: Array.isArray(parsed.archivedCycles) ? parsed.archivedCycles : defaultState.archivedCycles,
+                    weeklyAvailability: { ...defaultState.weeklyAvailability, ...(parsed.weeklyAvailability || {}) },
+                    frozenCycleHtml: parsed.frozenCycleHtml !== undefined ? parsed.frozenCycleHtml : defaultState.frozenCycleHtml
+                };
+            } catch (e) {
+                console.error("Erro ao carregar estado local com segurança:", e);
+                return JSON.parse(JSON.stringify(defaultState));
+            }
+        }
+
+        let state = loadStateSafely();
 
         let hoursChartInstance = null;
         let subjectsChartInstance = null;
@@ -988,14 +1013,21 @@
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     if (data && data.state) {
-                        state = data.state;
-                        if (!state.weeklyAvailability) {
-                            state.weeklyAvailability = JSON.parse(JSON.stringify(defaultState.weeklyAvailability));
-                        }
-                        if (!state.archivedCycles) state.archivedCycles = [];
-                        if (!state.archives) state.archives = [];
-                        if (!state.subjects) state.subjects = [];
-                        if (!state.studyLogs) state.studyLogs = [];
+                        // Mescla o estado do Firebase com segurança para preservar dados locais e estruturas novas
+                        const cloudState = data.state;
+                        state = {
+                            ...defaultState,
+                            ...cloudState,
+                            subjects: Array.isArray(cloudState.subjects) && cloudState.subjects.length > 0 ? cloudState.subjects : state.subjects,
+                            studyLogs: Array.isArray(cloudState.studyLogs) && cloudState.studyLogs.length > 0 ? cloudState.studyLogs : state.studyLogs,
+                            errors: Array.isArray(cloudState.errors) ? cloudState.errors : state.errors,
+                            folders: Array.isArray(cloudState.folders) && cloudState.folders.length > 0 ? cloudState.folders : state.folders,
+                            notes: Array.isArray(cloudState.notes) ? cloudState.notes : state.notes,
+                            archives: Array.isArray(cloudState.archives) ? cloudState.archives : state.archives,
+                            archivedCycles: Array.isArray(cloudState.archivedCycles) ? cloudState.archivedCycles : state.archivedCycles,
+                            weeklyAvailability: { ...defaultState.weeklyAvailability, ...(cloudState.weeklyAvailability || {}) },
+                            frozenCycleHtml: cloudState.frozenCycleHtml !== undefined ? cloudState.frozenCycleHtml : state.frozenCycleHtml
+                        };
                         localStorage.setItem('estudoflow_local_state', JSON.stringify(state));
                         renderAll();
                     }
@@ -1785,7 +1817,6 @@
             showToast("Disciplina criada com sucesso!");
         };
 
-        // Adiciona múltiplos tópicos separados por quebra de linha
         window.handleNewTopicSubmit = function(e) {
             e.preventDefault();
             const subjectId = document.getElementById('nt-subject-id').value;
