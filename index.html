@@ -107,7 +107,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v4.6</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v5.0</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -147,15 +147,24 @@
                 </button>
             </nav>
 
-            <!-- User Sync Status & Install App Footer -->
-            <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 space-y-3">
-                <button id="install-pwa-btn" onclick="installAppPrompt()" class="w-full hidden items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2.5 rounded-xl text-xs font-semibold shadow-md transition-all">
+            <!-- User Sync Status, Backup & Install Footer -->
+            <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 space-y-2">
+                <!-- BOTÕES DE SEGURANÇA DE BACKUP -->
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="exportBackupData()" title="Guardar cópia dos dados em ficheiro" class="flex items-center justify-center space-x-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 py-2 rounded-xl text-[11px] font-semibold transition-all">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Exportar</span>
+                    </button>
+                    <label class="flex items-center justify-center space-x-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 py-2 rounded-xl text-[11px] font-semibold transition-all cursor-pointer">
+                        <i class="fa-solid fa-upload"></i>
+                        <span>Importar</span>
+                        <input type="file" id="import-backup-file" accept=".json" onchange="importBackupData(event)" class="hidden">
+                    </label>
+                </div>
+
+                <button id="install-pwa-btn" onclick="installAppPrompt()" class="w-full hidden items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition-all">
                     <i class="fa-solid fa-download"></i>
                     <span>Instalar Aplicação</span>
-                </button>
-                <button onclick="requestNotificationPermission()" class="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition-all">
-                    <i class="fa-solid fa-bell"></i>
-                    <span>Ativar Lembretes Diários</span>
                 </button>
 
                 <div class="flex items-center justify-between pt-1">
@@ -450,7 +459,7 @@
         </main>
     </div>
 
-    <!-- MODAL: Quick Study Session (Registo Manual Explicito de Horas Líquidas) -->
+    <!-- MODAL: Quick Study Session -->
     <div id="quick-study-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
@@ -460,33 +469,31 @@
             <form onsubmit="handleQuickStudySubmit(event)" class="p-6 space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Matéria Estudada</label>
-                    <select id="qs-subject" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
-                        <!-- Preenchido dinamicamente -->
-                    </select>
+                    <select id="qs-subject" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required></select>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Horas Estudo</label>
-                        <input type="number" id="qs-hours" min="0" max="23" value="1" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
+                        <input type="number" id="qs-hours" min="0" max="23" value="1" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Minutos Estudo</label>
-                        <input type="number" id="qs-minutes" min="0" max="59" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
+                        <input type="number" id="qs-minutes" min="0" max="59" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Questões Feitas</label>
-                        <input type="number" id="qs-q-total" min="0" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
+                        <input type="number" id="qs-q-total" min="0" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Questões Acertadas</label>
-                        <input type="number" id="qs-q-correct" min="0" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
+                        <input type="number" id="qs-q-correct" min="0" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Observações / Tópico</label>
-                    <input type="text" id="qs-notes" placeholder="Ex: Leitura de doutrina e resumos" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100">
+                    <input type="text" id="qs-notes" placeholder="Ex: Leitura de doutrina e resumos" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100">
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal('quick-study-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
@@ -496,7 +503,7 @@
         </div>
     </div>
 
-    <!-- MODAL: Weekly Availability & Subjects Count Config -->
+    <!-- MODAL: Availability -->
     <div id="availability-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 w-full max-w-xl rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
@@ -504,72 +511,42 @@
                 <button onclick="closeModal('availability-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form onsubmit="handleAvailabilitySubmit(event)" class="p-6 space-y-4">
-                <p class="text-xs text-slate-500 dark:text-slate-400">Defina o seu planeamento semanal. (Nota: Estas são metas teóricas e NÃO somam nas suas horas líquidas reais).</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Defina o seu planeamento semanal.</p>
                 <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
                     <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Segunda-feira</span>
-                        <div>
-                            <label class="block text-[10px] text-slate-400 uppercase">Horas</label>
-                            <input type="number" step="0.5" min="0" max="24" id="avail-seg-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-400 uppercase">Matérias/Dia</label>
-                            <input type="number" min="1" max="5" id="avail-seg-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
+                        <div><input type="number" step="0.5" min="0" max="24" id="avail-seg-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
+                        <div><input type="number" min="1" max="5" id="avail-seg-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
                     </div>
                     <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Terça-feira</span>
-                        <div>
-                            <input type="number" step="0.5" min="0" max="24" id="avail-ter-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
-                        <div>
-                            <input type="number" min="1" max="5" id="avail-ter-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
+                        <div><input type="number" step="0.5" min="0" max="24" id="avail-ter-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
+                        <div><input type="number" min="1" max="5" id="avail-ter-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
                     </div>
                     <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Quarta-feira</span>
-                        <div>
-                            <input type="number" step="0.5" min="0" max="24" id="avail-qua-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
-                        <div>
-                            <input type="number" min="1" max="5" id="avail-qua-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
+                        <div><input type="number" step="0.5" min="0" max="24" id="avail-qua-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
+                        <div><input type="number" min="1" max="5" id="avail-qua-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
                     </div>
                     <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Quinta-feira</span>
-                        <div>
-                            <input type="number" step="0.5" min="0" max="24" id="avail-qui-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
-                        <div>
-                            <input type="number" min="1" max="5" id="avail-qui-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
+                        <div><input type="number" step="0.5" min="0" max="24" id="avail-qui-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
+                        <div><input type="number" min="1" max="5" id="avail-qui-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
                     </div>
                     <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Sexta-feira</span>
-                        <div>
-                            <input type="number" step="0.5" min="0" max="24" id="avail-sex-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
-                        <div>
-                            <input type="number" min="1" max="5" id="avail-sex-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
+                        <div><input type="number" step="0.5" min="0" max="24" id="avail-sex-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
+                        <div><input type="number" min="1" max="5" id="avail-sex-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
                     </div>
                     <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Sábado</span>
-                        <div>
-                            <input type="number" step="0.5" min="0" max="24" id="avail-sab-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
-                        <div>
-                            <input type="number" min="1" max="5" id="avail-sab-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
+                        <div><input type="number" step="0.5" min="0" max="24" id="avail-sab-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
+                        <div><input type="number" min="1" max="5" id="avail-sab-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
                     </div>
                     <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Domingo</span>
-                        <div>
-                            <input type="number" step="0.5" min="0" max="24" id="avail-dom-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
-                        <div>
-                            <input type="number" min="1" max="5" id="avail-dom-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                        </div>
+                        <div><input type="number" step="0.5" min="0" max="24" id="avail-dom-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
+                        <div><input type="number" min="1" max="5" id="avail-dom-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
                     </div>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-700">
@@ -580,7 +557,7 @@
         </div>
     </div>
 
-    <!-- MODAL: Topic Completion Verification & Optional Hours Entry -->
+    <!-- MODAL: Topic Accuracy -->
     <div id="topic-accuracy-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden p-6 space-y-4">
             <div class="w-14 h-14 bg-amber-50 dark:bg-amber-950/50 text-amber-600 rounded-full flex items-center justify-center text-2xl mx-auto">
@@ -605,16 +582,9 @@
             <div class="bg-indigo-50/50 dark:bg-indigo-950/30 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/50 space-y-2">
                 <label class="block text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Tempo Estudado Neste Tópico (Opcional)</label>
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[10px] text-slate-400 uppercase">Horas</label>
-                        <input type="number" id="ta-hours" min="0" max="23" value="0" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-slate-400 uppercase">Minutos</label>
-                        <input type="number" id="ta-minutes" min="0" max="59" value="0" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100">
-                    </div>
+                    <div><input type="number" id="ta-hours" min="0" max="23" value="0" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100"></div>
+                    <div><input type="number" id="ta-minutes" min="0" max="59" value="0" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100"></div>
                 </div>
-                <p class="text-[10px] text-slate-400">Se deixar em 0h 0m, nenhuma hora líquida será adicionada.</p>
             </div>
 
             <div class="flex space-x-3 pt-2">
@@ -634,7 +604,7 @@
             <form onsubmit="handleNewSubjectSubmit(event)" class="p-6 space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Nome da Disciplina</label>
-                    <input type="text" id="ns-name" placeholder="Ex: Direito Constitucional" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
+                    <input type="text" id="ns-name" placeholder="Ex: Direito Constitucional" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Cor de Identificação</label>
@@ -642,13 +612,13 @@
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal('new-subject-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/25">Adicionar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Adicionar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: New Topics (Múltiplos Tópicos) -->
+    <!-- MODAL: New Topics -->
     <div id="new-topic-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
@@ -659,12 +629,11 @@
                 <input type="hidden" id="nt-subject-id">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Tópicos (Um por linha)</label>
-                    <textarea id="nt-titles" rows="5" placeholder="Poderes Administrativos&#10;Atos Administrativos&#10;Improbidade Administrativa" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required></textarea>
-                    <p class="text-[11px] text-slate-400 mt-1.5"><i class="fa-solid fa-circle-info mr-1"></i> Escreva ou cole vários tópicos. Cada linha nova criará um tópico separado automaticamente.</p>
+                    <textarea id="nt-titles" rows="5" placeholder="Poderes Administrativos&#10;Atos Administrativos&#10;Improbidade Administrativa" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></textarea>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal('new-topic-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/25">Adicionar Tópicos</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Adicionar Tópicos</button>
                 </div>
             </form>
         </div>
@@ -680,25 +649,23 @@
             <form onsubmit="handleNewErrorSubmit(event)" class="p-6 space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Disciplina</label>
-                    <select id="ne-subject" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
-                        <!-- Preenchido dinamicamente -->
-                    </select>
+                    <select id="ne-subject" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Assunto / Tema da Questão</label>
-                    <input type="text" id="ne-topic" placeholder="Ex: Desapropriação indireta" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
+                    <input type="text" id="ne-topic" placeholder="Ex: Desapropriação indireta" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Motivo do Erro</label>
-                    <input type="text" id="ne-reason" placeholder="Ex: Confusão com prazo prescricional" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
+                    <input type="text" id="ne-reason" placeholder="Ex: Confusão com prazo prescricional" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Comentário / Correção (O que aprender)</label>
-                    <textarea id="ne-comment" rows="3" placeholder="Explique a regra correta..." class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required></textarea>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Comentário / Correção</label>
+                    <textarea id="ne-comment" rows="3" placeholder="Explique a regra correta..." class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></textarea>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal('new-error-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/25">Registar Erro</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Registar Erro</button>
                 </div>
             </form>
         </div>
@@ -714,11 +681,11 @@
             <form onsubmit="handleNewFolderSubmit(event)" class="p-6 space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Nome da Pasta</label>
-                    <input type="text" id="nfo-name" placeholder="Ex: Resumos de Direito Penal" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
+                    <input type="text" id="nfo-name" placeholder="Ex: Resumos de Direito Penal" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal('new-folder-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/25">Criar Pasta</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Criar Pasta</button>
                 </div>
             </form>
         </div>
@@ -734,21 +701,19 @@
             <form onsubmit="handleNewNoteSubmit(event)" class="p-6 space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Pasta</label>
-                    <select id="nn-folder" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
-                        <!-- Preenchido dinamicamente -->
-                    </select>
+                    <select id="nn-folder" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Título da Nota</label>
-                    <input type="text" id="nn-title" placeholder="Ex: Princípios Constitucionais Expressos" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
+                    <input type="text" id="nn-title" placeholder="Ex: Princípios Constitucionais Expressos" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Conteúdo</label>
-                    <textarea id="nn-content" rows="5" placeholder="Escreva seu resumo aqui..." class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required></textarea>
+                    <textarea id="nn-content" rows="5" placeholder="Escreva seu resumo aqui..." class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></textarea>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal('new-note-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/25">Salvar Nota</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Salvar Nota</button>
                 </div>
             </form>
         </div>
@@ -761,10 +726,10 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <h3 class="font-bold text-lg text-slate-800 dark:text-white">Zerar Edital Ativo?</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Esta ação irá apagar todas as disciplinas, tópicos e métricas de estudo associadas. Deseja prosseguir?</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Esta ação irá apagar todas as disciplinas, tópicos e métricas. Deseja prosseguir?</p>
             <div class="flex space-x-3 pt-2">
                 <button onclick="closeModal('reset-edital-modal')" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                <button onclick="confirmResetEdital()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-500/25">Sim, Zerar</button>
+                <button onclick="confirmResetEdital()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-700 text-white shadow-md">Sim, Zerar</button>
             </div>
         </div>
     </div>
@@ -778,11 +743,11 @@
             <h3 class="font-bold text-lg text-center text-slate-800 dark:text-white">Arquivar Edital Atual</h3>
             <div>
                 <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Nome do Concurso / Concluído</label>
-                <input type="text" id="archive-name-input" placeholder="Ex: Concurso TRT 2026" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
+                <input type="text" id="archive-name-input" placeholder="Ex: Concurso TRT 2026" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
             </div>
             <div class="flex space-x-3 pt-2">
                 <button onclick="closeModal('archive-edital-modal')" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                <button onclick="confirmArchiveEdital()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-500/25">Arquivar</button>
+                <button onclick="confirmArchiveEdital()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md">Arquivar</button>
             </div>
         </div>
     </div>
@@ -830,10 +795,16 @@
             frozenCycleHtml: null
         };
 
-        // Função de carregamento seguro com mesclagem para evitar perda de dados em atualizações
+        // MECANISMO DE RESILIÊNCIA E BACKUP DE EMERGÊNCIA CONTRA PERDAS
         function loadStateSafely() {
             try {
-                const savedLocal = localStorage.getItem('estudoflow_local_state');
+                let savedLocal = localStorage.getItem('estudoflow_local_state');
+                
+                // Se o localStorage principal estiver limpo, tenta recuperar do backup de emergência
+                if (!savedLocal) {
+                    savedLocal = localStorage.getItem('estudoflow_backup_emergency');
+                }
+
                 if (!savedLocal) return JSON.parse(JSON.stringify(defaultState));
                 
                 const parsed = JSON.parse(savedLocal);
@@ -851,7 +822,7 @@
                     frozenCycleHtml: parsed.frozenCycleHtml !== undefined ? parsed.frozenCycleHtml : defaultState.frozenCycleHtml
                 };
             } catch (e) {
-                console.error("Erro ao carregar estado local com segurança:", e);
+                console.error("Erro ao carregar estado local:", e);
                 return JSON.parse(JSON.stringify(defaultState));
             }
         }
@@ -897,6 +868,40 @@
                 console.warn('Firebase connection error:', e);
             }
         });
+
+        // FUNÇÕES DE EXPORTAR E IMPORTAR BACKUP DE SEGURANÇA
+        window.exportBackupData = function() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `estudoflow_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("Backup descarregado com sucesso!");
+        };
+
+        window.importBackupData = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedState = JSON.parse(e.target.result);
+                    if (importedState && typeof importedState === 'object') {
+                        state = { ...defaultState, ...importedState };
+                        saveUserDataToFirebase();
+                        showToast("Dados do backup restaurados com sucesso!");
+                    } else {
+                        alert("Ficheiro de backup inválido.");
+                    }
+                } catch (err) {
+                    alert("Erro ao ler o ficheiro de backup.");
+                }
+            };
+            reader.readAsText(file);
+        };
 
         function setupPWA() {
             if ('serviceWorker' in navigator) {
@@ -1013,23 +1018,27 @@
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     if (data && data.state) {
-                        // Mescla o estado do Firebase com segurança para preservar dados locais e estruturas novas
                         const cloudState = data.state;
-                        state = {
-                            ...defaultState,
-                            ...cloudState,
-                            subjects: Array.isArray(cloudState.subjects) && cloudState.subjects.length > 0 ? cloudState.subjects : state.subjects,
-                            studyLogs: Array.isArray(cloudState.studyLogs) && cloudState.studyLogs.length > 0 ? cloudState.studyLogs : state.studyLogs,
-                            errors: Array.isArray(cloudState.errors) ? cloudState.errors : state.errors,
-                            folders: Array.isArray(cloudState.folders) && cloudState.folders.length > 0 ? cloudState.folders : state.folders,
-                            notes: Array.isArray(cloudState.notes) ? cloudState.notes : state.notes,
-                            archives: Array.isArray(cloudState.archives) ? cloudState.archives : state.archives,
-                            archivedCycles: Array.isArray(cloudState.archivedCycles) ? cloudState.archivedCycles : state.archivedCycles,
-                            weeklyAvailability: { ...defaultState.weeklyAvailability, ...(cloudState.weeklyAvailability || {}) },
-                            frozenCycleHtml: cloudState.frozenCycleHtml !== undefined ? cloudState.frozenCycleHtml : state.frozenCycleHtml
-                        };
-                        localStorage.setItem('estudoflow_local_state', JSON.stringify(state));
-                        renderAll();
+                        
+                        // Proteção: Só sobrescreve se a nuvem contiver dados de disciplinas válidas
+                        if (cloudState.subjects && cloudState.subjects.length > 0) {
+                            state = {
+                                ...defaultState,
+                                ...cloudState,
+                                subjects: Array.isArray(cloudState.subjects) ? cloudState.subjects : state.subjects,
+                                studyLogs: Array.isArray(cloudState.studyLogs) ? cloudState.studyLogs : state.studyLogs,
+                                errors: Array.isArray(cloudState.errors) ? cloudState.errors : state.errors,
+                                folders: Array.isArray(cloudState.folders) ? cloudState.folders : state.folders,
+                                notes: Array.isArray(cloudState.notes) ? cloudState.notes : state.notes,
+                                archives: Array.isArray(cloudState.archives) ? cloudState.archives : state.archives,
+                                archivedCycles: Array.isArray(cloudState.archivedCycles) ? cloudState.archivedCycles : state.archivedCycles,
+                                weeklyAvailability: { ...defaultState.weeklyAvailability, ...(cloudState.weeklyAvailability || {}) },
+                                frozenCycleHtml: cloudState.frozenCycleHtml !== undefined ? cloudState.frozenCycleHtml : state.frozenCycleHtml
+                            };
+                            localStorage.setItem('estudoflow_local_state', JSON.stringify(state));
+                            localStorage.setItem('estudoflow_backup_emergency', JSON.stringify(state));
+                            renderAll();
+                        }
                     }
                 } else {
                     try {
@@ -1043,7 +1052,9 @@
 
         window.saveUserDataToFirebase = async function() {
             try {
-                localStorage.setItem('estudoflow_local_state', JSON.stringify(state));
+                const jsonState = JSON.stringify(state);
+                localStorage.setItem('estudoflow_local_state', jsonState);
+                localStorage.setItem('estudoflow_backup_emergency', jsonState); // Backup duplo automático
             } catch (e) {
                 console.warn("Erro ao salvar no localStorage:", e);
             }
@@ -1055,7 +1066,7 @@
                 const docRef = doc(db, 'artifacts', appId, 'users', userId, 'estudoflow_data', 'main');
                 await setDoc(docRef, { state, updatedAt: new Date().toISOString() }, { merge: true });
             } catch (e) {
-                console.warn("Sincronização na nuvem em segundo plano indisponível.");
+                console.warn("Sincronização na nuvem indisponível.");
             }
         };
 
