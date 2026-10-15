@@ -107,7 +107,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v5.2</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v5.3</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -307,12 +307,12 @@
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
-                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Semanal Adaptativo (100% Imutável)</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Este ciclo mantém-se totalmente congelado e não se altera ao concluir tópicos no edital.</p>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Inteligente (Imutável)</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerado por Inteligência de Pesos. Este ciclo não muda ao concluir tópicos no edital.</p>
                             </div>
                             <div class="flex items-center space-x-2 flex-wrap gap-2">
                                 <button onclick="openModal('availability-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md shadow-indigo-500/20">
-                                    <i class="fa-solid fa-sliders mr-2"></i> Configurar Ciclo / Horas
+                                    <i class="fa-solid fa-sliders mr-2"></i> Configurar / Re-gerar Ciclo
                                 </button>
                                 <button id="finish-cycle-btn" onclick="finishCurrentCycle()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md">
                                     <i class="fa-solid fa-check-double mr-2"></i> Finalizar Ciclo Semanal
@@ -830,7 +830,6 @@
                 
                 const parsed = JSON.parse(savedLocal);
                 
-                // Garantir peso padrão = 1 para disciplinas existentes
                 const normalizedSubjects = (Array.isArray(parsed.subjects) ? parsed.subjects : []).map(sub => ({
                     ...sub,
                     weight: sub.weight ? parseInt(sub.weight) : 1
@@ -1289,7 +1288,7 @@
                 sub.weight = parseInt(document.getElementById('es-weight').value) || 1;
                 sub.color = document.getElementById('es-color').value;
                 closeModal('edit-subject-modal');
-                state.frozenCycleHtml = null; // Libera reconstrução do ciclo ao mudar peso
+                // Não descongela o ciclo automaticamente para evitar resets indesejados ao utilizador
                 saveUserDataToFirebase();
                 showToast("Disciplina e peso atualizados com sucesso!");
             }
@@ -1358,6 +1357,7 @@
             }
 
             closeModal('topic-accuracy-modal');
+            // O ciclo de estudos permanece intocado/congelado mesmo após concluir tópicos
             saveUserDataToFirebase();
             showToast(`Tópico concluído com sucesso! Acurácia: ${accuracy.toFixed(1)}%`);
         };
@@ -1432,10 +1432,11 @@
                 dom: { hours: parseFloat(document.getElementById('avail-dom-h').value) || 0, count: parseInt(document.getElementById('avail-dom-c').value) || 1 }
             };
             
+            // Força a regeneração inteligente do ciclo apenas ao submeter a configuração
             state.frozenCycleHtml = null;
             closeModal('availability-modal');
             saveUserDataToFirebase();
-            showToast("Ciclo semanal gerado e fixado com sucesso!");
+            showToast("Ciclo inteligente gerado e fixado com sucesso!");
         };
 
         window.finishCurrentCycle = function() {
@@ -1518,6 +1519,7 @@
                 </div>
             `;
 
+            // SE O CICLO JÁ ESTIVER GERADO E CONGELADO, NÃO MANIPULA MAIS E EXIBE
             if (state.frozenCycleHtml) {
                 itemsContainer.innerHTML = state.frozenCycleHtml;
                 return;
@@ -1525,30 +1527,37 @@
 
             const activeSubjects = state.subjects;
             if (activeSubjects.length === 0) {
-                itemsContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Cadastre disciplinas no Edital para gerar o ciclo com base no progresso.</p>';
+                itemsContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Cadastre disciplinas no Edital para gerar o ciclo inteligente.</p>';
                 return;
             }
 
-            let pendingTopicsPool = [];
-            activeSubjects.forEach(sub => {
-                const w = sub.weight || 1;
-                sub.topics.forEach(t => {
-                    if (t.status !== 'concluido') {
-                        // Multiplica inserções no pool com base no peso da disciplina
-                        for (let k = 0; k < w; k++) {
-                            pendingTopicsPool.push({
-                                subjectId: sub.id,
-                                subjectName: sub.name,
-                                subjectColor: sub.color,
-                                subjectWeight: w,
-                                topicTitle: t.title
-                            });
-                        }
-                    }
-                });
+            // ALGORITMO INTELIGENTE DE DISTRIBUIÇÃO BASEADO EM PESO & PROGRESSO
+            // Prioridade = Peso * (100% - Progresso Concluído)
+            let smartSubjects = activeSubjects.map(sub => {
+                const totalT = sub.topics.length;
+                const doneT = sub.topics.filter(t => t.status === 'concluido').length;
+                const pctDone = totalT > 0 ? (doneT / totalT) : 0;
+                const weight = sub.weight || 1;
+                // Quanto menor o progresso e maior o peso, maior a prioridade de alocação
+                const priorityScore = weight * (1.1 - pctDone);
+
+                const pendingTopics = sub.topics.filter(t => t.status !== 'concluido');
+
+                return {
+                    id: sub.id,
+                    name: sub.name,
+                    color: sub.color,
+                    weight: weight,
+                    priorityScore: priorityScore,
+                    topicsPool: pendingTopics.length > 0 ? pendingTopics : [{ title: 'Revisão Geral / Edital Concluído' }],
+                    topicIndex: 0
+                };
             });
 
-            let poolIndex = 0;
+            // Ordena as disciplinas pela pontuação de prioridade (maior para menor)
+            smartSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
+
+            let masterSubjectIndex = 0;
 
             const generatedHtml = daysMap.map(d => {
                 const dayData = av[d.key];
@@ -1569,19 +1578,19 @@
 
                 const assignedItems = [];
                 for (let i = 0; i < count; i++) {
-                    if (pendingTopicsPool.length > 0) {
-                        assignedItems.push(pendingTopicsPool[poolIndex % pendingTopicsPool.length]);
-                        poolIndex++;
-                    } else {
-                        const fallbackSub = activeSubjects[i % activeSubjects.length];
-                        assignedItems.push({
-                            subjectId: fallbackSub.id,
-                            subjectName: fallbackSub.name,
-                            subjectColor: fallbackSub.color,
-                            subjectWeight: fallbackSub.weight || 1,
-                            topicTitle: 'Revisão Geral / Edital Concluído'
-                        });
-                    }
+                    const currentSub = smartSubjects[masterSubjectIndex % smartSubjects.length];
+                    const selectedTopic = currentSub.topicsPool[currentSub.topicIndex % currentSub.topicsPool.length];
+                    currentSub.topicIndex++;
+
+                    assignedItems.push({
+                        subjectId: currentSub.id,
+                        subjectName: currentSub.name,
+                        subjectColor: currentSub.color,
+                        subjectWeight: currentSub.weight,
+                        topicTitle: selectedTopic.title
+                    });
+
+                    masterSubjectIndex++;
                 }
 
                 return `
@@ -1611,6 +1620,7 @@
                 `;
             }).join('');
 
+            // CONGELA O RESULTADO FINAL NO ESTADO PARA NUNCA MAIS MUDAR ATÉ RE-GERAR
             state.frozenCycleHtml = generatedHtml;
             itemsContainer.innerHTML = generatedHtml;
             saveUserDataToFirebase();
@@ -1859,7 +1869,6 @@
             closeModal('new-subject-modal');
             document.getElementById('ns-name').value = '';
             document.getElementById('ns-weight').value = '1';
-            state.frozenCycleHtml = null;
             saveUserDataToFirebase();
             showToast("Disciplina criada com sucesso!");
         };
