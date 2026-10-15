@@ -60,6 +60,7 @@
                 <p id="auth-subtitle" class="text-xs text-slate-500 dark:text-slate-400">Faça login para aceder aos seus dados e estudos sincronizados.</p>
             </div>
 
+            <!-- Formulário de Email e Senha -->
             <form onsubmit="handleEmailAuth(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">E-mail</label>
@@ -80,11 +81,13 @@
                 <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
             </div>
 
+            <!-- Login com Google -->
             <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center space-x-3 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 py-3 rounded-xl font-semibold text-sm transition-all shadow-sm">
                 <i class="fa-brands fa-google text-red-500"></i>
                 <span>Continuar com o Google</span>
             </button>
 
+            <!-- Alternar entre Login e Criar Conta -->
             <div class="text-center pt-2">
                 <button type="button" onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
                     Não tem uma conta? Crie uma agora
@@ -144,6 +147,7 @@
                 </button>
             </nav>
 
+            <!-- User Sync Status & Footer -->
             <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 space-y-3">
                 <button id="install-pwa-btn" onclick="installAppPrompt()" class="w-full hidden items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2.5 rounded-xl text-xs font-semibold shadow-md transition-all">
                     <i class="fa-solid fa-download"></i>
@@ -174,6 +178,7 @@
 
         <!-- Main Content Wrapper -->
         <main class="flex-1 flex flex-col h-full overflow-hidden">
+            <!-- Top bar -->
             <header class="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-6 z-10 shrink-0">
                 <div class="flex items-center space-x-4">
                     <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-600 dark:text-slate-300 text-xl focus:outline-none">
@@ -193,6 +198,7 @@
                 </div>
             </header>
 
+            <!-- Scrollable View Area -->
             <div id="view-container" class="flex-1 overflow-y-auto p-4 sm:p-8 custom-scrollbar">
 
                 <!-- TAB: DASHBOARD -->
@@ -265,7 +271,7 @@
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                             <div>
                                 <h3 class="text-lg font-bold text-slate-800 dark:text-white">Edital Verticalizado Ativo</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerencie disciplinas, pesos, tópicos e controle seu progresso detalhado.</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerencie disciplinas, tópicos, pesos e controle seu progresso detalhado.</p>
                             </div>
                             <div class="flex items-center space-x-3 flex-wrap gap-2">
                                 <button onclick="openModal('new-subject-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
@@ -301,8 +307,8 @@
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
-                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Inteligente (Ponderado por Peso & Exclusões)</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Distribuição rotativa inteligente baseada no peso das matérias e nas matérias ativas.</p>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Semanal Adaptativo (100% Imutável)</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Este ciclo mantém-se totalmente congelado e não se altera ao concluir tópicos no edital.</p>
                             </div>
                             <div class="flex items-center space-x-2 flex-wrap gap-2">
                                 <button onclick="openModal('availability-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md shadow-indigo-500/20">
@@ -442,6 +448,36 @@
 
             </div>
         </main>
+    </div>
+
+    <!-- MODAL: Edit Subject / Weight -->
+    <div id="edit-subject-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Editar Disciplina & Peso</h3>
+                <button onclick="closeModal('edit-subject-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleEditSubjectSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" id="es-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Nome da Disciplina</label>
+                    <input type="text" id="es-name" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Peso na Prova (Relevância)</label>
+                    <input type="number" id="es-weight" min="1" max="10" step="1" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                    <p class="text-[11px] text-slate-400 mt-1">Defina de 1 a 10 (ex: Peso 3 para matérias de maior valor na sua prova).</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Cor de Identificação</label>
+                    <input type="color" id="es-color" class="w-full h-11 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-2 py-1 cursor-pointer">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('edit-subject-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- MODAL: Quick Study Session -->
@@ -591,15 +627,13 @@
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Nome da Disciplina</label>
                     <input type="text" id="ns-name" placeholder="Ex: Direito Constitucional" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Peso (Importância)</label>
-                        <input type="number" id="ns-weight" min="1" max="10" value="1" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Cor de Identificação</label>
-                        <input type="color" id="ns-color" value="#6366f1" class="w-full h-11 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-2 py-1 cursor-pointer">
-                    </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Peso na Prova (Relevância)</label>
+                    <input type="number" id="ns-weight" min="1" max="10" step="1" value="1" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Cor de Identificação</label>
+                    <input type="color" id="ns-color" value="#6366f1" class="w-full h-11 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-2 py-1 cursor-pointer">
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal('new-subject-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
@@ -795,10 +829,17 @@
                 if (!savedLocal) return JSON.parse(JSON.stringify(defaultState));
                 
                 const parsed = JSON.parse(savedLocal);
+                
+                // Garantir peso padrão = 1 para disciplinas existentes
+                const normalizedSubjects = (Array.isArray(parsed.subjects) ? parsed.subjects : []).map(sub => ({
+                    ...sub,
+                    weight: sub.weight ? parseInt(sub.weight) : 1
+                }));
+
                 return {
                     ...defaultState,
                     ...parsed,
-                    subjects: Array.isArray(parsed.subjects) ? parsed.subjects.map(s => ({ ...s, weight: s.weight !== undefined ? s.weight : 1, activeInCycle: s.activeInCycle !== undefined ? s.activeInCycle : true })) : defaultState.subjects,
+                    subjects: normalizedSubjects,
                     studyLogs: Array.isArray(parsed.studyLogs) ? parsed.studyLogs : defaultState.studyLogs,
                     errors: Array.isArray(parsed.errors) ? parsed.errors : defaultState.errors,
                     folders: Array.isArray(parsed.folders) && parsed.folders.length > 0 ? parsed.folders : defaultState.folders,
@@ -973,10 +1014,15 @@
                     if (data && data.state) {
                         const cloudState = data.state;
                         if (cloudState.subjects && cloudState.subjects.length > 0) {
+                            const normalizedSubjects = cloudState.subjects.map(s => ({
+                                ...s,
+                                weight: s.weight ? parseInt(s.weight) : 1
+                            }));
+
                             state = {
                                 ...defaultState,
                                 ...cloudState,
-                                subjects: Array.isArray(cloudState.subjects) ? cloudState.subjects.map(s => ({ ...s, weight: s.weight !== undefined ? s.weight : 1, activeInCycle: s.activeInCycle !== undefined ? s.activeInCycle : true })) : state.subjects,
+                                subjects: normalizedSubjects,
                                 studyLogs: Array.isArray(cloudState.studyLogs) ? cloudState.studyLogs : state.studyLogs,
                                 errors: Array.isArray(cloudState.errors) ? cloudState.errors : state.errors,
                                 folders: Array.isArray(cloudState.folders) ? cloudState.folders : state.folders,
@@ -1160,24 +1206,22 @@
                 const subTotal = sub.topics.length;
                 const subDone = sub.topics.filter(t => t.status === 'concluido').length;
                 const subPct = subTotal > 0 ? Math.round((subDone / subTotal) * 100) : 0;
-                const weight = sub.weight !== undefined ? sub.weight : 1;
-                const active = sub.activeInCycle !== undefined ? sub.activeInCycle : true;
 
                 totalTopics += subTotal;
                 doneTopics += subDone;
 
                 return `
                     <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-                            <div class="flex items-center space-x-3 flex-wrap gap-2">
+                        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                            <div class="flex items-center space-x-3">
                                 <span class="w-4 h-4 rounded-full" style="background-color: ${sub.color}"></span>
                                 <h4 class="font-bold text-base text-slate-800 dark:text-slate-100">${sub.name}</h4>
-                                <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold">Peso: ${weight}</span>
+                                <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold"><i class="fa-solid fa-weight-hanging mr-1"></i>Peso ${sub.weight || 1}</span>
                                 <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium">${subPct}% concluído</span>
                             </div>
-                            <div class="flex items-center space-x-2 flex-wrap gap-2">
-                                <button onclick="toggleSubjectCycleActive('${sub.id}')" title="Incluir ou excluir do Ciclo" class="text-xs px-3 py-1.5 rounded-xl font-semibold transition-all ${active ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900' : 'bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400'}">
-                                    <i class="fa-solid ${active ? 'fa-check' : 'fa-ban'} mr-1"></i> ${active ? 'No Ciclo' : 'Fora do Ciclo'}
+                            <div class="flex items-center space-x-2">
+                                <button onclick="openEditSubjectModal('${sub.id}')" title="Editar Disciplina / Alterar Peso" class="text-xs bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-xl font-semibold transition-all">
+                                    <i class="fa-solid fa-pen-to-square mr-1"></i> Editar Peso
                                 </button>
                                 <button onclick="openNewTopicModal('${sub.id}')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400 px-3 py-1.5 rounded-xl font-semibold transition-all">
                                     <i class="fa-solid fa-plus mr-1"></i> Tópicos
@@ -1189,7 +1233,7 @@
                         </div>
 
                         <div class="space-y-2 mt-4">
-                            ${sub.topics.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhum tópico cadastrado.</p>': ''}
+                            ${sub.topics.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhum tópico cadastrado.</p>' : ''}
                             ${sub.topics.map(t => {
                                 let badgeClass = 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
                                 let statusText = 'Não Iniciado';
@@ -1226,13 +1270,28 @@
             document.getElementById('edital-progress-bar').style.width = `${generalPct}%`;
         }
 
-        window.toggleSubjectCycleActive = function(subjectId) {
+        window.openEditSubjectModal = function(subjectId) {
             const sub = state.subjects.find(s => s.id === subjectId);
+            if (!sub) return;
+            document.getElementById('es-id').value = sub.id;
+            document.getElementById('es-name').value = sub.name;
+            document.getElementById('es-weight').value = sub.weight || 1;
+            document.getElementById('es-color').value = sub.color || '#6366f1';
+            openModal('edit-subject-modal');
+        };
+
+        window.handleEditSubjectSubmit = function(e) {
+            e.preventDefault();
+            const id = document.getElementById('es-id').value;
+            const sub = state.subjects.find(s => s.id === id);
             if (sub) {
-                sub.activeInCycle = sub.activeInCycle === false ? true : false;
-                state.frozenCycleHtml = null; // Regenera o ciclo
+                sub.name = document.getElementById('es-name').value.trim();
+                sub.weight = parseInt(document.getElementById('es-weight').value) || 1;
+                sub.color = document.getElementById('es-color').value;
+                closeModal('edit-subject-modal');
+                state.frozenCycleHtml = null; // Libera reconstrução do ciclo ao mudar peso
                 saveUserDataToFirebase();
-                showToast(`Disciplina ${sub.activeInCycle ? 'incluída no' : 'removida do'} ciclo.`);
+                showToast("Disciplina e peso atualizados com sucesso!");
             }
         };
 
@@ -1250,11 +1309,9 @@
                 openModal('topic-accuracy-modal');
             } else if (top.status === 'nao_iniciado') {
                 top.status = 'estudando';
-                state.frozenCycleHtml = null;
                 saveUserDataToFirebase();
             } else {
                 top.status = 'nao_iniciado';
-                state.frozenCycleHtml = null;
                 saveUserDataToFirebase();
             }
         };
@@ -1300,7 +1357,6 @@
                 }
             }
 
-            state.frozenCycleHtml = null;
             closeModal('topic-accuracy-modal');
             saveUserDataToFirebase();
             showToast(`Tópico concluído com sucesso! Acurácia: ${accuracy.toFixed(1)}%`);
@@ -1310,13 +1366,11 @@
             const sub = state.subjects.find(s => s.id === subjectId);
             if (!sub) return;
             sub.topics = sub.topics.filter(t => t.id !== topicId);
-            state.frozenCycleHtml = null;
             saveUserDataToFirebase();
         };
 
         window.deleteSubject = function(subjectId) {
             state.subjects = state.subjects.filter(s => s.id !== subjectId);
-            state.frozenCycleHtml = null;
             saveUserDataToFirebase();
         };
 
@@ -1381,7 +1435,7 @@
             state.frozenCycleHtml = null;
             closeModal('availability-modal');
             saveUserDataToFirebase();
-            showToast("Ciclo inteligente gerado com sucesso!");
+            showToast("Ciclo semanal gerado e fixado com sucesso!");
         };
 
         window.finishCurrentCycle = function() {
@@ -1405,7 +1459,6 @@
             showToast("Ciclo semanal finalizado e guardado no histórico com sucesso!");
         };
 
-        // ALGORITMO DE DISTRIBUIÇÃO INTELIGENTE PONDERADA POR PESO
         function renderCycleView() {
             const summaryContainer = document.getElementById('weekly-availability-summary');
             const itemsContainer = document.getElementById('cycle-items-container');
@@ -1456,7 +1509,7 @@
                 <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
                     <p class="text-[10px] font-semibold text-slate-400 uppercase">${d.label}</p>
                     <p class="text-base font-bold text-indigo-600 dark:text-indigo-400 mt-1">${av[d.key].hours}h</p>
-                    <span class="text-[10px] text-slate-500">${av[d.key].count} bloco(s)</span>
+                    <span class="text-[10px] text-slate-500">${av[d.key].count} matéria(s)</span>
                 </div>
             `).join('') + `
                 <div class="bg-indigo-50 dark:bg-indigo-950/40 p-3 rounded-xl border border-indigo-200 dark:border-indigo-900 col-span-2 sm:col-span-4 lg:col-span-7 flex items-center justify-between">
@@ -1470,36 +1523,32 @@
                 return;
             }
 
-            // Filtra apenas as disciplinas ativas no ciclo (activeInCycle !== false)
-            const activeSubjects = state.subjects.filter(s => s.activeInCycle !== false);
+            const activeSubjects = state.subjects;
             if (activeSubjects.length === 0) {
-                itemsContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Nenhuma disciplina ativa para o ciclo. Ative pelo menos uma disciplina no Edital.</p>';
+                itemsContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Cadastre disciplinas no Edital para gerar o ciclo com base no progresso.</p>';
                 return;
             }
 
-            // Cria um array ponderado: disciplinas com peso maior aparecem mais vezes na fila rotativa
-            let weightedPool = [];
+            let pendingTopicsPool = [];
             activeSubjects.forEach(sub => {
-                const weight = parseInt(sub.weight) || 1;
-                // Busca os tópicos pendentes desta disciplina
-                const pendingTopics = sub.topics.filter(t => t.status !== 'concluido');
-                
-                // Repete a disciplina no pool proporcionalmente ao seu peso
-                for (let w = 0; w < weight; w++) {
-                    weightedPool.push({
-                        subjectId: sub.id,
-                        subjectName: sub.name,
-                        subjectColor: sub.color,
-                        subjectWeight: weight,
-                        topics: pendingTopics.length > 0 ? pendingTopics : [{ title: 'Revisão Geral / Tópicos Concluídos' }]
-                    });
-                }
+                const w = sub.weight || 1;
+                sub.topics.forEach(t => {
+                    if (t.status !== 'concluido') {
+                        // Multiplica inserções no pool com base no peso da disciplina
+                        for (let k = 0; k < w; k++) {
+                            pendingTopicsPool.push({
+                                subjectId: sub.id,
+                                subjectName: sub.name,
+                                subjectColor: sub.color,
+                                subjectWeight: w,
+                                topicTitle: t.title
+                            });
+                        }
+                    }
+                });
             });
 
             let poolIndex = 0;
-            // Mantém um ponteiro de tópicos por disciplina para alternar suavemente sem esgotar uma só
-            let topicPointers = {};
-            activeSubjects.forEach(s => { topicPointers[s.id] = 0; });
 
             const generatedHtml = daysMap.map(d => {
                 const dayData = av[d.key];
@@ -1520,20 +1569,19 @@
 
                 const assignedItems = [];
                 for (let i = 0; i < count; i++) {
-                    const candidateSub = weightedPool[poolIndex % weightedPool.length];
-                    poolIndex++;
-
-                    const tList = candidateSub.topics;
-                    const ptr = topicPointers[candidateSub.subjectId] % tList.length;
-                    const currentTopic = tList[ptr];
-                    topicPointers[candidateSub.subjectId]++;
-
-                    assignedItems.push({
-                        subjectName: candidateSub.subjectName,
-                        subjectColor: candidateSub.subjectColor,
-                        subjectWeight: candidateSub.subjectWeight,
-                        topicTitle: currentTopic.title
-                    });
+                    if (pendingTopicsPool.length > 0) {
+                        assignedItems.push(pendingTopicsPool[poolIndex % pendingTopicsPool.length]);
+                        poolIndex++;
+                    } else {
+                        const fallbackSub = activeSubjects[i % activeSubjects.length];
+                        assignedItems.push({
+                            subjectId: fallbackSub.id,
+                            subjectName: fallbackSub.name,
+                            subjectColor: fallbackSub.color,
+                            subjectWeight: fallbackSub.weight || 1,
+                            topicTitle: 'Revisão Geral / Edital Concluído'
+                        });
+                    }
                 }
 
                 return `
@@ -1550,12 +1598,10 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                             ${assignedItems.map(item => `
                                 <div class="bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
-                                    <div class="flex items-center justify-between mb-1">
-                                        <div class="flex items-center space-x-2">
-                                            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${item.subjectColor}"></span>
-                                            <span class="text-xs font-bold" style="color: ${item.subjectColor}">${item.subjectName}</span>
-                                        </div>
-                                        <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold">Peso ${item.subjectWeight}</span>
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${item.subjectColor}"></span>
+                                        <span class="text-xs font-bold" style="color: ${item.subjectColor}">${item.subjectName}</span>
+                                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold">Peso ${item.subjectWeight}</span>
                                     </div>
                                     <p class="text-xs font-medium text-slate-700 dark:text-slate-200"><i class="fa-solid fa-book-bookmark mr-1.5 text-slate-400"></i> ${item.topicTitle}</p>
                                 </div>
@@ -1807,13 +1853,13 @@
             const weight = parseInt(document.getElementById('ns-weight').value) || 1;
             const color = document.getElementById('ns-color').value;
 
-            const newSub = { id: crypto.randomUUID(), name, weight, color, activeInCycle: true, topics: [] };
+            const newSub = { id: crypto.randomUUID(), name, weight, color, topics: [] };
             state.subjects.push(newSub);
 
-            state.frozenCycleHtml = null;
             closeModal('new-subject-modal');
             document.getElementById('ns-name').value = '';
             document.getElementById('ns-weight').value = '1';
+            state.frozenCycleHtml = null;
             saveUserDataToFirebase();
             showToast("Disciplina criada com sucesso!");
         };
@@ -1835,7 +1881,6 @@
                     }
                 });
 
-                state.frozenCycleHtml = null;
                 closeModal('new-topic-modal');
                 document.getElementById('nt-titles').value = '';
                 saveUserDataToFirebase();
