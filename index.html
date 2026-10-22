@@ -109,7 +109,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v5.9</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.1</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -885,7 +885,6 @@
                 const playSequence = () => {
                     const now = ctx.currentTime;
                     
-                    // Nota 1
                     const osc1 = ctx.createOscillator();
                     const gain1 = ctx.createGain();
                     osc1.type = 'sine';
@@ -897,7 +896,6 @@
                     osc1.start(now);
                     osc1.stop(now + 0.3);
 
-                    // Nota 2
                     const osc2 = ctx.createOscillator();
                     const gain2 = ctx.createGain();
                     osc2.type = 'sine';
@@ -909,7 +907,6 @@
                     osc2.start(now + 0.35);
                     osc2.stop(now + 0.65);
 
-                    // Nota 3 (Mais aguda)
                     const osc3 = ctx.createOscillator();
                     const gain3 = ctx.createGain();
                     osc3.type = 'triangle';
@@ -925,6 +922,14 @@
                 playSequence();
             } catch (e) {
                 console.warn("Erro ao reproduzir alarme de áudio:", e);
+            }
+
+            // Disparar Notificação Push do Sistema para garantir alerta em segundo plano
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("EstudoFlow PRO - Alarme 🔔", {
+                    body: "O seu tempo de estudo/pomodoro terminou!",
+                    icon: "icon.png"
+                });
             }
         }
 
@@ -977,7 +982,7 @@
                     archives: Array.isArray(parsed.archives) ? parsed.archives : defaultState.archives,
                     archivedCycles: Array.isArray(parsed.archivedCycles) ? parsed.archivedCycles : defaultState.archivedCycles,
                     weeklyAvailability: { ...defaultState.weeklyAvailability, ...(parsed.weeklyAvailability || {}) },
-                    frozenCycleHtml: parsed.frozenCycleHtml !== undefined ? parsed.frozenCycleHtml : defaultState.frozenCycleHtml,
+                    frozenCycleHtml: parsed.frozenCycleHtml !== undefined ? parsed.frozenCycleHtml : state.frozenCycleHtml,
                     minimizedSubjects: parsed.minimizedSubjects || {}
                 };
             } catch (e) {
@@ -992,7 +997,6 @@
         let subjectsChartInstance = null;
         let currentFolderId = 'fold-1';
 
-        // --- SISTEMA DE CRONÓMETRO EM SEGUNDO PLANO POR TIMESTAMP ---
         let timerInterval = null;
         let timerMode = 'pomodoro'; 
         let timerRunning = false;
@@ -1008,7 +1012,6 @@
             restoreTimerState();
             renderAll();
 
-            // Ativa o áudio na primeira interação do utilizador
             const unlockAudio = () => {
                 getAudioContext();
                 window.removeEventListener('click', unlockAudio);
@@ -1091,11 +1094,8 @@
             const palette = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#ef4444', '#14b8a6'];
 
             const knownSubjects = [
-                'LÍNGUA PORTUGUESA',
-                'PORTUGUÊS',
-                'HISTÓRIA E ASPECTOS GEOECONÔMICOS DO RN',
-                'HISTÓRIA DO RIO GRANDE DO NORTE',
-                'ASPECTOS GEOECONÔMICOS DO RIO GRANDE DO NORTE',
+                'LÍNGUA PORTUGUESA', 'PORTUGUÊS',
+                'HISTÓRIA E ASPECTOS GEOECONÔMICOS', 'HISTÓRIA', 'GEOGRAFIA',
                 'ÉTICA NO SERVIÇO PÚBLICO',
                 'DIREITO CONSTITUCIONAL',
                 'DIREITO ADMINISTRATIVO',
@@ -1104,21 +1104,40 @@
                 'LEGISLAÇÃO ESPECÍFICA',
                 'DIREITO PENAL E PROCESSO PENAL',
                 'DIREITO PENAL',
-                'PROCESSO PENAL'
+                'PROCESSO PENAL',
+                'INFORMÁTICA',
+                'RACIOCÍNIO LÓGICO'
             ];
 
-            const ignoreWords = ['EDITAL', 'VERTICALIZADO', 'POLICIAL', 'ONLINE', 'CICLO', 'LEITURA', 'LEI', 'QUESTÕES', 'ACERTOS', 'TEMPO', 'REVISÃO', 'PPRN', 'CTCON'];
+            const ignoreWords = ['EDITAL', 'VERTICALIZADO', 'POLICIAL', 'ONLINE', 'CICLO', 'LEITURA', 'LEI', 'QUESTÕES', 'ACERTOS', 'TEMPO', 'REVISÃO', 'PPRN', 'CTCON', 'LETRA', 'DA LEI', 'QUESTÓ', 'ACERTO', 'S (%)', 'REVISÃ'];
 
             let currentSubject = null;
+            let cleanedLines = [];
 
-            lines.forEach(line => {
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                const upper = line.toUpperCase();
+
+                if (ignoreWords.includes(upper) || upper.startsWith('HTTPS://') || /^\d+$/.test(line) || line.length <= 2) {
+                    continue;
+                }
+
+                if (cleanedLines.length > 0) {
+                    const lastLine = cleanedLines[cleanedLines.length - 1];
+                    const isKnownSub = knownSubjects.some(ks => upper.includes(ks));
+                    if (!isKnownSub && lastLine.length < 25 && !lastLine.endsWith('.')) {
+                        cleanedLines[cleanedLines.length - 1] = lastLine + ' ' + line;
+                        continue;
+                    }
+                }
+                cleanedLines.push(line);
+            }
+
+            cleanedLines.forEach(line => {
                 const upper = line.toUpperCase().trim();
-
-                if (ignoreWords.some(w => upper === w) || upper.startsWith('HTTPS://')) return;
-
                 const isSubjectMatch = knownSubjects.some(ks => upper.includes(ks));
 
-                if (isSubjectMatch) {
+                if (isSubjectMatch && line.length < 50) {
                     if (currentSubject && currentSubject.topics.length > 0) {
                         result.push(currentSubject);
                     }
@@ -1140,14 +1159,12 @@
                         };
                     }
 
-                    if (line.length > 3 && !/^\d+$/.test(line) && !line.includes('Acerto (%)')) {
-                        if (!currentSubject.topics.some(existing => existing.title === line)) {
-                            currentSubject.topics.push({
-                                id: crypto.randomUUID(),
-                                title: line,
-                                status: 'nao_iniciado'
-                            });
-                        }
+                    if (line.length > 3 && !currentSubject.topics.some(existing => existing.title === line)) {
+                        currentSubject.topics.push({
+                            id: crypto.randomUUID(),
+                            title: line,
+                            status: 'nao_iniciado'
+                        });
                     }
                 }
             });
@@ -1969,7 +1986,6 @@
             saveUserDataToFirebase();
         }
 
-        // --- SISTEMA DE CRONÓMETRO REAL COM PROTEÇÃO DE PAUSA ---
         window.setTimerMode = function(mode, updateUI = true) {
             timerMode = mode;
             if (updateUI) {
@@ -2365,7 +2381,19 @@
                             borderRadius: 8
                         }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
                 });
             }
 
@@ -2392,6 +2420,24 @@
                 return;
             }
             
+            // Mapeamento correto dos dias da semana (Segunda = 0 até Domingo = 6)
+            const weeklyHours = [0, 0, 0, 0, 0, 0, 0];
+            if (state.studyLogs && Array.isArray(state.studyLogs)) {
+                state.studyLogs.forEach(l => {
+                    const d = new Date(l.date);
+                    let dayIdx = d.getDay(); // 0 = Domingo, 1 = Segunda, ... 6 = Sábado
+                    // Converter para o formato brasileiro/europeu (Segunda = 0, ..., Domingo = 6)
+                    dayIdx = dayIdx === 0 ? 6 : dayIdx - 1;
+                    
+                    const hoursVal = (parseInt(l.hours) || 0) + ((parseInt(l.minutes) || 0) / 60);
+                    weeklyHours[dayIdx] += hoursVal;
+                });
+            }
+
+            hoursChartInstance.data.datasets[0].data = weeklyHours.map(v => parseFloat(v.toFixed(2)));
+            hoursChartInstance.update();
+
+            // Gráfico de Matérias (Mostra todas as cadastradas)
             subjectsChartInstance.data.labels = state.subjects.map(s => s.name);
             if (subjectsChartInstance.data.datasets[0]) {
                 subjectsChartInstance.data.datasets[0].data = state.subjects.map(sub => {
@@ -2401,12 +2447,11 @@
                             if (l.subjectId === sub.id) count += ((parseInt(l.hours) || 0) + ((parseInt(l.minutes) || 0) / 60));
                         });
                     }
-                    return count > 0 ? parseFloat(count.toFixed(1)) : 0;
+                    return count > 0 ? parseFloat(count.toFixed(1)) : 0.05; // Pequeno offset para exibir todas no gráfico se necessário
                 });
                 subjectsChartInstance.data.datasets[0].backgroundColor = state.subjects.map(s => s.color);
             }
 
-            hoursChartInstance.update();
             subjectsChartInstance.update();
         }
 
