@@ -37,6 +37,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PDF.js para Extração Automática de Texto do PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -107,7 +109,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v5.4</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v5.7</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -274,6 +276,9 @@
                                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerencie disciplinas, tópicos, pesos e minimize os assuntos conforme necessário.</p>
                             </div>
                             <div class="flex items-center space-x-3 flex-wrap gap-2">
+                                <button onclick="openModal('import-pdf-modal')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md shadow-emerald-500/20">
+                                    <i class="fa-solid fa-file-pdf mr-1.5"></i> Importar PDF
+                                </button>
                                 <button onclick="openModal('new-subject-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
                                     <i class="fa-solid fa-plus mr-1.5"></i> Nova Disciplina
                                 </button>
@@ -364,6 +369,10 @@
                                 <i class="fa-solid fa-check mr-2"></i> Concluir Sessão
                             </button>
                         </div>
+
+                        <button onclick="testAlarmSound()" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline flex items-center justify-center gap-1.5 mx-auto">
+                            <i class="fa-solid fa-volume-high"></i> Testar Som do Alarme
+                        </button>
                     </div>
                 </div>
 
@@ -448,6 +457,46 @@
 
             </div>
         </main>
+    </div>
+
+    <!-- MODAL: Importar PDF Inteligente -->
+    <div id="import-pdf-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-file-pdf text-red-500"></i> Importador Inteligente de Edital em PDF
+                </h3>
+                <button onclick="closeModal('import-pdf-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Selecione o ficheiro PDF do Edital</label>
+                    <input type="file" id="pdf-file-input" accept="application/pdf" onchange="processPDFFile(event)" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-100 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer">
+                </div>
+
+                <div id="pdf-loading-status" class="hidden text-center py-6 space-y-2">
+                    <i class="fa-solid fa-spinner fa-spin text-3xl text-indigo-600"></i>
+                    <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">A ler e extrair disciplinas e tópicos do PDF...</p>
+                </div>
+
+                <div id="pdf-preview-container" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white uppercase tracking-wider">Disciplinas & Tópicos Detetados:</h4>
+                        <span id="pdf-detected-count" class="text-xs bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold px-2.5 py-1 rounded-full">0 matérias</span>
+                    </div>
+
+                    <div id="pdf-detected-list" class="space-y-3 max-h-[40vh] overflow-y-auto pr-1">
+                        <!-- Injetado dinamicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end space-x-3 shrink-0 bg-slate-50 dark:bg-slate-850">
+                <button type="button" onclick="closeModal('import-pdf-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                <button id="confirm-pdf-import-btn" type="button" onclick="confirmPDFImport()" class="hidden px-5 py-2 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md">Adicionar ao Edital Ativo</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL: Edit Subject / Weight -->
@@ -782,6 +831,11 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // Configuração do Worker do PDF.js
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+
         const appId = 'estudoflow-pro-default';
         
         const firebaseConfig = {
@@ -797,6 +851,75 @@
         let unsubscribeData = null;
         let isSignUpMode = false;
         let deferredPrompt = null;
+        let detectedPDFSubjects = [];
+
+        // Contexto de Áudio Global
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        window.testAlarmSound = function() {
+            playPomodoroAlarm();
+            showToast("Sinal sonoro ativado!");
+        };
+
+        function playPomodoroAlarm() {
+            try {
+                const ctx = getAudioContext();
+                
+                const playSequence = () => {
+                    const now = ctx.currentTime;
+                    
+                    // Nota 1
+                    const osc1 = ctx.createOscillator();
+                    const gain1 = ctx.createGain();
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(880, now);
+                    gain1.gain.setValueAtTime(0.5, now);
+                    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc1.connect(gain1);
+                    gain1.connect(ctx.destination);
+                    osc1.start(now);
+                    osc1.stop(now + 0.3);
+
+                    // Nota 2
+                    const osc2 = ctx.createOscillator();
+                    const gain2 = ctx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(880, now + 0.35);
+                    gain2.gain.setValueAtTime(0.5, now + 0.35);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.65);
+                    osc2.connect(gain2);
+                    gain2.connect(ctx.destination);
+                    osc2.start(now + 0.35);
+                    osc2.stop(now + 0.65);
+
+                    // Nota 3 (Mais aguda)
+                    const osc3 = ctx.createOscillator();
+                    const gain3 = ctx.createGain();
+                    osc3.type = 'triangle';
+                    osc3.frequency.setValueAtTime(1320, now + 0.7);
+                    gain3.gain.setValueAtTime(0.6, now + 0.7);
+                    gain3.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+                    osc3.connect(gain3);
+                    gain3.connect(ctx.destination);
+                    osc3.start(now + 0.7);
+                    osc3.stop(now + 1.2);
+                };
+
+                playSequence();
+            } catch (e) {
+                console.warn("Erro ao reproduzir alarme de áudio:", e);
+            }
+        }
 
         const defaultState = {
             subjects: [],
@@ -817,7 +940,7 @@
             },
             archives: [],
             archivedCycles: [],
-            frozenCycleHtml: bgTimerState => bgTimerState || null,
+            frozenCycleHtml: null,
             minimizedSubjects: {}
         };
 
@@ -864,36 +987,11 @@
 
         // --- SISTEMA DE CRONÓMETRO EM SEGUNDO PLANO POR TIMESTAMP ---
         let timerInterval = null;
-        let timerMode = 'pomodoro'; // 'pomodoro', 'shortBreak', 'stopwatch'
+        let timerMode = 'pomodoro'; 
         let timerRunning = false;
         let timerStartTime = null;
-        let timerTargetDuration = 25 * 60; // segundos
-        let timerElapsedTimeWhenPaused = 0; // segundos acumulados se pausado
-
-        // Tocar som de alarme do Pomodoro
-        function playPomodoroAlarm() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const playBeep = (freq, duration, delay) => {
-                    setTimeout(() => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.type = 'sine';
-                        osc.frequency.value = freq;
-                        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start();
-                        osc.stop(ctx.currentTime + duration);
-                    }, delay);
-                };
-                playBeep(880, 0.2, 0);
-                playBeep(880, 0.2, 300);
-                playBeep(1200, 0.4, 600);
-            } catch (e) {
-                console.warn("AudioContext não suportado ou bloqueado.", e);
-            }
-        }
+        let timerTargetDuration = 25 * 60; 
+        let timerElapsedTimeWhenPaused = 0;
 
         window.addEventListener('DOMContentLoaded', async () => {
             initTheme();
@@ -902,6 +1000,15 @@
             setupDailyNotifications();
             restoreTimerState();
             renderAll();
+
+            // Ativa o áudio na primeira interação do utilizador
+            const unlockAudio = () => {
+                getAudioContext();
+                window.removeEventListener('click', unlockAudio);
+                window.removeEventListener('touchstart', unlockAudio);
+            };
+            window.addEventListener('click', unlockAudio);
+            window.addEventListener('touchstart', unlockAudio);
             
             try {
                 app = initializeApp(firebaseConfig);
@@ -926,7 +1033,150 @@
             }
         });
 
-        // Grava o estado do cronómetro no localStorage para resistir a saída do navegador
+        // --- LEITOR INTELIGENTE DE EDITAL EM PDF ---
+        window.processPDFFile = async function(e) {
+            const file = e.target.files[0];
+            if (!file || file.type !== 'application/pdf') {
+                alert("Selecione um ficheiro PDF válido.");
+                return;
+            }
+
+            const statusEl = document.getElementById('pdf-loading-status');
+            const previewEl = document.getElementById('pdf-preview-container');
+            const confirmBtn = document.getElementById('confirm-pdf-import-btn');
+
+            statusEl.classList.remove('hidden');
+            previewEl.classList.add('hidden');
+            confirmBtn.classList.add('hidden');
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = '';
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + '\n';
+                }
+
+                detectedPDFSubjects = parseEditalTextIntelligently(fullText);
+
+                statusEl.classList.add('hidden');
+                previewEl.classList.remove('hidden');
+                confirmBtn.classList.remove('hidden');
+
+                renderPDFPreviewList();
+            } catch (err) {
+                console.error("Erro ao ler PDF:", err);
+                statusEl.classList.add('hidden');
+                alert("Erro ao ler o ficheiro PDF. Certifique-se de que não está protegido por palavra-passe.");
+            }
+        };
+
+        function parseEditalTextIntelligently(text) {
+            const result = [];
+            const palette = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#ef4444', '#14b8a6'];
+
+            const lines = text.split(/\n|\r/).map(l => l.trim()).filter(l => l.length > 0);
+            let currentSubject = null;
+
+            const subjectKeywords = [
+                'PORTUGUES', 'CONSTITUCIONAL', 'ADMINISTRATIVO', 'PENAL', 'CIVIL', 
+                'PROCESSO', 'RACIOCINIO', 'MATEMATICA', 'INFORMATICA', 'LEGISLACAO', 
+                'DIREITO', 'CONHECIMENTOS', 'CONTABILIDADE', 'ADMINISTRACAO', 'RECURSOS'
+            ];
+
+            lines.forEach(line => {
+                const upperLine = line.toUpperCase();
+                const isHeader = (line === upperLine && line.length > 3 && line.length < 60) ||
+                                 subjectKeywords.some(kw => upperLine.includes(kw) && line.length < 70);
+
+                if (isHeader && !line.includes(';') && !line.includes('.')) {
+                    if (currentSubject && currentSubject.topics.length > 0) {
+                        result.push(currentSubject);
+                    }
+                    currentSubject = {
+                        id: crypto.randomUUID(),
+                        name: cleanSubjectTitle(line),
+                        weight: 1,
+                        color: palette[result.length % palette.length],
+                        topics: []
+                    };
+                } else {
+                    if (!currentSubject) {
+                        currentSubject = {
+                            id: crypto.randomUUID(),
+                            name: 'Conhecimentos Gerais / Edital',
+                            weight: 1,
+                            color: palette[0],
+                            topics: []
+                        };
+                    }
+
+                    const rawTopics = line.split(/;|•|-|\d+\.\d+|\d+\./).map(t => t.trim()).filter(t => t.length > 3);
+                    rawTopics.forEach(top => {
+                        if (top.length > 3 && !currentSubject.topics.some(existing => existing.title === top)) {
+                            currentSubject.topics.push({
+                                id: crypto.randomUUID(),
+                                title: top,
+                                status: 'nao_iniciado'
+                            });
+                        }
+                    });
+                }
+            });
+
+            if (currentSubject && currentSubject.topics.length > 0) {
+                result.push(currentSubject);
+            }
+
+            return result;
+        }
+
+        function cleanSubjectTitle(raw) {
+            return raw.replace(/^[^a-zA-ZÀ-ÿ]+/, '').replace(/:\s*$/, '').trim();
+        }
+
+        function renderPDFPreviewList() {
+            const listEl = document.getElementById('pdf-detected-list');
+            const countEl = document.getElementById('pdf-detected-count');
+
+            countEl.innerText = `${detectedPDFSubjects.length} matéria(s)`;
+
+            if (detectedPDFSubjects.length === 0) {
+                listEl.innerHTML = '<p class="text-xs text-slate-400 italic">Nenhuma disciplina detetada. Tente copiar e colar o texto do edital manualmente.</p>';
+                return;
+            }
+
+            listEl.innerHTML = detectedPDFSubjects.map((sub, idx) => `
+                <div class="bg-slate-50 dark:bg-slate-700/40 p-3 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
+                    <div class="flex items-center justify-between gap-2">
+                        <input type="text" value="${sub.name}" onchange="detectedPDFSubjects[${idx}].name = this.value" class="font-bold text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2.5 py-1 text-slate-800 dark:text-slate-100 flex-1">
+                        <div class="flex items-center space-x-2 shrink-0">
+                            <span class="text-xs font-semibold text-slate-400">Peso:</span>
+                            <input type="number" min="1" max="10" value="${sub.weight}" onchange="detectedPDFSubjects[${idx}].weight = parseInt(this.value) || 1" class="w-14 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1 text-xs font-bold text-slate-800 dark:text-slate-100">
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">${sub.topics.length} tópico(s) identificado(s)</p>
+                </div>
+            `).join('');
+        }
+
+        window.confirmPDFImport = function() {
+            if (detectedPDFSubjects.length === 0) return;
+
+            detectedPDFSubjects.forEach(newSub => {
+                state.subjects.push(newSub);
+            });
+
+            state.frozenCycleHtml = null;
+            closeModal('import-pdf-modal');
+            saveUserDataToFirebase();
+            showToast(`${detectedPDFSubjects.length} disciplina(s) importada(s) do PDF com sucesso!`);
+        };
+
         function saveTimerState() {
             const timerState = {
                 timerMode,
@@ -1264,7 +1514,7 @@
                     <div class="text-center py-10 bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
                         <i class="fa-solid fa-folder-open text-3xl text-slate-400 mb-2"></i>
                         <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Ainda não tem disciplinas cadastradas.</p>
-                        <p class="text-xs text-slate-400 mt-1">Clique em "Nova Disciplina" para começar o seu edital do zero.</p>
+                        <p class="text-xs text-slate-400 mt-1">Clique em "Importar PDF" ou "Nova Disciplina" para criar o seu edital.</p>
                     </div>
                 `;
                 document.getElementById('edital-progress-text').innerText = 'Progresso Geral: 0%';
@@ -1695,7 +1945,7 @@
             saveUserDataToFirebase();
         }
 
-        // --- SISTEMA DE CRONÓMETRO REAL POR TIMESTAMP ---
+        // --- SISTEMA DE CRONÓMETRO REAL COM PROTEÇÃO DE PAUSA ---
         window.setTimerMode = function(mode, updateUI = true) {
             timerMode = mode;
             if (updateUI) {
@@ -1728,6 +1978,8 @@
         }
 
         window.startTimer = function(isNewStart = true) {
+            getAudioContext(); // Desbloqueia permissão de som
+
             if (timerRunning && isNewStart) return;
             
             if (isNewStart) {
@@ -1751,9 +2003,16 @@
                     const remaining = timerTargetDuration - elapsed;
                     if (remaining <= 0) {
                         pauseTimer();
-                        playPomodoroAlarm();
-                        finishTimerSession();
-                        showToast("Sessão Pomodoro Concluída! 🔔");
+                        
+                        // NOTA IMPORTANTE: As pausas (como a "Pausa Curta" de 5 min) NÃO gravam horas líquidas!
+                        if (timerMode === 'pomodoro') {
+                            playPomodoroAlarm();
+                            finishTimerSession();
+                            showToast("Sessão Pomodoro Concluída! 🔔");
+                        } else {
+                            playPomodoroAlarm();
+                            showToast("Tempo de pausa concluído!");
+                        }
                     } else {
                         updateTimerDisplay();
                     }
@@ -1763,6 +2022,7 @@
 
         window.pauseTimer = function() {
             if (timerRunning) {
+                // Congela exatamente o tempo decorrido até agora. As pausas não entram na conta!
                 timerElapsedTimeWhenPaused = getElapsedSeconds();
             }
             timerRunning = false;
@@ -1801,6 +2061,13 @@
         }
 
         window.finishTimerSession = function() {
+            // Se estiver no modo de Pausa Curta, impede que seja registado como horas de estudo
+            if (timerMode === 'shortBreak') {
+                showToast("O tempo de pausa não é contabilizado nas horas líquidas de estudo.");
+                resetTimer();
+                return;
+            }
+
             const totalSecsStudied = getElapsedSeconds();
             if (totalSecsStudied < 60) {
                 showToast("Sessão inferior a 1 minuto não foi contabilizada nas Horas Líquidas.");
