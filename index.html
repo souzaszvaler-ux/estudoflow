@@ -107,7 +107,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v5.3</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v5.4</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -271,7 +271,7 @@
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                             <div>
                                 <h3 class="text-lg font-bold text-slate-800 dark:text-white">Edital Verticalizado Ativo</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerencie disciplinas, tópicos, pesos e controle seu progresso detalhado.</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerencie disciplinas, tópicos, pesos e minimize os assuntos conforme necessário.</p>
                             </div>
                             <div class="flex items-center space-x-3 flex-wrap gap-2">
                                 <button onclick="openModal('new-subject-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
@@ -817,7 +817,8 @@
             },
             archives: [],
             archivedCycles: [],
-            frozenCycleHtml: null
+            frozenCycleHtml: bgTimerState => bgTimerState || null,
+            minimizedSubjects: {}
         };
 
         function loadStateSafely() {
@@ -846,7 +847,8 @@
                     archives: Array.isArray(parsed.archives) ? parsed.archives : defaultState.archives,
                     archivedCycles: Array.isArray(parsed.archivedCycles) ? parsed.archivedCycles : defaultState.archivedCycles,
                     weeklyAvailability: { ...defaultState.weeklyAvailability, ...(parsed.weeklyAvailability || {}) },
-                    frozenCycleHtml: parsed.frozenCycleHtml !== undefined ? parsed.frozenCycleHtml : defaultState.frozenCycleHtml
+                    frozenCycleHtml: parsed.frozenCycleHtml !== undefined ? parsed.frozenCycleHtml : defaultState.frozenCycleHtml,
+                    minimizedSubjects: parsed.minimizedSubjects || {}
                 };
             } catch (e) {
                 console.error("Erro ao carregar estado local:", e);
@@ -860,17 +862,45 @@
         let subjectsChartInstance = null;
         let currentFolderId = 'fold-1';
 
+        // --- SISTEMA DE CRONÓMETRO EM SEGUNDO PLANO POR TIMESTAMP ---
         let timerInterval = null;
-        let timerSecondsLeft = 25 * 60;
-        let timerTotalSeconds = 25 * 60;
+        let timerMode = 'pomodoro'; // 'pomodoro', 'shortBreak', 'stopwatch'
         let timerRunning = false;
-        let timerMode = 'pomodoro';
+        let timerStartTime = null;
+        let timerTargetDuration = 25 * 60; // segundos
+        let timerElapsedTimeWhenPaused = 0; // segundos acumulados se pausado
+
+        // Tocar som de alarme do Pomodoro
+        function playPomodoroAlarm() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const playBeep = (freq, duration, delay) => {
+                    setTimeout(() => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start();
+                        osc.stop(ctx.currentTime + duration);
+                    }, delay);
+                };
+                playBeep(880, 0.2, 0);
+                playBeep(880, 0.2, 300);
+                playBeep(1200, 0.4, 600);
+            } catch (e) {
+                console.warn("AudioContext não suportado ou bloqueado.", e);
+            }
+        }
 
         window.addEventListener('DOMContentLoaded', async () => {
             initTheme();
             initCharts();
             setupPWA();
             setupDailyNotifications();
+            restoreTimerState();
             renderAll();
             
             try {
@@ -895,6 +925,41 @@
                 console.warn('Firebase connection error:', e);
             }
         });
+
+        // Grava o estado do cronómetro no localStorage para resistir a saída do navegador
+        function saveTimerState() {
+            const timerState = {
+                timerMode,
+                timerRunning,
+                timerStartTime,
+                timerTargetDuration,
+                timerElapsedTimeWhenPaused
+            };
+            localStorage.setItem('estudoflow_timer_persistent', JSON.stringify(timerState));
+        }
+
+        function restoreTimerState() {
+            const saved = localStorage.getItem('estudoflow_timer_persistent');
+            if (!saved) return;
+            try {
+                const ts = JSON.parse(saved);
+                timerMode = ts.timerMode || 'pomodoro';
+                timerRunning = ts.timerRunning || false;
+                timerStartTime = ts.timerStartTime || null;
+                timerTargetDuration = ts.timerTargetDuration || (25 * 60);
+                timerElapsedTimeWhenPaused = ts.timerElapsedTimeWhenPaused || 0;
+
+                setTimerMode(timerMode, false);
+
+                if (timerRunning && timerStartTime) {
+                    startTimer(false);
+                } else {
+                    updateTimerDisplay();
+                }
+            } catch (e) {
+                console.warn("Erro ao restaurar cronómetro:", e);
+            }
+        }
 
         function setupPWA() {
             if ('serviceWorker' in navigator) {
@@ -1029,7 +1094,8 @@
                                 archives: Array.isArray(cloudState.archives) ? cloudState.archives : state.archives,
                                 archivedCycles: Array.isArray(cloudState.archivedCycles) ? cloudState.archivedCycles : state.archivedCycles,
                                 weeklyAvailability: { ...defaultState.weeklyAvailability, ...(cloudState.weeklyAvailability || {}) },
-                                frozenCycleHtml: cloudState.frozenCycleHtml !== undefined ? cloudState.frozenCycleHtml : state.frozenCycleHtml
+                                frozenCycleHtml: cloudState.frozenCycleHtml !== undefined ? cloudState.frozenCycleHtml : state.frozenCycleHtml,
+                                minimizedSubjects: cloudState.minimizedSubjects || {}
                             };
                             localStorage.setItem('estudoflow_local_state', JSON.stringify(state));
                             localStorage.setItem('estudoflow_backup_emergency', JSON.stringify(state));
@@ -1180,6 +1246,12 @@
             document.getElementById('stat-total-errors').innerText = state.errors.length;
         }
 
+        window.toggleMinimizeSubject = function(subjectId) {
+            if (!state.minimizedSubjects) state.minimizedSubjects = {};
+            state.minimizedSubjects[subjectId] = !state.minimizedSubjects[subjectId];
+            saveUserDataToFirebase();
+        };
+
         function renderEditalView() {
             const container = document.getElementById('subjects-list-container');
             if (!container) return;
@@ -1205,15 +1277,19 @@
                 const subTotal = sub.topics.length;
                 const subDone = sub.topics.filter(t => t.status === 'concluido').length;
                 const subPct = subTotal > 0 ? Math.round((subDone / subTotal) * 100) : 0;
+                const isMinimized = state.minimizedSubjects && state.minimizedSubjects[sub.id];
 
                 totalTopics += subTotal;
                 doneTopics += subDone;
 
                 return `
                     <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
-                        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-                            <div class="flex items-center space-x-3">
-                                <span class="w-4 h-4 rounded-full" style="background-color: ${sub.color}"></span>
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center space-x-3 cursor-pointer" onclick="toggleMinimizeSubject('${sub.id}')">
+                                <button class="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                                    <i class="fa-solid ${isMinimized ? 'fa-chevron-right' : 'fa-chevron-down'} text-sm"></i>
+                                </button>
+                                <span class="w-4 h-4 rounded-full shrink-0" style="background-color: ${sub.color}"></span>
                                 <h4 class="font-bold text-base text-slate-800 dark:text-slate-100">${sub.name}</h4>
                                 <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold"><i class="fa-solid fa-weight-hanging mr-1"></i>Peso ${sub.weight || 1}</span>
                                 <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium">${subPct}% concluído</span>
@@ -1231,6 +1307,7 @@
                             </div>
                         </div>
 
+                        ${!isMinimized ? `
                         <div class="space-y-2 mt-4">
                             ${sub.topics.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhum tópico cadastrado.</p>' : ''}
                             ${sub.topics.map(t => {
@@ -1259,6 +1336,7 @@
                                 `;
                             }).join('')}
                         </div>
+                        ` : ''}
                     </div>
                 `;
             }).join('');
@@ -1288,7 +1366,6 @@
                 sub.weight = parseInt(document.getElementById('es-weight').value) || 1;
                 sub.color = document.getElementById('es-color').value;
                 closeModal('edit-subject-modal');
-                // Não descongela o ciclo automaticamente para evitar resets indesejados ao utilizador
                 saveUserDataToFirebase();
                 showToast("Disciplina e peso atualizados com sucesso!");
             }
@@ -1357,7 +1434,6 @@
             }
 
             closeModal('topic-accuracy-modal');
-            // O ciclo de estudos permanece intocado/congelado mesmo após concluir tópicos
             saveUserDataToFirebase();
             showToast(`Tópico concluído com sucesso! Acurácia: ${accuracy.toFixed(1)}%`);
         };
@@ -1432,7 +1508,6 @@
                 dom: { hours: parseFloat(document.getElementById('avail-dom-h').value) || 0, count: parseInt(document.getElementById('avail-dom-c').value) || 1 }
             };
             
-            // Força a regeneração inteligente do ciclo apenas ao submeter a configuração
             state.frozenCycleHtml = null;
             closeModal('availability-modal');
             saveUserDataToFirebase();
@@ -1519,7 +1594,6 @@
                 </div>
             `;
 
-            // SE O CICLO JÁ ESTIVER GERADO E CONGELADO, NÃO MANIPULA MAIS E EXIBE
             if (state.frozenCycleHtml) {
                 itemsContainer.innerHTML = state.frozenCycleHtml;
                 return;
@@ -1531,14 +1605,11 @@
                 return;
             }
 
-            // ALGORITMO INTELIGENTE DE DISTRIBUIÇÃO BASEADO EM PESO & PROGRESSO
-            // Prioridade = Peso * (100% - Progresso Concluído)
             let smartSubjects = activeSubjects.map(sub => {
                 const totalT = sub.topics.length;
                 const doneT = sub.topics.filter(t => t.status === 'concluido').length;
                 const pctDone = totalT > 0 ? (doneT / totalT) : 0;
                 const weight = sub.weight || 1;
-                // Quanto menor o progresso e maior o peso, maior a prioridade de alocação
                 const priorityScore = weight * (1.1 - pctDone);
 
                 const pendingTopics = sub.topics.filter(t => t.status !== 'concluido');
@@ -1554,7 +1625,6 @@
                 };
             });
 
-            // Ordena as disciplinas pela pontuação de prioridade (maior para menor)
             smartSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
 
             let masterSubjectIndex = 0;
@@ -1620,14 +1690,19 @@
                 `;
             }).join('');
 
-            // CONGELA O RESULTADO FINAL NO ESTADO PARA NUNCA MAIS MUDAR ATÉ RE-GERAR
             state.frozenCycleHtml = generatedHtml;
             itemsContainer.innerHTML = generatedHtml;
             saveUserDataToFirebase();
         }
 
-        window.setTimerMode = function(mode) {
+        // --- SISTEMA DE CRONÓMETRO REAL POR TIMESTAMP ---
+        window.setTimerMode = function(mode, updateUI = true) {
             timerMode = mode;
+            if (updateUI) {
+                pauseTimer();
+                timerElapsedTimeWhenPaused = 0;
+            }
+
             document.querySelectorAll('[id^="mode-"]').forEach(btn => {
                 btn.className = 'flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-500 dark:text-slate-400';
             });
@@ -1635,67 +1710,101 @@
             if (activeBtn) activeBtn.className = 'flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-white dark:bg-slate-600 shadow-sm text-slate-800 dark:text-white';
 
             if (mode === 'pomodoro') {
-                timerSecondsLeft = 25 * 60;
-                timerTotalSeconds = 25 * 60;
+                timerTargetDuration = 25 * 60;
             } else if (mode === 'shortBreak') {
-                timerSecondsLeft = 5 * 60;
-                timerTotalSeconds = 5 * 60;
+                timerTargetDuration = 5 * 60;
             } else if (mode === 'stopwatch') {
-                timerSecondsLeft = 0;
-                timerTotalSeconds = 0;
+                timerTargetDuration = 0;
             }
             updateTimerDisplay();
+            saveTimerState();
         };
 
-        window.startTimer = function() {
-            if (timerRunning) return;
-            timerRunning = true;
+        function getElapsedSeconds() {
+            if (!timerRunning || !timerStartTime) return timerElapsedTimeWhenPaused;
+            const now = Date.now();
+            const diffInSecs = Math.floor((now - timerStartTime) / 1000);
+            return timerElapsedTimeWhenPaused + diffInSecs;
+        }
+
+        window.startTimer = function(isNewStart = true) {
+            if (timerRunning && isNewStart) return;
+            
+            if (isNewStart) {
+                timerRunning = true;
+                timerStartTime = Date.now();
+            }
+
             document.getElementById('timer-start-btn').classList.add('hidden');
             document.getElementById('timer-pause-btn').classList.remove('hidden');
 
+            saveTimerState();
+
+            if (timerInterval) clearInterval(timerInterval);
+
             timerInterval = setInterval(() => {
+                const elapsed = getElapsedSeconds();
+
                 if (timerMode === 'stopwatch') {
-                    timerSecondsLeft++;
+                    updateTimerDisplay();
                 } else {
-                    if (timerSecondsLeft > 0) {
-                        timerSecondsLeft--;
-                    } else {
+                    const remaining = timerTargetDuration - elapsed;
+                    if (remaining <= 0) {
                         pauseTimer();
+                        playPomodoroAlarm();
                         finishTimerSession();
-                        showToast("Sessão Pomodoro concluída!");
+                        showToast("Sessão Pomodoro Concluída! 🔔");
+                    } else {
+                        updateTimerDisplay();
                     }
                 }
-                updateTimerDisplay();
-            }, 1000);
+            }, 500);
         };
 
         window.pauseTimer = function() {
+            if (timerRunning) {
+                timerElapsedTimeWhenPaused = getElapsedSeconds();
+            }
             timerRunning = false;
-            clearInterval(timerInterval);
+            timerStartTime = null;
+            if (timerInterval) clearInterval(timerInterval);
+
             document.getElementById('timer-start-btn').classList.remove('hidden');
             document.getElementById('timer-pause-btn').classList.add('hidden');
+
+            saveTimerState();
         };
 
         window.resetTimer = function() {
             pauseTimer();
-            if (timerMode === 'pomodoro') timerSecondsLeft = 25 * 60;
-            else if (timerMode === 'shortBreak') timerSecondsLeft = 5 * 60;
-            else timerSecondsLeft = 0;
+            timerElapsedTimeWhenPaused = 0;
             updateTimerDisplay();
+            saveTimerState();
         };
 
         function updateTimerDisplay() {
             const display = document.getElementById('timer-display');
             if (!display) return;
-            const mins = Math.floor(timerSecondsLeft / 60);
-            const secs = timerSecondsLeft % 60;
+
+            const elapsed = getElapsedSeconds();
+            let secondsToShow = 0;
+
+            if (timerMode === 'stopwatch') {
+                secondsToShow = elapsed;
+            } else {
+                secondsToShow = Math.max(0, timerTargetDuration - elapsed);
+            }
+
+            const mins = Math.floor(secondsToShow / 60);
+            const secs = secondsToShow % 60;
             display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
         window.finishTimerSession = function() {
-            const totalSecsStudied = timerMode === 'stopwatch' ? timerSecondsLeft : (timerTotalSeconds - timerSecondsLeft);
+            const totalSecsStudied = getElapsedSeconds();
             if (totalSecsStudied < 60) {
                 showToast("Sessão inferior a 1 minuto não foi contabilizada nas Horas Líquidas.");
+                resetTimer();
                 return;
             }
             const hours = Math.floor(totalSecsStudied / 3600);
@@ -1718,7 +1827,6 @@
                 notes: 'Sessão Registada pelo Cronómetro/Pomodoro'
             });
 
-            pauseTimer();
             resetTimer();
             saveUserDataToFirebase();
             showToast(`Sessão de ${hours}h ${minutes}m registada com sucesso nas Horas Líquidas!`);
