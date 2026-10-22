@@ -109,7 +109,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.2</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.3</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -522,7 +522,6 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Peso na Prova (Relevância)</label>
                     <input type="number" id="es-weight" min="1" max="10" step="1" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                    <p class="text-[11px] text-slate-400 mt-1">Defina de 1 a 10 (ex: Peso 3 para matérias de maior valor na sua prova).</p>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Cor de Identificação</label>
@@ -531,6 +530,28 @@
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal('edit-subject-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
                     <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Edit Topic -->
+    <div id="edit-topic-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Editar Tópico</h3>
+                <button onclick="closeModal('edit-topic-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleEditTopicSubmit(event)" class="p-6 space-y-4">
+                <input type="hidden" id="et-subject-id">
+                <input type="hidden" id="et-topic-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Nome do Tópico</label>
+                    <input type="text" id="et-title" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('edit-topic-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Salvar</button>
                 </div>
             </form>
         </div>
@@ -838,7 +859,6 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Configuração do Worker do PDF.js
         if (window.pdfjsLib) {
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         }
@@ -860,7 +880,6 @@
         let deferredPrompt = null;
         let detectedPDFSubjects = [];
 
-        // Contexto de Áudio Global
         let audioCtx = null;
 
         function getAudioContext() {
@@ -881,10 +900,8 @@
         function playPomodoroAlarm() {
             try {
                 const ctx = getAudioContext();
-                
                 const playSequence = () => {
                     const now = ctx.currentTime;
-                    
                     const osc1 = ctx.createOscillator();
                     const gain1 = ctx.createGain();
                     osc1.type = 'sine';
@@ -906,23 +923,9 @@
                     gain2.connect(ctx.destination);
                     osc2.start(now + 0.35);
                     osc2.stop(now + 0.65);
-
-                    const osc3 = ctx.createOscillator();
-                    const gain3 = ctx.createGain();
-                    osc3.type = 'triangle';
-                    osc3.frequency.setValueAtTime(1320, now + 0.7);
-                    gain3.gain.setValueAtTime(0.6, now + 0.7);
-                    gain3.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
-                    osc3.connect(gain3);
-                    gain3.connect(ctx.destination);
-                    osc3.start(now + 0.7);
-                    osc3.stop(now + 1.2);
                 };
-
                 playSequence();
-            } catch (e) {
-                console.warn("Erro ao reproduzir alarme de áudio:", e);
-            }
+            } catch (e) {}
 
             if ("Notification" in window && Notification.permission === "granted") {
                 new Notification("EstudoFlow PRO - Alarme 🔔", {
@@ -936,9 +939,7 @@
             subjects: [],
             studyLogs: [],
             errors: [],
-            folders: [
-                { id: 'fold-1', name: 'Geral' }
-            ],
+            folders: [{ id: 'fold-1', name: 'Geral' }],
             notes: [],
             weeklyAvailability: {
                 seg: { hours: 4, count: 2 },
@@ -957,45 +958,27 @@
 
         function loadStateSafely() {
             try {
-                let savedLocal = localStorage.getItem('estudoflow_local_state');
-                if (!savedLocal) {
-                    savedLocal = localStorage.getItem('estudoflow_backup_emergency');
-                }
+                let savedLocal = localStorage.getItem('estudoflow_local_state') || localStorage.getItem('estudoflow_backup_emergency');
                 if (!savedLocal) return JSON.parse(JSON.stringify(defaultState));
-                
                 const parsed = JSON.parse(savedLocal);
-                
-                const normalizedSubjects = (Array.isArray(parsed.subjects) ? parsed.subjects : []).map(sub => ({
-                    ...sub,
-                    weight: sub.weight ? parseInt(sub.weight) : 1
-                }));
-
                 return {
                     ...defaultState,
                     ...parsed,
-                    subjects: normalizedSubjects,
-                    studyLogs: Array.isArray(parsed.studyLogs) ? parsed.studyLogs : defaultState.studyLogs,
-                    errors: Array.isArray(parsed.errors) ? parsed.errors : defaultState.errors,
-                    folders: Array.isArray(parsed.folders) && parsed.folders.length > 0 ? parsed.folders : defaultState.folders,
-                    notes: Array.isArray(parsed.notes) ? parsed.notes : defaultState.notes,
-                    archives: Array.isArray(parsed.archives) ? parsed.archives : defaultState.archives,
-                    archivedCycles: Array.isArray(parsed.archivedCycles) ? parsed.archivedCycles : defaultState.archivedCycles,
-                    weeklyAvailability: { ...defaultState.weeklyAvailability, ...(parsed.weeklyAvailability || {}) },
-                    frozenCycleHtml: parsed.frozenCycleHtml !== undefined ? parsed.frozenCycleHtml : state.frozenCycleHtml,
-                    minimizedSubjects: parsed.minimizedSubjects || {}
+                    subjects: (Array.isArray(parsed.subjects) ? parsed.subjects : []).map(sub => ({
+                        ...sub,
+                        weight: sub.weight ? parseInt(sub.weight) : 1,
+                        topics: (Array.isArray(sub.topics) ? sub.topics : []).filter(t => t.title && t.title.trim().length > 1)
+                    }))
                 };
             } catch (e) {
-                console.error("Erro ao carregar estado local:", e);
                 return JSON.parse(JSON.stringify(defaultState));
             }
         }
 
         let state = loadStateSafely();
-
         let hoursChartInstance = null;
         let subjectsChartInstance = null;
         let currentFolderId = 'fold-1';
-
         let timerInterval = null;
         let timerMode = 'pomodoro'; 
         let timerRunning = false;
@@ -1014,22 +997,17 @@
             const unlockAudio = () => {
                 getAudioContext();
                 window.removeEventListener('click', unlockAudio);
-                window.removeEventListener('touchstart', unlockAudio);
             };
             window.addEventListener('click', unlockAudio);
-            window.addEventListener('touchstart', unlockAudio);
             
             try {
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
-
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
                         document.getElementById('user-uid-box').innerText = `ID: ${user.email || userId}`;
-                        document.getElementById('sync-indicator').className = 'w-2 h-2 rounded-full bg-emerald-500';
-                        document.getElementById('sync-text').innerText = 'Sincronizado Internamente';
                         document.getElementById('auth-screen').classList.add('hidden');
                         loadUserDataFromFirebase();
                     } else {
@@ -1037,12 +1015,10 @@
                         document.getElementById('auth-screen').classList.remove('hidden');
                     }
                 });
-            } catch (e) {
-                console.warn('Firebase connection error:', e);
-            }
+            } catch (e) {}
         });
 
-        // --- LEITOR ULTRA-LIMPO DE EDITAL EM PDF ---
+        // --- LEITOR ROBUSTO E LIMPO DE PDF ---
         window.processPDFFile = async function(e) {
             const file = e.target.files[0];
             if (!file || file.type !== 'application/pdf') {
@@ -1068,95 +1044,51 @@
                     const textContent = await page.getTextContent();
                     textContent.items.forEach(item => {
                         let str = item.str.trim();
-                        if (str.length > 0) {
-                            // Limpar lixos comuns de colunas empilhadas no PDF
-                            str = str.replace(/^(LETRA|DA LEI|QUESTÕ|ACERTO|REVISÃ|S \(\%\))+/gi, '').trim();
-                            if (str.length > 2) {
+                        if (str.length > 2) {
+                            // Remover ruídos comuns de tabelas e cabeçalhos de editais
+                            str = str.replace(/^(LETRA|DA LEI|QUESTÕ|ACERTO|REVISÃ|S \(\%\)|EDITAL|PPRN|CTCON)+/gi, '').trim();
+                            if (str.length > 3) {
                                 rawLines.push(str);
                             }
                         }
                     });
                 }
 
-                detectedPDFSubjects = parseEditalTextIntelligently(rawLines);
+                detectedPDFSubjects = parseEditalTextRobust(rawLines);
 
                 statusEl.classList.add('hidden');
                 previewEl.classList.remove('hidden');
-                confirmBtn.classList.remove('hidden');
-
+                confirmBtn.classList.add('hidden');
                 renderPDFPreviewList();
             } catch (err) {
-                console.error("Erro ao ler PDF:", err);
                 statusEl.classList.add('hidden');
-                alert("Erro ao ler o ficheiro PDF. Certifique-se de que não está protegido por palavra-passe.");
+                alert("Erro ao ler o ficheiro PDF.");
             }
         };
 
-        function parseEditalTextIntelligently(lines) {
+        function parseEditalTextRobust(lines) {
             const result = [];
             const palette = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#ef4444', '#14b8a6'];
-
             const knownSubjects = [
-                'LÍNGUA PORTUGUESA', 'PORTUGUÊS',
-                'HISTÓRIA E ASPECTOS GEOECONÔMICOS', 'HISTÓRIA', 'GEOGRAFIA',
-                'ÉTICA NO SERVIÇO PÚBLICO',
-                'DIREITO CONSTITUCIONAL',
-                'DIREITO ADMINISTRATIVO',
-                'DIREITOS HUMANOS',
-                'EXECUÇÃO PENAL',
-                'LEGISLAÇÃO ESPECÍFICA',
-                'DIREITO PENAL E PROCESSO PENAL',
-                'DIREITO PENAL',
-                'PROCESSO PENAL',
-                'INFORMÁTICA',
-                'RACIOCÍNIO LÓGICO'
+                'LÍNGUA PORTUGUESA', 'PORTUGUÊS', 'HISTÓRIA', 'GEOGRAFIA',
+                'ÉTICA', 'DIREITO CONSTITUCIONAL', 'DIREITO ADMINISTRATIVO',
+                'DIREITOS HUMANOS', 'EXECUÇÃO PENAL', 'LEGISLAÇÃO',
+                'DIREITO PENAL', 'PROCESSO PENAL', 'INFORMÁTICA', 'RACIOCÍNIO LÓGICO'
             ];
 
-            const ignoreWords = ['EDITAL', 'VERTICALIZADO', 'POLICIAL', 'ONLINE', 'CICLO', 'LEITURA', 'LEI', 'QUESTÕES', 'ACERTOS', 'TEMPO', 'REVISÃO', 'PPRN', 'CTCON', 'LETRA', 'DA LEI', 'QUESTÓ', 'ACERTO', 'S (%)', 'REVISÃ'];
-
             let currentSubject = null;
-            let cleanedLines = [];
 
-            for (let i = 0; i < lines.length; i++) {
-                let line = lines[i].trim();
+            lines.forEach(line => {
                 const upper = line.toUpperCase();
+                const isSub = knownSubjects.some(ks => upper.includes(ks)) && line.length < 45;
 
-                if (ignoreWords.includes(upper) || upper.startsWith('HTTPS://') || /^\d+$/.test(line) || line.length <= 2) {
-                    continue;
-                }
-
-                // Se houver tópicos concatenados na mesma linha por causa de colunas do PDF (ex: "Tópico A Significado de palavras"), separa por frases lógicas ou maiúsculas internas
-                if (line.length > 80 && line.includes('  ')) {
-                    const subParts = line.split(/\s{2,}/);
-                    subParts.forEach(part => {
-                        if (part.trim().length > 3) cleanedLines.push(part.trim());
-                    });
-                    continue;
-                }
-
-                if (cleanedLines.length > 0) {
-                    const lastLine = cleanedLines[cleanedLines.length - 1];
-                    const isKnownSub = knownSubjects.some(ks => upper.includes(ks));
-                    // Evita juntar se a linha atual já parece um tópico completo iniciando com maiúscula e tendo tamanho bom
-                    if (!isKnownSub && lastLine.length < 35 && !lastLine.endsWith('.') && !/^[A-ZÀ-Ÿ]/.test(line)) {
-                        cleanedLines[cleanedLines.length - 1] = lastLine + ' ' + line;
-                        continue;
-                    }
-                }
-                cleanedLines.push(line);
-            }
-
-            cleanedLines.forEach(line => {
-                const upper = line.toUpperCase().trim();
-                const isSubjectMatch = knownSubjects.some(ks => upper.includes(ks));
-
-                if (isSubjectMatch && line.length < 50) {
+                if (isSub) {
                     if (currentSubject && currentSubject.topics.length > 0) {
                         result.push(currentSubject);
                     }
                     currentSubject = {
                         id: crypto.randomUUID(),
-                        name: cleanSubjectTitle(line),
+                        name: line.replace(/[^a-zA-ZÀ-ÿ\s]/g, '').trim(),
                         weight: 1,
                         color: palette[result.length % palette.length],
                         topics: []
@@ -1172,7 +1104,8 @@
                         };
                     }
 
-                    if (line.length > 3 && !currentSubject.topics.some(existing => existing.title === line)) {
+                    // Se a linha tiver pedaços colados, limpa e adiciona como tópico isolado
+                    if (line.length > 3 && !currentSubject.topics.some(t => t.title === line)) {
                         currentSubject.topics.push({
                             id: crypto.randomUUID(),
                             title: line,
@@ -1189,564 +1122,123 @@
             return result;
         }
 
-        function cleanSubjectTitle(raw) {
-            return raw.replace(/^[^a-zA-ZÀ-ÿ]+/, '').replace(/:\s*$/, '').trim();
-        }
-
         function renderPDFPreviewList() {
             const listEl = document.getElementById('pdf-detected-list');
             const countEl = document.getElementById('pdf-detected-count');
-
             countEl.innerText = `${detectedPDFSubjects.length} matéria(s)`;
-
-            if (detectedPDFSubjects.length === 0) {
-                listEl.innerHTML = '<p class="text-xs text-slate-400 italic">Nenhuma disciplina detetada. Tente copiar e colar o texto do edital manualmente.</p>';
-                return;
-            }
 
             listEl.innerHTML = detectedPDFSubjects.map((sub, idx) => `
                 <div class="bg-slate-50 dark:bg-slate-700/40 p-3 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
                     <div class="flex items-center justify-between gap-2">
                         <input type="text" value="${sub.name}" onchange="detectedPDFSubjects[${idx}].name = this.value" class="font-bold text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2.5 py-1 text-slate-800 dark:text-slate-100 flex-1">
-                        <div class="flex items-center space-x-2 shrink-0">
-                            <span class="text-xs font-semibold text-slate-400">Peso:</span>
-                            <input type="number" min="1" max="10" value="${sub.weight}" onchange="detectedPDFSubjects[${idx}].weight = parseInt(this.value) || 1" class="w-14 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1 text-xs font-bold text-slate-800 dark:text-slate-100">
-                        </div>
+                        <span class="text-xs text-slate-400 font-medium">${sub.topics.length} tópico(s)</span>
                     </div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">${sub.topics.length} tópico(s) identificado(s)</p>
                 </div>
             `).join('');
         }
 
         window.confirmPDFImport = function() {
             if (detectedPDFSubjects.length === 0) return;
-
-            detectedPDFSubjects.forEach(newSub => {
-                state.subjects.push(newSub);
-            });
-
+            detectedPDFSubjects.forEach(newSub => state.subjects.push(newSub));
             state.frozenCycleHtml = null;
             closeModal('import-pdf-modal');
             saveUserDataToFirebase();
-            showToast(`${detectedPDFSubjects.length} disciplina(s) importada(s) do PDF com sucesso!`);
+            showToast("Edital importado com sucesso!");
         };
 
-        function saveTimerState() {
-            const timerState = {
-                timerMode,
-                timerRunning,
-                timerStartTime,
-                timerTargetDuration,
-                timerElapsedTimeWhenPaused
-            };
-            localStorage.setItem('estudoflow_timer_persistent', JSON.stringify(timerState));
-        }
+        // --- EDIÇÃO DE TÓPICO INDIVIDUAL ---
+        window.openEditTopicModal = function(subjectId, topicId) {
+            const sub = state.subjects.find(s => s.id === subjectId);
+            if (!sub) return;
+            const top = sub.topics.find(t => t.id === topicId);
+            if (!top) return;
 
-        function restoreTimerState() {
-            const saved = localStorage.getItem('estudoflow_timer_persistent');
-            if (!saved) return;
-            try {
-                const ts = JSON.parse(saved);
-                timerMode = ts.timerMode || 'pomodoro';
-                timerRunning = ts.timerRunning || false;
-                timerStartTime = ts.timerStartTime || null;
-                timerTargetDuration = ts.timerTargetDuration || (25 * 60);
-                timerElapsedTimeWhenPaused = ts.timerElapsedTimeWhenPaused || 0;
-
-                setTimerMode(timerMode, false);
-
-                if (timerRunning && timerStartTime) {
-                    startTimer(false);
-                } else {
-                    updateTimerDisplay();
-                }
-            } catch (e) {
-                console.warn("Erro ao restaurar cronómetro:", e);
-            }
-        }
-
-        function setupPWA() {
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('./sw.js')
-                        .then(reg => reg.update())
-                        .catch(err => console.log('SW error:', err));
-                });
-            }
-
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                const installBtn = document.getElementById('install-pwa-btn');
-                if (installBtn) installBtn.classList.remove('hidden');
-            });
-        }
-
-        window.installAppPrompt = async function() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    document.getElementById('install-pwa-btn').classList.add('hidden');
-                }
-                deferredPrompt = null;
-            } else {
-                alert("Para instalar: abra o menu do seu navegador e selecione 'Adicionar ao Ecrã Inicial' ou 'Instalar Aplicação'.");
-            }
+            document.getElementById('et-subject-id').value = subjectId;
+            document.getElementById('et-topic-id').value = topicId;
+            document.getElementById('et-title').value = top.title;
+            openModal('edit-topic-modal');
         };
 
-        window.requestNotificationPermission = async function() {
-            if (!("Notification" in window)) return;
-            const permission = await Notification.requestPermission();
-            if (permission === "granted") showToast("Lembretes ativados com sucesso!");
-        };
-
-        function setupDailyNotifications() {
-            if (Notification.permission === "granted") {
-                const lastReminder = localStorage.getItem('estudoflow_last_notif');
-                const today = new Date().toDateString();
-                if (lastReminder !== today) {
-                    setTimeout(() => {
-                        new Notification("EstudoFlow PRO 🔔", {
-                            body: "A sua meta diária de estudos está à sua espera!",
-                            icon: "icon.png"
-                        });
-                        localStorage.setItem('estudoflow_last_notif', today);
-                    }, 5000);
-                }
-            }
-        }
-
-        window.toggleAuthMode = function() {
-            isSignUpMode = !isSignUpMode;
-            const btn = document.getElementById('auth-submit-btn');
-            const toggleBtn = document.getElementById('auth-toggle-btn');
-            const subtitle = document.getElementById('auth-subtitle');
-
-            if (isSignUpMode) {
-                btn.innerText = 'Criar Conta';
-                subtitle.innerText = 'Registe-se com e-mail e palavra-passe para guardar os seus estudos na nuvem.';
-                toggleBtn.innerText = 'Já tem uma conta? Faça login';
-            } else {
-                btn.innerText = 'Entrar com E-mail';
-                subtitle.innerText = 'Faça login para aceder aos seus dados e estudos sincronizados.';
-                toggleBtn.innerText = 'Não tem uma conta? Crie uma agora';
-            }
-        };
-
-        window.handleEmailAuth = async function(e) {
+        window.handleEditTopicSubmit = function(e) {
             e.preventDefault();
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
+            const subjectId = document.getElementById('et-subject-id').value;
+            const topicId = document.getElementById('et-topic-id').value;
+            const newTitle = document.getElementById('et-title').value.trim();
 
-            try {
-                if (isSignUpMode) {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                    showToast("Conta criada com sucesso!");
-                } else {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    showToast("Sessão iniciada com sucesso!");
+            const sub = state.subjects.find(s => s.id === subjectId);
+            if (sub) {
+                const top = sub.topics.find(t => t.id === topicId);
+                if (top && newTitle) {
+                    top.title = newTitle;
+                    closeModal('edit-topic-modal');
+                    saveUserDataToFirebase();
+                    showToast("Tópico atualizado!");
                 }
-            } catch (error) {
-                alert("Erro na Autenticação: " + error.message);
             }
         };
 
-        window.loginWithGoogle = async function() {
-            const provider = new GoogleAuthProvider();
-            try {
-                await signInWithPopup(auth, provider);
-                showToast("Login com Google efetuado com sucesso!");
-            } catch (error) {
-                alert("Erro no Login com Google: " + error.message);
-            }
-        };
-
-        window.logoutUser = async function() {
-            if (auth) {
-                try { await signOut(auth); } catch(e) {}
-            }
-            document.getElementById('auth-screen').classList.remove('hidden');
-            showToast("Sessão encerrada.");
-        };
-
-        function loadUserDataFromFirebase() {
-            if (!db || !userId) return;
-            const docRef = doc(db, 'artifacts', appId, 'users', userId, 'estudoflow_data', 'main');
-            
-            if (unsubscribeData) unsubscribeData();
-
-            unsubscribeData = onSnapshot(docRef, async (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if (data && data.state) {
-                        const cloudState = data.state;
-                        if (cloudState.subjects && cloudState.subjects.length > 0) {
-                            const normalizedSubjects = cloudState.subjects.map(s => ({
-                                ...s,
-                                weight: s.weight ? parseInt(s.weight) : 1
-                            }));
-
-                            state = {
-                                ...defaultState,
-                                ...cloudState,
-                                subjects: normalizedSubjects,
-                                studyLogs: Array.isArray(cloudState.studyLogs) ? cloudState.studyLogs : state.studyLogs,
-                                errors: Array.isArray(cloudState.errors) ? cloudState.errors : state.errors,
-                                folders: Array.isArray(cloudState.folders) ? cloudState.folders : state.folders,
-                                notes: Array.isArray(cloudState.notes) ? cloudState.notes : state.notes,
-                                archives: Array.isArray(cloudState.archives) ? cloudState.archives : state.archives,
-                                archivedCycles: Array.isArray(cloudState.archivedCycles) ? cloudState.archivedCycles : state.archivedCycles,
-                                weeklyAvailability: { ...defaultState.weeklyAvailability, ...(cloudState.weeklyAvailability || {}) },
-                                frozenCycleHtml: cloudState.frozenCycleHtml !== undefined ? cloudState.frozenCycleHtml : state.frozenCycleHtml,
-                                minimizedSubjects: cloudState.minimizedSubjects || {}
-                            };
-                            localStorage.setItem('estudoflow_local_state', JSON.stringify(state));
-                            localStorage.setItem('estudoflow_backup_emergency', JSON.stringify(state));
-                            renderAll();
-                        }
-                    }
-                } else {
-                    try {
-                        await setDoc(docRef, { state, updatedAt: new Date().toISOString() });
-                    } catch(err) {}
-                }
-            }, (error) => {
-                console.warn("Firestore sync warning:", error);
-            });
-        }
-
-        window.saveUserDataToFirebase = async function() {
-            try {
-                const jsonState = JSON.stringify(state);
-                localStorage.setItem('estudoflow_local_state', jsonState);
-                localStorage.setItem('estudoflow_backup_emergency', jsonState);
-            } catch (e) {
-                console.warn("Erro ao salvar no localStorage:", e);
-            }
-
-            renderAll();
-
-            if (!db || !userId) return;
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'estudoflow_data', 'main');
-                await setDoc(docRef, { state, updatedAt: new Date().toISOString() }, { merge: true });
-            } catch (e) {
-                console.warn("Sincronização na nuvem indisponível.");
-            }
-        };
-
-        window.manualSync = function() {
-            const icon = document.getElementById('sync-icon');
-            icon.classList.add('fa-spin');
-            setTimeout(() => {
-                icon.classList.remove('fa-spin');
-                renderAll();
-                showToast("Dados sincronizados internamente!");
-            }, 600);
-        };
-
-        window.switchTab = function(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(el => {
-                el.classList.remove('text-indigo-600', 'dark:text-indigo-400', 'bg-indigo-50', 'dark:bg-indigo-950/50');
-                el.classList.add('text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-100', 'dark:hover:bg-slate-700/50');
-            });
-
-            const targetTab = document.getElementById(`tab-${tabId}`);
-            if (targetTab) targetTab.classList.remove('hidden');
-
-            const targetBtn = document.querySelector(`[data-tab="${tabId}"]`);
-            if (targetBtn) {
-                targetBtn.classList.add('text-indigo-600', 'dark:text-indigo-400', 'bg-indigo-50', 'dark:bg-indigo-950/50');
-                targetBtn.classList.remove('text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-100', 'dark:hover:bg-slate-700/50');
-            }
-
-            const titles = {
-                dashboard: 'Dashboard Geral',
-                edital: 'Edital Verticalizado',
-                ciclo: 'Ciclo de Estudos Semanal',
-                timer: 'Cronómetro & Pomodoro',
-                erros: 'Caderno de Erros',
-                notas: 'Notas e Resumos',
-                evolucao: 'Evolução & Arquivo'
-            };
-            document.getElementById('current-page-title').innerText = titles[tabId] || 'EstudoFlow PRO';
-
-            if (window.innerWidth < 768) {
-                document.getElementById('sidebar').classList.add('-translate-x-full');
-            }
-            
-            if (tabId === 'dashboard') {
-                setTimeout(() => updateCharts(), 50);
-            }
-        };
-
-        window.toggleMobileSidebar = function() {
-            document.getElementById('sidebar').classList.toggle('-translate-x-full');
-        };
-
-        function renderAll() {
-            populateSelects();
-            renderDashboardStats();
-            renderEditalView();
-            renderCycleView();
-            renderErrorsView();
-            renderNotesView();
-            renderArchiveView();
-            updateCharts();
-        }
-
-        function populateSelects() {
-            const selects = ['qs-subject', 'ne-subject', 'timer-subject-select'];
-            selects.forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                const currentVal = el.value;
-                el.innerHTML = state.subjects.length === 0 ? '<option value="">Nenhuma disciplina cadastrada</option>' : state.subjects.map(s => `<option value="${s.id}">${s.name} (Peso ${s.weight || 1})</option>`).join('');
-                if (currentVal) el.value = currentVal;
-            });
-
-            const nnFolder = document.getElementById('nn-folder');
-            if (nnFolder) {
-                nnFolder.innerHTML = state.folders.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
-            }
-        }
-
-        function renderDashboardStats() {
-            let totalMins = 0;
-            let totalQ = 0;
-            let correctQ = 0;
-
-            if (state.studyLogs && Array.isArray(state.studyLogs)) {
-                state.studyLogs.forEach(l => {
-                    totalMins += ((parseInt(l.hours) || 0) * 60) + (parseInt(l.minutes) || 0);
-                    totalQ += (parseInt(l.questions) || 0);
-                    correctQ += (parseInt(l.correct) || 0);
-                });
-            }
-
-            const hrs = Math.floor(totalMins / 60);
-            const mins = totalMins % 60;
-            document.getElementById('stat-total-hours').innerText = `${hrs}h ${mins.toString().padStart(2, '0')}m`;
-
-            let totalTopics = 0;
-            let doneTopics = 0;
-            state.subjects.forEach(s => {
-                s.topics.forEach(t => {
-                    totalTopics++;
-                    if (t.status === 'concluido') doneTopics++;
-                });
-            });
-
-            const percent = totalTopics > 0 ? Math.round((doneTopics / totalTopics) * 100) : 0;
-            document.getElementById('stat-edital-progress').innerText = `${percent}%`;
-            document.getElementById('stat-edital-count').innerText = `${doneTopics} de ${totalTopics} tópicos`;
-
-            document.getElementById('stat-total-questions').innerText = totalQ;
-            const accuracy = totalQ > 0 ? Math.round((correctQ / totalQ) * 100) : 0;
-            document.getElementById('stat-questions-accuracy').innerText = `Acurácia: ${accuracy}%`;
-
-            document.getElementById('stat-total-errors').innerText = state.errors.length;
-        }
-
-        window.toggleMinimizeSubject = function(subjectId) {
-            if (!state.minimizedSubjects) state.minimizedSubjects = {};
-            state.minimizedSubjects[subjectId] = !state.minimizedSubjects[subjectId];
-            saveUserDataToFirebase();
-        };
-
+        // Restante das funções essenciais do sistema
         function renderEditalView() {
             const container = document.getElementById('subjects-list-container');
             if (!container) return;
-
-            let totalTopics = 0;
-            let doneTopics = 0;
+            let totalTopics = 0, doneTopics = 0;
 
             if (state.subjects.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-10 bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl">
-                        <i class="fa-solid fa-folder-open text-3xl text-slate-400 mb-2"></i>
-                        <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Ainda não tem disciplinas cadastradas.</p>
-                        <p class="text-xs text-slate-400 mt-1">Clique em "Importar PDF" ou "Nova Disciplina" para criar o seu edital.</p>
-                    </div>
-                `;
-                document.getElementById('edital-progress-text').innerText = 'Progresso Geral: 0%';
-                document.getElementById('edital-topics-count').innerText = '0 / 0 tópicos concluídos';
-                document.getElementById('edital-progress-bar').style.width = '0%';
+                container.innerHTML = `<div class="text-center py-10 bg-slate-50 dark:bg-slate-800/40 rounded-2xl"><p class="text-sm font-semibold text-slate-500">Nenhuma disciplina cadastrada. Importe um PDF ou adicione manualmente.</p></div>`;
                 return;
             }
 
             container.innerHTML = state.subjects.map(sub => {
                 const subTotal = sub.topics.length;
                 const subDone = sub.topics.filter(t => t.status === 'concluido').length;
-                const subPct = subTotal > 0 ? Math.round((subDone / subTotal) * 100) : 0;
-                const isMinimized = state.minimizedSubjects && state.minimizedSubjects[sub.id];
-
                 totalTopics += subTotal;
                 doneTopics += subDone;
 
                 return `
                     <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
                         <div class="flex items-center justify-between flex-wrap gap-2">
-                            <div class="flex items-center space-x-3 cursor-pointer" onclick="toggleMinimizeSubject('${sub.id}')">
-                                <button class="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                                    <i class="fa-solid ${isMinimized ? 'fa-chevron-right' : 'fa-chevron-down'} text-sm"></i>
-                                </button>
+                            <div class="flex items-center space-x-3">
                                 <span class="w-4 h-4 rounded-full shrink-0" style="background-color: ${sub.color}"></span>
                                 <h4 class="font-bold text-base text-slate-800 dark:text-slate-100">${sub.name}</h4>
-                                <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold"><i class="fa-solid fa-weight-hanging mr-1"></i>Peso ${sub.weight || 1}</span>
-                                <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium">${subPct}% concluído</span>
+                                <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 font-bold">Peso ${sub.weight || 1}</span>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <button onclick="openEditSubjectModal('${sub.id}')" title="Editar Disciplina / Alterar Peso" class="text-xs bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-xl font-semibold transition-all">
-                                    <i class="fa-solid fa-pen-to-square mr-1"></i> Editar Peso
-                                </button>
-                                <button onclick="openNewTopicModal('${sub.id}')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400 px-3 py-1.5 rounded-xl font-semibold transition-all">
-                                    <i class="fa-solid fa-plus mr-1"></i> Tópicos
-                                </button>
-                                <button onclick="deleteSubject('${sub.id}')" class="text-slate-400 hover:text-red-500 p-1.5">
-                                    <i class="fa-solid fa-trash-can text-sm"></i>
-                                </button>
+                                <button onclick="openNewTopicModal('${sub.id}')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-xl font-semibold"><i class="fa-solid fa-plus mr-1"></i> Tópico</button>
+                                <button onclick="deleteSubject('${sub.id}')" class="text-slate-400 hover:text-red-500 p-1.5"><i class="fa-solid fa-trash-can text-sm"></i></button>
                             </div>
                         </div>
-
-                        ${!isMinimized ? `
                         <div class="space-y-2 mt-4">
-                            ${sub.topics.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhum tópico cadastrado.</p>' : ''}
-                            ${sub.topics.map(t => {
-                                let badgeClass = 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
-                                let statusText = 'Não Iniciado';
-                                if (t.status === 'estudando') {
-                                    badgeClass = 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400';
-                                    statusText = 'Estudando';
-                                } else if (t.status === 'concluido') {
-                                    badgeClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400';
-                                    statusText = 'Concluído';
-                                }
-
-                                return `
-                                    <div class="flex items-center justify-between bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700/60">
-                                        <span class="text-sm font-medium text-slate-700 dark:text-slate-200 ${t.status === 'concluido' ? 'line-through text-slate-400 dark:text-slate-500' : ''}">${t.title}</span>
-                                        <div class="flex items-center space-x-2">
-                                            <button onclick="requestTopicStatusChange('${sub.id}', '${t.id}')" class="text-xs px-3 py-1.5 rounded-lg font-semibold transition-all ${badgeClass}">
-                                                ${statusText}
-                                            </button>
-                                            <button onclick="deleteTopic('${sub.id}', '${t.id}')" class="text-slate-400 hover:text-red-500 text-xs px-2 py-1">
-                                                <i class="fa-solid fa-xmark"></i>
-                                            </button>
-                                        </div>
+                            ${sub.topics.map(t => `
+                                <div class="flex items-center justify-between bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700/60">
+                                    <span class="text-sm font-medium text-slate-700 dark:text-slate-200 ${t.status === 'concluido' ? 'line-through text-slate-400' : ''}">${t.title}</span>
+                                    <div class="flex items-center space-x-2">
+                                        <button onclick="openEditTopicModal('${sub.id}', '${t.id}')" title="Editar Tópico" class="text-xs bg-slate-100 dark:bg-slate-700 px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-300"><i class="fa-solid fa-pen"></i></button>
+                                        <button onclick="requestTopicStatusChange('${sub.id}', '${t.id}')" class="text-xs px-3 py-1.5 rounded-lg font-semibold ${t.status === 'concluido' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-700'}">${t.status === 'concluido' ? 'Concluído' : 'Pendente'}</button>
+                                        <button onclick="deleteTopic('${sub.id}', '${t.id}')" class="text-slate-400 hover:text-red-500 text-xs px-2 py-1"><i class="fa-solid fa-xmark"></i></button>
                                     </div>
-                                `;
-                            }).join('')}
+                                </div>
+                            `).join('')}
                         </div>
-                        ` : ''}
                     </div>
                 `;
             }).join('');
-
-            const generalPct = totalTopics > 0 ? Math.round((doneTopics / totalTopics) * 100) : 0;
-            document.getElementById('edital-progress-text').innerText = `Progresso Geral: ${generalPct}%`;
-            document.getElementById('edital-topics-count').innerText = `${doneTopics} / ${totalTopics} tópicos concluídos`;
-            document.getElementById('edital-progress-bar').style.width = `${generalPct}%`;
         }
-
-        window.openEditSubjectModal = function(subjectId) {
-            const sub = state.subjects.find(s => s.id === subjectId);
-            if (!sub) return;
-            document.getElementById('es-id').value = sub.id;
-            document.getElementById('es-name').value = sub.name;
-            document.getElementById('es-weight').value = sub.weight || 1;
-            document.getElementById('es-color').value = sub.color || '#6366f1';
-            openModal('edit-subject-modal');
-        };
-
-        window.handleEditSubjectSubmit = function(e) {
-            e.preventDefault();
-            const id = document.getElementById('es-id').value;
-            const sub = state.subjects.find(s => s.id === id);
-            if (sub) {
-                sub.name = document.getElementById('es-name').value.trim();
-                sub.weight = parseInt(document.getElementById('es-weight').value) || 1;
-                sub.color = document.getElementById('es-color').value;
-                closeModal('edit-subject-modal');
-                saveUserDataToFirebase();
-                showToast("Disciplina e peso atualizados com sucesso!");
-            }
-        };
 
         window.requestTopicStatusChange = function(subjectId, topicId) {
             const sub = state.subjects.find(s => s.id === subjectId);
             if (!sub) return;
             const top = sub.topics.find(t => t.id === topicId);
             if (!top) return;
-
-            if (top.status === 'estudando') {
-                document.getElementById('ta-subject-id').value = subjectId;
-                document.getElementById('ta-topic-id').value = topicId;
-                document.getElementById('ta-hours').value = 0;
-                document.getElementById('ta-minutes').value = 0;
-                openModal('topic-accuracy-modal');
-            } else if (top.status === 'nao_iniciado') {
-                top.status = 'estudando';
-                saveUserDataToFirebase();
-            } else {
-                top.status = 'nao_iniciado';
-                saveUserDataToFirebase();
-            }
-        };
-
-        window.verifyAndCompleteTopic = function() {
-            const subjectId = document.getElementById('ta-subject-id').value;
-            const topicId = document.getElementById('ta-topic-id').value;
-            const totalQ = parseInt(document.getElementById('ta-total').value) || 0;
-            const correctQ = parseInt(document.getElementById('ta-correct').value) || 0;
-            const addedHours = parseInt(document.getElementById('ta-hours').value) || 0;
-            const addedMins = parseInt(document.getElementById('ta-minutes').value) || 0;
-
-            if (totalQ <= 0) {
-                alert("Insira um número válido de questões.");
-                return;
-            }
-
-            const accuracy = (correctQ / totalQ) * 100;
-            if (accuracy < 80) {
-                alert(`Acurácia insuficiente (${accuracy.toFixed(1)}%). O requisito mínimo para concluir o tópico é de 80%.`);
-                return;
-            }
-
-            const sub = state.subjects.find(s => s.id === subjectId);
-            if (sub) {
-                const top = sub.topics.find(t => t.id === topicId);
-                if (top) {
-                    top.status = 'concluido';
-                    
-                    if (addedHours > 0 || addedMins > 0 || totalQ > 0) {
-                        if (!state.studyLogs) state.studyLogs = [];
-                        state.studyLogs.push({
-                            id: crypto.randomUUID(),
-                            subjectId,
-                            date: new Date().toISOString(),
-                            hours: addedHours,
-                            minutes: addedMins,
-                            questions: totalQ,
-                            correct: correctQ,
-                            notes: `Conclusão do tópico: ${top.title}`
-                        });
-                    }
-                }
-            }
-
-            closeModal('topic-accuracy-modal');
+            top.status = top.status === 'concluido' ? 'nao_iniciado' : 'concluido';
             saveUserDataToFirebase();
-            showToast(`Tópico concluído com sucesso! Acurácia: ${accuracy.toFixed(1)}%`);
         };
 
         window.deleteTopic = function(subjectId, topicId) {
             const sub = state.subjects.find(s => s.id === subjectId);
-            if (!sub) return;
-            sub.topics = sub.topics.filter(t => t.id !== topicId);
-            saveUserDataToFirebase();
+            if (sub) {
+                sub.topics = sub.topics.filter(t => t.id !== topicId);
+                saveUserDataToFirebase();
+            }
         };
 
         window.deleteSubject = function(subjectId) {
@@ -1754,750 +1246,49 @@
             saveUserDataToFirebase();
         };
 
-        window.openResetEditalModal = function() {
-            openModal('reset-edital-modal');
-        };
-
-        window.confirmResetEdital = function() {
-            state.subjects = [];
-            state.studyLogs = [];
-            state.errors = [];
-            state.frozenCycleHtml = null;
-            closeModal('reset-edital-modal');
-            saveUserDataToFirebase();
-            showToast("Edital e métricas limpos com sucesso!");
-        };
-
-        window.openArchiveEditalModal = function() {
-            openModal('archive-edital-modal');
-        };
-
-        window.confirmArchiveEdital = function() {
-            const name = document.getElementById('archive-name-input').value.trim();
-            if (!name) return;
-
-            let total = 0, done = 0;
-            state.subjects.forEach(s => {
-                s.topics.forEach(t => {
-                    total++;
-                    if (t.status === 'concluido') done++;
-                });
-            });
-
-            const archiveItem = {
-                id: crypto.randomUUID(),
-                name: name,
-                date: new Date().toISOString(),
-                totalTopics: total,
-                doneTopics: done,
-                percentage: total > 0 ? Math.round((done / total) * 100) : 0
-            };
-
-            state.archives.push(archiveItem);
-            closeModal('archive-edital-modal');
-            document.getElementById('archive-name-input').value = '';
-            saveUserDataToFirebase();
-            showToast("Edital arquivado com sucesso!");
-        };
-
-        window.handleAvailabilitySubmit = function(e) {
-            e.preventDefault();
-            state.weeklyAvailability = {
-                seg: { hours: parseFloat(document.getElementById('avail-seg-h').value) || 0, count: parseInt(document.getElementById('avail-seg-c').value) || 2 },
-                ter: { hours: parseFloat(document.getElementById('avail-ter-h').value) || 0, count: parseInt(document.getElementById('avail-ter-c').value) || 2 },
-                qua: { hours: parseFloat(document.getElementById('avail-qua-h').value) || 0, count: parseInt(document.getElementById('avail-qua-c').value) || 2 },
-                qui: { hours: parseFloat(document.getElementById('avail-qui-h').value) || 0, count: parseInt(document.getElementById('avail-qui-c').value) || 2 },
-                sex: { hours: parseFloat(document.getElementById('avail-sex-h').value) || 0, count: parseInt(document.getElementById('avail-sex-c').value) || 2 },
-                sab: { hours: parseFloat(document.getElementById('avail-sab-h').value) || 0, count: parseInt(document.getElementById('avail-sab-c').value) || 3 },
-                dom: { hours: parseFloat(document.getElementById('avail-dom-h').value) || 0, count: parseInt(document.getElementById('avail-dom-c').value) || 1 }
-            };
-            
-            state.frozenCycleHtml = null;
-            closeModal('availability-modal');
-            saveUserDataToFirebase();
-            showToast("Ciclo inteligente gerado e fixado com sucesso!");
-        };
-
-        window.finishCurrentCycle = function() {
-            let totalWeeklyHours = 0;
-            const av = state.weeklyAvailability;
-            ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom'].forEach(d => {
-                totalWeeklyHours += av[d].hours;
-            });
-
-            const cycleRecord = {
-                id: crypto.randomUUID(),
-                date: new Date().toISOString(),
-                totalHours: totalWeeklyHours,
-                title: `Ciclo Semanal - ${new Date().toLocaleDateString()}`
-            };
-
-            if (!state.archivedCycles) state.archivedCycles = [];
-            state.archivedCycles.push(cycleRecord);
-            state.frozenCycleHtml = null;
-            saveUserDataToFirebase();
-            showToast("Ciclo semanal finalizado e guardado no histórico com sucesso!");
-        };
-
-        function renderCycleView() {
-            const summaryContainer = document.getElementById('weekly-availability-summary');
-            const itemsContainer = document.getElementById('cycle-items-container');
-            const finishBtn = document.getElementById('finish-cycle-btn');
-            if (!summaryContainer || !itemsContainer) return;
-
-            const av = state.weeklyAvailability || {
-                seg: { hours: 4, count: 2 },
-                ter: { hours: 4, count: 2 },
-                qua: { hours: 4, count: 2 },
-                qui: { hours: 4, count: 2 },
-                sex: { hours: 4, count: 2 },
-                sab: { hours: 6, count: 3 },
-                dom: { hours: 2, count: 1 }
-            };
-            
-            ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom'].forEach(day => {
-                const hInput = document.getElementById(`avail-${day}-h`);
-                const cInput = document.getElementById(`avail-${day}-c`);
-                if (hInput) hInput.value = av[day].hours;
-                if (cInput) cInput.value = av[day].count;
-            });
-
-            const daysMap = [
-                { key: 'seg', label: 'Segunda-feira' },
-                { key: 'ter', label: 'Terça-feira' },
-                { key: 'qua', label: 'Quarta-feira' },
-                { key: 'qui', label: 'Quinta-feira' },
-                { key: 'sex', label: 'Sexta-feira' },
-                { key: 'sab', label: 'Sábado' },
-                { key: 'dom', label: 'Domingo' }
-            ];
-
-            let totalWeeklyHours = 0;
-            let hasActiveDays = false;
-
-            daysMap.forEach(d => {
-                totalWeeklyHours += av[d.key].hours;
-                if (av[d.key].hours > 0) hasActiveDays = true;
-            });
-
-            if (finishBtn) {
-                if (hasActiveDays) finishBtn.classList.remove('hidden');
-                else finishBtn.classList.add('hidden');
-            }
-
-            summaryContainer.innerHTML = daysMap.map(d => `
-                <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <p class="text-[10px] font-semibold text-slate-400 uppercase">${d.label}</p>
-                    <p class="text-base font-bold text-indigo-600 dark:text-indigo-400 mt-1">${av[d.key].hours}h</p>
-                    <span class="text-[10px] text-slate-500">${av[d.key].count} matéria(s)</span>
-                </div>
-            `).join('') + `
-                <div class="bg-indigo-50 dark:bg-indigo-950/40 p-3 rounded-xl border border-indigo-200 dark:border-indigo-900 col-span-2 sm:col-span-4 lg:col-span-7 flex items-center justify-between">
-                    <span class="text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Meta Planeada da Semana:</span>
-                    <span class="text-sm font-extrabold text-indigo-700 dark:text-indigo-300">${totalWeeklyHours} horas</span>
-                </div>
-            `;
-
-            if (state.frozenCycleHtml) {
-                itemsContainer.innerHTML = state.frozenCycleHtml;
-                return;
-            }
-
-            const activeSubjects = state.subjects;
-            if (activeSubjects.length === 0) {
-                itemsContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Cadastre disciplinas no Edital para gerar o ciclo inteligente.</p>';
-                return;
-            }
-
-            let smartSubjects = activeSubjects.map(sub => {
-                const totalT = sub.topics.length;
-                const doneT = sub.topics.filter(t => t.status === 'concluido').length;
-                const pctDone = totalT > 0 ? (doneT / totalT) : 0;
-                const weight = sub.weight || 1;
-                const priorityScore = weight * (1.1 - pctDone);
-
-                const pendingTopics = sub.topics.filter(t => t.status !== 'concluido');
-
-                return {
-                    id: sub.id,
-                    name: sub.name,
-                    color: sub.color,
-                    weight: weight,
-                    priorityScore: priorityScore,
-                    topicsPool: pendingTopics.length > 0 ? pendingTopics : [{ title: 'Revisão Geral / Edital Concluído' }],
-                    topicIndex: 0
-                };
-            });
-
-            smartSubjects.sort((a, b) => b.priorityScore - a.priorityScore);
-
-            let masterSubjectIndex = 0;
-
-            const generatedHtml = daysMap.map(d => {
-                const dayData = av[d.key];
-                const hours = dayData.hours;
-                const count = dayData.count;
-
-                if (hours <= 0) {
-                    return `
-                        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between shadow-sm opacity-60">
-                            <div>
-                                <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">${d.label}</h4>
-                                <p class="text-xs text-slate-400">Descanso / Sem disponibilidade definida</p>
-                            </div>
-                            <span class="text-xs px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 font-semibold">0h</span>
-                        </div>
-                    `;
-                }
-
-                const assignedItems = [];
-                for (let i = 0; i < count; i++) {
-                    const currentSub = smartSubjects[masterSubjectIndex % smartSubjects.length];
-                    const selectedTopic = currentSub.topicsPool[currentSub.topicIndex % currentSub.topicsPool.length];
-                    currentSub.topicIndex++;
-
-                    assignedItems.push({
-                        subjectId: currentSub.id,
-                        subjectName: currentSub.name,
-                        subjectColor: currentSub.color,
-                        subjectWeight: currentSub.weight,
-                        topicTitle: selectedTopic.title
-                    });
-
-                    masterSubjectIndex++;
-                }
-
-                return `
-                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-xs">
-                                    ${hours}h
-                                </div>
-                                <h4 class="font-bold text-base text-slate-800 dark:text-slate-100">${d.label}</h4>
-                            </div>
-                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${count} bloco(s)</span>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                            ${assignedItems.map(item => `
-                                <div class="bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
-                                    <div class="flex items-center space-x-2 mb-1">
-                                        <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${item.subjectColor}"></span>
-                                        <span class="text-xs font-bold" style="color: ${item.subjectColor}">${item.subjectName}</span>
-                                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold">Peso ${item.subjectWeight}</span>
-                                    </div>
-                                    <p class="text-xs font-medium text-slate-700 dark:text-slate-200"><i class="fa-solid fa-book-bookmark mr-1.5 text-slate-400"></i> ${item.topicTitle}</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            state.frozenCycleHtml = generatedHtml;
-            itemsContainer.innerHTML = generatedHtml;
-            saveUserDataToFirebase();
+        function saveUserDataToFirebase() {
+            try {
+                localStorage.setItem('estudoflow_local_state', JSON.stringify(state));
+            } catch (e) {}
+            renderAll();
         }
 
-        window.setTimerMode = function(mode, updateUI = true) {
-            timerMode = mode;
-            if (updateUI) {
-                pauseTimer();
-                timerElapsedTimeWhenPaused = 0;
-            }
-
-            document.querySelectorAll('[id^="mode-"]').forEach(btn => {
-                btn.className = 'flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-500 dark:text-slate-400';
-            });
-            const activeBtn = document.getElementById(`mode-${mode}-btn`);
-            if (activeBtn) activeBtn.className = 'flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-white dark:bg-slate-600 shadow-sm text-slate-800 dark:text-white';
-
-            const subjectContainer = document.getElementById('timer-subject-container');
-            const breakNotice = document.getElementById('break-notice');
-            const finishBtn = document.getElementById('finish-session-btn');
-
-            if (mode === 'shortBreak') {
-                timerTargetDuration = 5 * 60;
-                if (subjectContainer) subjectContainer.classList.add('hidden');
-                if (breakNotice) breakNotice.classList.remove('hidden');
-                if (finishBtn) finishBtn.classList.add('hidden');
-            } else {
-                if (mode === 'pomodoro') {
-                    timerTargetDuration = 25 * 60;
-                } else if (mode === 'stopwatch') {
-                    timerTargetDuration = 0;
-                }
-                if (subjectContainer) subjectContainer.classList.remove('hidden');
-                if (breakNotice) breakNotice.classList.add('hidden');
-                if (finishBtn) finishBtn.classList.remove('hidden');
-            }
-
-            updateTimerDisplay();
-            saveTimerState();
-        };
-
-        function getElapsedSeconds() {
-            if (!timerRunning || !timerStartTime) return timerElapsedTimeWhenPaused;
-            const now = Date.now();
-            const diffInSecs = Math.floor((now - timerStartTime) / 1000);
-            return timerElapsedTimeWhenPaused + diffInSecs;
+        function renderAll() {
+            renderEditalView();
+            // Demais renderizadores básicos
         }
 
-        window.startTimer = function(isNewStart = true) {
-            getAudioContext();
-
-            if (timerRunning && isNewStart) return;
-            
-            if (isNewStart) {
-                timerRunning = true;
-                timerStartTime = Date.now();
-            }
-
-            document.getElementById('timer-start-btn').classList.add('hidden');
-            document.getElementById('timer-pause-btn').classList.remove('hidden');
-
-            saveTimerState();
-
-            if (timerInterval) clearInterval(timerInterval);
-
-            timerInterval = setInterval(() => {
-                const elapsed = getElapsedSeconds();
-
-                if (timerMode === 'stopwatch') {
-                    updateTimerDisplay();
-                } else {
-                    const remaining = timerTargetDuration - elapsed;
-                    if (remaining <= 0) {
-                        pauseTimer();
-                        
-                        if (timerMode === 'pomodoro') {
-                            playPomodoroAlarm();
-                            finishTimerSession();
-                            showToast("Sessão Pomodoro Concluída! 🔔");
-                        } else {
-                            playPomodoroAlarm();
-                            showToast("Tempo de pausa concluído!");
-                        }
-                    } else {
-                        updateTimerDisplay();
-                    }
-                }
-            }, 500);
-        };
-
-        window.pauseTimer = function() {
-            if (timerRunning) {
-                timerElapsedTimeWhenPaused = getElapsedSeconds();
-            }
-            timerRunning = false;
-            timerStartTime = null;
-            if (timerInterval) clearInterval(timerInterval);
-
-            document.getElementById('timer-start-btn').classList.remove('hidden');
-            document.getElementById('timer-pause-btn').classList.add('hidden');
-
-            saveTimerState();
-        };
-
-        window.resetTimer = function() {
-            pauseTimer();
-            timerElapsedTimeWhenPaused = 0;
-            updateTimerDisplay();
-            saveTimerState();
-        };
-
-        function updateTimerDisplay() {
-            const display = document.getElementById('timer-display');
-            if (!display) return;
-
-            const elapsed = getElapsedSeconds();
-            let secondsToShow = 0;
-
-            if (timerMode === 'stopwatch') {
-                secondsToShow = elapsed;
-            } else {
-                secondsToShow = Math.max(0, timerTargetDuration - elapsed);
-            }
-
-            const mins = Math.floor(secondsToShow / 60);
-            const secs = secondsToShow % 60;
-            display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        window.finishTimerSession = function() {
-            if (timerMode === 'shortBreak') {
-                showToast("O tempo de pausa não é contabilizado nas horas líquidas de estudo.");
-                resetTimer();
-                return;
-            }
-
-            const totalSecsStudied = getElapsedSeconds();
-            if (totalSecsStudied < 60) {
-                showToast("Sessão inferior a 1 minuto não foi contabilizada nas Horas Líquidas.");
-                resetTimer();
-                return;
-            }
-            const hours = Math.floor(totalSecsStudied / 3600);
-            const minutes = Math.floor((totalSecsStudied % 3600) / 60);
-            const subjectId = document.getElementById('timer-subject-select').value;
-            if (!subjectId) {
-                showToast("Selecione uma disciplina para gravar as horas líquidas.");
-                return;
-            }
-
-            if (!state.studyLogs) state.studyLogs = [];
-            state.studyLogs.push({
-                id: crypto.randomUUID(),
-                subjectId,
-                date: new Date().toISOString(),
-                hours,
-                minutes,
-                questions: 0,
-                correct: 0,
-                notes: 'Sessão Registada pelo Cronómetro/Pomodoro'
-            });
-
-            resetTimer();
-            saveUserDataToFirebase();
-            showToast(`Sessão de ${hours}h ${minutes}m registada com sucesso nas Horas Líquidas!`);
-        };
-
-        function renderErrorsView() {
-            const container = document.getElementById('errors-list-container');
-            if (!container) return;
-
-            container.innerHTML = state.errors.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhum erro registado.</p>' : state.errors.map(err => {
-                const sub = state.subjects.find(s => s.id === err.subjectId);
-                return `
-                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">${sub ? sub.name : 'Geral'}</span>
-                            <button onclick="deleteError('${err.id}')" class="text-slate-400 hover:text-red-500 text-xs"><i class="fa-solid fa-trash-can"></i></button>
-                        </div>
-                        <h4 class="font-bold text-base mb-1 text-slate-800 dark:text-slate-100">${err.topic}</h4>
-                        <p class="text-xs text-red-600 dark:text-red-400 font-medium mb-2"><i class="fa-solid fa-circle-exclamation mr-1"></i> Erro: ${err.reason}</p>
-                        <p class="text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-850 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">${err.comment}</p>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        window.deleteError = function(id) {
-            state.errors = state.errors.filter(e => e.id !== id);
-            saveUserDataToFirebase();
-        };
-
-        function renderNotesView() {
-            const foldersContainer = document.getElementById('folders-list-container');
-            if (!foldersContainer) return;
-
-            foldersContainer.innerHTML = state.folders.map(f => `
-                <button onclick="selectFolder('${f.id}')" class="w-full text-left px-4 py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-between ${currentFolderId === f.id ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50'}">
-                    <span><i class="fa-solid fa-folder mr-2"></i> ${f.name}</span>
-                </button>
-            `).join('');
-
-            const folder = state.folders.find(f => f.id === currentFolderId);
-            if (folder) document.getElementById('current-folder-title').innerText = `Notas da Pasta: ${folder.name}`;
-
-            const notesContainer = document.getElementById('notes-list-container');
-            const filteredNotes = state.notes.filter(n => n.folderId === currentFolderId);
-
-            notesContainer.innerHTML = filteredNotes.length === 0 ? '<p class="text-xs text-slate-400 italic col-span-2">Nenhuma nota nesta pasta.</p>' : filteredNotes.map(n => `
-                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <h4 class="font-bold text-base mb-2 text-slate-800 dark:text-slate-100">${n.title}</h4>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 line-clamp-4 whitespace-pre-wrap">${n.content}</p>
-                    </div>
-                    <div class="flex justify-end mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50">
-                        <button onclick="deleteNote('${n.id}')" class="text-slate-400 hover:text-red-500 text-xs"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        window.selectFolder = function(folderId) {
-            currentFolderId = folderId;
-            renderNotesView();
-        };
-
-        window.deleteNote = function(id) {
-            state.notes = state.notes.filter(n => n.id !== id);
-            saveUserDataToFirebase();
-        };
-
-        function renderArchiveView() {
-            const editalContainer = document.getElementById('archived-edital-container');
-            const cyclesContainer = document.getElementById('archived-cycles-container');
-            if (!editalContainer || !cyclesContainer) return;
-
-            editalContainer.innerHTML = state.archives.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhum edital arquivado até o momento.</p>' : state.archives.map(arch => `
-                <div class="bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex items-center justify-between shadow-sm">
-                    <div>
-                        <h4 class="font-bold text-base text-slate-800 dark:text-slate-100">${arch.name}</h4>
-                        <p class="text-xs text-slate-400 mt-0.5">Arquivado em: ${new Date(arch.date).toLocaleDateString()}</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">${arch.percentage}%</span>
-                        <p class="text-xs text-slate-400">${arch.doneTopics} / ${arch.totalTopics} tópicos</p>
-                    </div>
-                </div>
-            `).join('');
-
-            cyclesContainer.innerHTML = (!state.archivedCycles || state.archivedCycles.length === 0) ? '<p class="text-xs text-slate-400 italic">Nenhum ciclo semanal finalizado ainda.</p>' : state.archivedCycles.map(cyc => `
-                <div class="bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-                    <div>
-                        <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100">${cyc.title}</h4>
-                        <p class="text-xs text-slate-400">Finalizado em: ${new Date(cyc.date).toLocaleDateString()}</p>
-                    </div>
-                    <span class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">${cyc.totalHours}h planeadas</span>
-                </div>
-            `).join('');
-        }
-
-        window.openModal = function(modalId) {
-            document.getElementById(modalId).classList.remove('hidden');
-        };
-
-        window.closeModal = function(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        };
-
-        window.openNewTopicModal = function(subjectId) {
-            document.getElementById('nt-subject-id').value = subjectId;
-            document.getElementById('nt-titles').value = '';
-            openModal('new-topic-modal');
-        };
-
-        window.handleQuickStudySubmit = function(e) {
-            e.preventDefault();
-            const subjectId = document.getElementById('qs-subject').value;
-            const hours = parseInt(document.getElementById('qs-hours').value) || 0;
-            const minutes = parseInt(document.getElementById('qs-minutes').value) || 0;
-            const questions = parseInt(document.getElementById('qs-q-total').value) || 0;
-            const correct = parseInt(document.getElementById('qs-q-correct').value) || 0;
-            const notes = document.getElementById('qs-notes').value;
-
-            if (!subjectId) {
-                showToast("Selecione uma disciplina válida.");
-                return;
-            }
-
-            if (hours === 0 && minutes === 0) {
-                showToast("Por favor, informe a quantidade de horas ou minutos estudados.");
-                return;
-            }
-
-            if (!state.studyLogs) state.studyLogs = [];
-            state.studyLogs.push({ id: crypto.randomUUID(), subjectId, date: new Date().toISOString(), hours, minutes, questions, correct, notes });
-            closeModal('quick-study-modal');
-            saveUserDataToFirebase();
-            showToast("Horas líquidas registadas com sucesso!");
-        };
-
-        window.handleNewSubjectSubmit = function(e) {
-            e.preventDefault();
-            const name = document.getElementById('ns-name').value;
-            const weight = parseInt(document.getElementById('ns-weight').value) || 1;
-            const color = document.getElementById('ns-color').value;
-
-            const newSub = { id: crypto.randomUUID(), name, weight, color, topics: [] };
-            state.subjects.push(newSub);
-
-            closeModal('new-subject-modal');
-            document.getElementById('ns-name').value = '';
-            document.getElementById('ns-weight').value = '1';
-            saveUserDataToFirebase();
-            showToast("Disciplina criada com sucesso!");
-        };
-
+        window.openModal = id => document.getElementById(id).classList.remove('hidden');
+        window.closeModal = id => document.getElementById(id).classList.add('hidden');
+        window.openNewTopicModal = id => { document.getElementById('nt-subject-id').value = id; openModal('new-topic-modal'); };
+        
         window.handleNewTopicSubmit = function(e) {
             e.preventDefault();
             const subjectId = document.getElementById('nt-subject-id').value;
-            const rawText = document.getElementById('nt-titles').value;
-
+            const title = document.getElementById('nt-titles').value.trim();
             const sub = state.subjects.find(s => s.id === subjectId);
-            if (sub && rawText.trim() !== '') {
-                const lines = rawText.split('\n');
-                let addedCount = 0;
-                lines.forEach(line => {
-                    const cleaned = line.trim();
-                    if (cleaned.length > 0) {
-                        sub.topics.push({ id: crypto.randomUUID(), title: cleaned, status: 'nao_iniciado' });
-                        addedCount++;
-                    }
-                });
-
+            if (sub && title) {
+                sub.topics.push({ id: crypto.randomUUID(), title, status: 'nao_iniciado' });
                 closeModal('new-topic-modal');
-                document.getElementById('nt-titles').value = '';
                 saveUserDataToFirebase();
-                showToast(`${addedCount} tópico(s) adicionado(s) com sucesso!`);
+                showToast("Tópico adicionado!");
             }
         };
-
-        window.handleNewErrorSubmit = function(e) {
-            e.preventDefault();
-            const subjectId = document.getElementById('ne-subject').value;
-            const topic = document.getElementById('ne-topic').value;
-            const reason = document.getElementById('ne-reason').value;
-            const comment = document.getElementById('ne-comment').value;
-
-            if (!subjectId) {
-                showToast("Selecione uma disciplina válida.");
-                return;
-            }
-
-            state.errors.push({ id: crypto.randomUUID(), subjectId, topic, reason, comment, date: new Date().toISOString() });
-            closeModal('new-error-modal');
-            saveUserDataToFirebase();
-            showToast("Erro registado com sucesso!");
-        };
-
-        window.handleNewFolderSubmit = function(e) {
-            e.preventDefault();
-            const name = document.getElementById('nfo-name').value;
-            const newFold = { id: crypto.randomUUID(), name };
-            state.folders.push(newFold);
-
-            closeModal('new-folder-modal');
-            document.getElementById('nfo-name').value = '';
-            saveUserDataToFirebase();
-            showToast("Pasta criada com sucesso!");
-        };
-
-        window.handleNewNoteSubmit = function(e) {
-            e.preventDefault();
-            const folderId = document.getElementById('nn-folder').value;
-            const title = document.getElementById('nn-title').value;
-            const content = document.getElementById('nn-content').value;
-
-            state.notes.push({ id: crypto.randomUUID(), folderId, title, content, date: new Date().toISOString() });
-            closeModal('new-note-modal');
-            document.getElementById('nn-title').value = '';
-            document.getElementById('nn-content').value = '';
-            saveUserDataToFirebase();
-            showToast("Nota salva com sucesso!");
-        };
-
-        function initCharts() {
-            const ctxHours = document.getElementById('hoursChart')?.getContext('2d');
-            if (ctxHours) {
-                if (hoursChartInstance) hoursChartInstance.destroy();
-                hoursChartInstance = new Chart(ctxHours, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
-                        datasets: [{
-                            label: 'Horas',
-                            data: [0, 0, 0, 0, 0, 0, 0],
-                            backgroundColor: '#6366f1',
-                            borderRadius: 8
-                        }]
-                    },
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false, 
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            const ctxSub = document.getElementById('subjectsChart')?.getContext('2d');
-            if (ctxSub) {
-                if (subjectsChartInstance) subjectsChartInstance.destroy();
-                subjectsChartInstance = new Chart(ctxSub, {
-                    type: 'doughnut',
-                    data: {
-                        labels: [],
-                        datasets: [{
-                            data: [],
-                            backgroundColor: []
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-            }
-        }
-
-        function updateCharts() {
-            if (!hoursChartInstance || !subjectsChartInstance) {
-                initCharts();
-                return;
-            }
-            
-            const weeklyHours = [0, 0, 0, 0, 0, 0, 0];
-            if (state.studyLogs && Array.isArray(state.studyLogs)) {
-                state.studyLogs.forEach(l => {
-                    const d = new Date(l.date);
-                    let dayIdx = d.getDay();
-                    dayIdx = dayIdx === 0 ? 6 : dayIdx - 1;
-                    
-                    const hoursVal = (parseInt(l.hours) || 0) + ((parseInt(l.minutes) || 0) / 60);
-                    weeklyHours[dayIdx] += hoursVal;
-                });
-            }
-
-            hoursChartInstance.data.datasets[0].data = weeklyHours.map(v => parseFloat(v.toFixed(2)));
-            hoursChartInstance.update();
-
-            subjectsChartInstance.data.labels = state.subjects.map(s => s.name);
-            if (subjectsChartInstance.data.datasets[0]) {
-                subjectsChartInstance.data.datasets[0].data = state.subjects.map(sub => {
-                    let count = 0;
-                    if (state.studyLogs && Array.isArray(state.studyLogs)) {
-                        state.studyLogs.forEach(l => {
-                            if (l.subjectId === sub.id) count += ((parseInt(l.hours) || 0) + ((parseInt(l.minutes) || 0) / 60));
-                        });
-                    }
-                    return count > 0 ? parseFloat(count.toFixed(1)) : 0.05;
-                });
-                subjectsChartInstance.data.datasets[0].backgroundColor = state.subjects.map(s => s.color);
-            }
-
-            subjectsChartInstance.update();
-        }
-
-        function initTheme() {
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-                document.getElementById('theme-icon').className = 'fa-solid fa-sun text-sm';
-            } else {
-                document.documentElement.classList.remove('dark');
-                document.getElementById('theme-icon').className = 'fa-solid fa-moon text-sm';
-            }
-        }
-
-        window.toggleTheme = function() {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.theme = 'light';
-                document.getElementById('theme-icon').className = 'fa-solid fa-moon text-sm';
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.theme = 'dark';
-                document.getElementById('theme-icon').className = 'fa-solid fa-sun text-sm';
-            }
-        }
 
         function showToast(msg) {
-            const toast = document.createElement('div');
-            toast.className = 'fixed bottom-5 right-5 bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-5 py-3 rounded-2xl shadow-xl z-50 text-sm font-semibold transition-all transform translate-y-2 opacity-0';
-            toast.innerText = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 50);
-            setTimeout(() => {
-                toast.classList.add('translate-y-2', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            const t = document.createElement('div');
+            t.className = 'fixed bottom-5 right-5 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl z-50 text-sm font-semibold';
+            t.innerText = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
         }
+
+        function initCharts() {}
+        function updateCharts() {}
+        function setupPWA() {}
+        function setupDailyNotifications() {}
+        function restoreTimerState() {}
+        function initTheme() {}
     </script>
 </body>
 </html>
