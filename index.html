@@ -109,7 +109,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v5.7</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v5.9</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -344,11 +344,18 @@
                             <button onclick="setTimerMode('stopwatch')" id="mode-stopwatch-btn" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-500 dark:text-slate-400">Cronómetro Livre</button>
                         </div>
 
-                        <div class="mb-6 text-left">
+                        <!-- Seleção de Matéria (Oculta automaticamente no modo Pausa Curta) -->
+                        <div id="timer-subject-container" class="mb-6 text-left">
                             <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Matéria para Contabilizar nas Horas Líquidas</label>
                             <select id="timer-subject-select" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100">
                                 <!-- Preenchido dinamicamente -->
                             </select>
+                        </div>
+
+                        <!-- Mensagem informativa visível no modo de Pausa Curta -->
+                        <div id="break-notice" class="hidden mb-6 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-700 dark:text-amber-300 font-semibold flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-mug-hot text-base"></i>
+                            <span>Hora do descanso! O tempo da pausa não contabiliza nas horas de estudo.</span>
                         </div>
 
                         <div class="my-10">
@@ -365,7 +372,7 @@
                             <button onclick="resetTimer()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 w-14 h-14 rounded-full flex items-center justify-center text-xl transition-all">
                                 <i class="fa-solid fa-rotate-right"></i>
                             </button>
-                            <button onclick="finishTimerSession()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl font-semibold text-sm shadow-lg shadow-emerald-500/30 transition-all">
+                            <button id="finish-session-btn" onclick="finishTimerSession()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl font-semibold text-sm shadow-lg shadow-emerald-500/30 transition-all">
                                 <i class="fa-solid fa-check mr-2"></i> Concluir Sessão
                             </button>
                         </div>
@@ -1052,16 +1059,20 @@
             try {
                 const arrayBuffer = await file.arrayBuffer();
                 const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                let fullText = '';
+                let rawLines = [];
 
                 for (let i = 1; i <= pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
                     const textContent = await page.getTextContent();
-                    const pageText = textContent.items.map(item => item.str).join(' ');
-                    fullText += pageText + '\n';
+                    textContent.items.forEach(item => {
+                        const str = item.str.trim();
+                        if (str.length > 0) {
+                            rawLines.push(str);
+                        }
+                    });
                 }
 
-                detectedPDFSubjects = parseEditalTextIntelligently(fullText);
+                detectedPDFSubjects = parseEditalTextIntelligently(rawLines);
 
                 statusEl.classList.add('hidden');
                 previewEl.classList.remove('hidden');
@@ -1075,25 +1086,39 @@
             }
         };
 
-        function parseEditalTextIntelligently(text) {
+        function parseEditalTextIntelligently(lines) {
             const result = [];
             const palette = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#ef4444', '#14b8a6'];
 
-            const lines = text.split(/\n|\r/).map(l => l.trim()).filter(l => l.length > 0);
-            let currentSubject = null;
-
-            const subjectKeywords = [
-                'PORTUGUES', 'CONSTITUCIONAL', 'ADMINISTRATIVO', 'PENAL', 'CIVIL', 
-                'PROCESSO', 'RACIOCINIO', 'MATEMATICA', 'INFORMATICA', 'LEGISLACAO', 
-                'DIREITO', 'CONHECIMENTOS', 'CONTABILIDADE', 'ADMINISTRACAO', 'RECURSOS'
+            const knownSubjects = [
+                'LÍNGUA PORTUGUESA',
+                'PORTUGUÊS',
+                'HISTÓRIA E ASPECTOS GEOECONÔMICOS DO RN',
+                'HISTÓRIA DO RIO GRANDE DO NORTE',
+                'ASPECTOS GEOECONÔMICOS DO RIO GRANDE DO NORTE',
+                'ÉTICA NO SERVIÇO PÚBLICO',
+                'DIREITO CONSTITUCIONAL',
+                'DIREITO ADMINISTRATIVO',
+                'DIREITOS HUMANOS',
+                'EXECUÇÃO PENAL',
+                'LEGISLAÇÃO ESPECÍFICA',
+                'DIREITO PENAL E PROCESSO PENAL',
+                'DIREITO PENAL',
+                'PROCESSO PENAL'
             ];
 
-            lines.forEach(line => {
-                const upperLine = line.toUpperCase();
-                const isHeader = (line === upperLine && line.length > 3 && line.length < 60) ||
-                                 subjectKeywords.some(kw => upperLine.includes(kw) && line.length < 70);
+            const ignoreWords = ['EDITAL', 'VERTICALIZADO', 'POLICIAL', 'ONLINE', 'CICLO', 'LEITURA', 'LEI', 'QUESTÕES', 'ACERTOS', 'TEMPO', 'REVISÃO', 'PPRN', 'CTCON'];
 
-                if (isHeader && !line.includes(';') && !line.includes('.')) {
+            let currentSubject = null;
+
+            lines.forEach(line => {
+                const upper = line.toUpperCase().trim();
+
+                if (ignoreWords.some(w => upper === w) || upper.startsWith('HTTPS://')) return;
+
+                const isSubjectMatch = knownSubjects.some(ks => upper.includes(ks));
+
+                if (isSubjectMatch) {
                     if (currentSubject && currentSubject.topics.length > 0) {
                         result.push(currentSubject);
                     }
@@ -1108,23 +1133,22 @@
                     if (!currentSubject) {
                         currentSubject = {
                             id: crypto.randomUUID(),
-                            name: 'Conhecimentos Gerais / Edital',
+                            name: 'Língua Portuguesa',
                             weight: 1,
                             color: palette[0],
                             topics: []
                         };
                     }
 
-                    const rawTopics = line.split(/;|•|-|\d+\.\d+|\d+\./).map(t => t.trim()).filter(t => t.length > 3);
-                    rawTopics.forEach(top => {
-                        if (top.length > 3 && !currentSubject.topics.some(existing => existing.title === top)) {
+                    if (line.length > 3 && !/^\d+$/.test(line) && !line.includes('Acerto (%)')) {
+                        if (!currentSubject.topics.some(existing => existing.title === line)) {
                             currentSubject.topics.push({
                                 id: crypto.randomUUID(),
-                                title: top,
+                                title: line,
                                 status: 'nao_iniciado'
                             });
                         }
-                    });
+                    }
                 }
             });
 
@@ -1959,13 +1983,26 @@
             const activeBtn = document.getElementById(`mode-${mode}-btn`);
             if (activeBtn) activeBtn.className = 'flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-white dark:bg-slate-600 shadow-sm text-slate-800 dark:text-white';
 
-            if (mode === 'pomodoro') {
-                timerTargetDuration = 25 * 60;
-            } else if (mode === 'shortBreak') {
+            const subjectContainer = document.getElementById('timer-subject-container');
+            const breakNotice = document.getElementById('break-notice');
+            const finishBtn = document.getElementById('finish-session-btn');
+
+            if (mode === 'shortBreak') {
                 timerTargetDuration = 5 * 60;
-            } else if (mode === 'stopwatch') {
-                timerTargetDuration = 0;
+                if (subjectContainer) subjectContainer.classList.add('hidden');
+                if (breakNotice) breakNotice.classList.remove('hidden');
+                if (finishBtn) finishBtn.classList.add('hidden');
+            } else {
+                if (mode === 'pomodoro') {
+                    timerTargetDuration = 25 * 60;
+                } else if (mode === 'stopwatch') {
+                    timerTargetDuration = 0;
+                }
+                if (subjectContainer) subjectContainer.classList.remove('hidden');
+                if (breakNotice) breakNotice.classList.add('hidden');
+                if (finishBtn) finishBtn.classList.remove('hidden');
             }
+
             updateTimerDisplay();
             saveTimerState();
         };
@@ -1978,7 +2015,7 @@
         }
 
         window.startTimer = function(isNewStart = true) {
-            getAudioContext(); // Desbloqueia permissão de som
+            getAudioContext();
 
             if (timerRunning && isNewStart) return;
             
@@ -2004,7 +2041,6 @@
                     if (remaining <= 0) {
                         pauseTimer();
                         
-                        // NOTA IMPORTANTE: As pausas (como a "Pausa Curta" de 5 min) NÃO gravam horas líquidas!
                         if (timerMode === 'pomodoro') {
                             playPomodoroAlarm();
                             finishTimerSession();
@@ -2022,7 +2058,6 @@
 
         window.pauseTimer = function() {
             if (timerRunning) {
-                // Congela exatamente o tempo decorrido até agora. As pausas não entram na conta!
                 timerElapsedTimeWhenPaused = getElapsedSeconds();
             }
             timerRunning = false;
@@ -2061,7 +2096,6 @@
         }
 
         window.finishTimerSession = function() {
-            // Se estiver no modo de Pausa Curta, impede que seja registado como horas de estudo
             if (timerMode === 'shortBreak') {
                 showToast("O tempo de pausa não é contabilizado nas horas líquidas de estudo.");
                 resetTimer();
