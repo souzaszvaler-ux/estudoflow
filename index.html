@@ -64,7 +64,11 @@
                 <p id="auth-subtitle" class="text-xs text-slate-500 dark:text-slate-400">Faça login para aceder aos seus dados e estudos sincronizados.</p>
             </div>
 
-            <form onsubmit="handleEmailAuth(event)" class="space-y-4">
+            <!-- Caixa para mostrar mensagens de erro no Login -->
+            <div id="auth-error-box" class="hidden p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-xs text-red-600 dark:text-red-300 font-medium text-center"></div>
+
+            <!-- Formulário de Email e Senha -->
+            <form id="auth-form" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">E-mail</label>
                     <input type="email" id="auth-email" placeholder="seu@email.com" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100" required>
@@ -84,13 +88,15 @@
                 <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
             </div>
 
-            <button onclick="loginWithGoogle()" class="w-full flex items-center justify-center space-x-3 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 py-3 rounded-xl font-semibold text-sm transition-all shadow-sm">
+            <!-- Login com Google -->
+            <button type="button" id="google-login-btn" class="w-full flex items-center justify-center space-x-3 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 py-3 rounded-xl font-semibold text-sm transition-all shadow-sm">
                 <i class="fa-brands fa-google text-red-500"></i>
                 <span>Continuar com o Google</span>
             </button>
 
+            <!-- Alternar entre Login e Criar Conta -->
             <div class="text-center pt-2">
-                <button type="button" onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                <button type="button" id="auth-toggle-btn" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
                     Não tem uma conta? Crie uma agora
                 </button>
             </div>
@@ -108,7 +114,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.4</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.5</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -152,10 +158,10 @@
                 <div class="flex items-center justify-between pt-1">
                     <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                         <span id="sync-indicator" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <span id="sync-text">Sincronizado Internamente</span>
+                        <span id="sync-text">Sincronizado</span>
                     </span>
                     <div class="flex items-center space-x-2">
-                        <button onclick="logoutUser()" title="Terminar Sessão" class="text-slate-500 dark:text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
+                        <button id="logout-btn" title="Terminar Sessão" class="text-slate-500 dark:text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
                             <i class="fa-solid fa-right-from-bracket text-sm"></i>
                         </button>
                         <button onclick="toggleTheme()" class="text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
@@ -198,24 +204,63 @@
                                 <i class="fa-solid fa-clock"></i>
                             </div>
                         </div>
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Edital Concluído</p>
+                                <h3 id="stat-edital-progress" class="text-2xl font-bold mt-1 text-slate-800 dark:text-white">0%</h3>
+                            </div>
+                            <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-list-check"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- TAB: EDITAL -->
+                <!-- TAB: EDITAL VERTICALIZADO -->
                 <div id="tab-edital" class="tab-content hidden space-y-6">
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                            <h3 class="text-lg font-bold text-slate-800 dark:text-white">Edital Verticalizado Ativo</h3>
-                            <button onclick="openModal('new-subject-modal')" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold">Nova Disciplina</button>
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Edital Verticalizado Ativo</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerencie disciplinas e tópicos.</p>
+                            </div>
+                            <div class="flex items-center space-x-3 flex-wrap gap-2">
+                                <button onclick="openModal('import-pdf-modal')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                                    <i class="fa-solid fa-file-pdf mr-1.5"></i> Importar PDF
+                                </button>
+                                <button onclick="openModal('new-subject-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                                    <i class="fa-solid fa-plus mr-1.5"></i> Nova Disciplina
+                                </button>
+                            </div>
                         </div>
                         <div id="subjects-list-container" class="space-y-4"></div>
                     </div>
                 </div>
 
-                <!-- OUTRAS TABS -->
-                <div id="tab-ciclo" class="tab-content hidden space-y-6"></div>
-                <div id="tab-timer" class="tab-content hidden space-y-6"></div>
-                <div id="tab-erros" class="tab-content hidden space-y-6"></div>
+                <!-- TAB: CICLO DE ESTUDOS -->
+                <div id="tab-ciclo" class="tab-content hidden space-y-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Ciclo de Estudos Inteligente</h3>
+                        <div id="cycle-items-container" class="space-y-4"></div>
+                    </div>
+                </div>
+
+                <!-- TAB: CRONÔMETRO -->
+                <div id="tab-timer" class="tab-content hidden space-y-6">
+                    <div class="max-w-xl mx-auto bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm text-center">
+                        <div class="my-6">
+                            <span id="timer-display" class="text-7xl font-extrabold tracking-tight text-indigo-600 dark:text-indigo-400 font-mono">25:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: CADERNO DE ERROS -->
+                <div id="tab-erros" class="tab-content hidden space-y-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Caderno de Erros</h3>
+                        <div id="errors-list-container" class="space-y-4"></div>
+                    </div>
+                </div>
                 
                 <!-- TAB: NOTAS EM PASTAS -->
                 <div id="tab-notas" class="tab-content hidden space-y-6">
@@ -340,7 +385,6 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const appId = 'estudoflow-pro-default';
         const firebaseConfig = {
             apiKey: "AIzaSyBCM2cfdMsNCLUltoly066qglhZnMRI86I", 
             authDomain: "estudoflow-fef07.firebaseapp.com",
@@ -351,7 +395,7 @@
         };
 
         let app, db, auth, userId = null;
-        let unsubscribeData = null;
+        let isSignUpMode = false;
         let currentFolderId = 'fold-1';
 
         const defaultState = {
@@ -359,13 +403,12 @@
             studyLogs: [],
             errors: [],
             folders: [{ id: 'fold-1', name: 'Geral' }],
-            notes: [],
-            minimizedSubjects: {}
+            notes: []
         };
 
         function loadStateSafely() {
             try {
-                let savedLocal = localStorage.getItem('estudoflow_local_state') || localStorage.getItem('estudoflow_backup_emergency');
+                let savedLocal = localStorage.getItem('estudoflow_local_state');
                 if (!savedLocal) return JSON.parse(JSON.stringify(defaultState));
                 const parsed = JSON.parse(savedLocal);
                 return {
@@ -384,32 +427,137 @@
         window.addEventListener('DOMContentLoaded', async () => {
             initTheme();
             renderAll();
+
             try {
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
+
                 onAuthStateChanged(auth, (user) => {
+                    const authScreen = document.getElementById('auth-screen');
                     if (user) {
                         userId = user.uid;
                         document.getElementById('user-uid-box').innerText = `ID: ${user.email || userId}`;
-                        document.getElementById('auth-screen').classList.add('hidden');
+                        authScreen.classList.add('hidden');
                         loadUserDataFromFirebase();
                     } else {
                         userId = null;
-                        document.getElementById('auth-screen').classList.remove('hidden');
+                        authScreen.classList.remove('hidden');
                     }
                 });
-            } catch (e) {}
+            } catch (e) {
+                console.error("Erro ao inicializar Firebase:", e);
+            }
+
+            // LISTENERS DE LOGIN
+            const authForm = document.getElementById('auth-form');
+            if (authForm) authForm.addEventListener('submit', handleEmailAuth);
+
+            const googleBtn = document.getElementById('google-login-btn');
+            if (googleBtn) googleBtn.addEventListener('click', loginWithGoogle);
+
+            const toggleBtn = document.getElementById('auth-toggle-btn');
+            if (toggleBtn) toggleBtn.addEventListener('click', toggleAuthMode);
+
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) logoutBtn.addEventListener('click', logoutUser);
         });
 
-        // --- FORMATADOR DE TEXTO (Criar e Editar) ---
-        window.formatNoteText = function(type) {
-            applyFormatting('nn-content', type);
-        };
+        // --- SISTEMA DE AUTENTICAÇÃO CORRIGIDO ---
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            const subtitle = document.getElementById('auth-subtitle');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const toggleBtn = document.getElementById('auth-toggle-btn');
+            const errorBox = document.getElementById('auth-error-box');
+            errorBox.classList.add('hidden');
 
-        window.formatEditNoteText = function(type) {
-            applyFormatting('edit-note-content', type);
-        };
+            if (isSignUpMode) {
+                subtitle.innerText = "Crie uma nova conta para salvar os seus estudos.";
+                submitBtn.innerText = "Registar Conta";
+                toggleBtn.innerText = "Já tem uma conta? Faça login";
+            } else {
+                subtitle.innerText = "Faça login para aceder aos seus dados e estudos sincronizados.";
+                submitBtn.innerText = "Entrar com E-mail";
+                toggleBtn.innerText = "Não tem uma conta? Crie uma agora";
+            }
+        }
+
+        async function handleEmailAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const errorBox = document.getElementById('auth-error-box');
+            errorBox.classList.add('hidden');
+
+            try {
+                if (isSignUpMode) {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+            } catch (error) {
+                errorBox.innerText = getFriendlyAuthError(error.code);
+                errorBox.classList.remove('hidden');
+            }
+        }
+
+        async function loginWithGoogle() {
+            const errorBox = document.getElementById('auth-error-box');
+            errorBox.classList.add('hidden');
+            try {
+                const provider = new GoogleAuthProvider();
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                errorBox.innerText = "Erro ao autenticar com o Google: " + error.message;
+                errorBox.classList.remove('hidden');
+            }
+        }
+
+        async function logoutUser() {
+            try {
+                await signOut(auth);
+            } catch (e) {}
+        }
+
+        function getFriendlyAuthError(code) {
+            switch (code) {
+                case 'auth/invalid-email': return 'O endereço de e-mail é inválido.';
+                case 'auth/user-not-found': return 'Nenhuma conta encontrada com este e-mail.';
+                case 'auth/wrong-password': return 'Palavra-passe incorreta.';
+                case 'auth/email-already-in-use': return 'Este e-mail já está registado.';
+                case 'auth/weak-password': return 'A palavra-passe deve ter pelo menos 6 caracteres.';
+                default: return 'Erro de autenticação. Verifique os dados introduzidos.';
+            }
+        }
+
+        async function loadUserDataFromFirebase() {
+            if (!userId) return;
+            try {
+                const docRef = doc(db, "users", userId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    state = { ...defaultState, ...docSnap.data() };
+                } else {
+                    await setDoc(docRef, state);
+                }
+                renderAll();
+            } catch (e) {}
+        }
+
+        function saveUserDataToFirebase() {
+            try {
+                localStorage.setItem('estudoflow_local_state', JSON.stringify(state));
+                if (userId && db) {
+                    setDoc(doc(db, "users", userId), state);
+                }
+            } catch (e) {}
+            renderAll();
+        }
+
+        // --- GESTÃO DE NOTAS & FORMATADOR ---
+        window.formatNoteText = function(type) { applyFormatting('nn-content', type); };
+        window.formatEditNoteText = function(type) { applyFormatting('edit-note-content', type); };
 
         function applyFormatting(elementId, type) {
             const textarea = document.getElementById(elementId);
@@ -424,11 +572,8 @@
             }
 
             let formatted = selectedText;
-            if (type === 'bold') {
-                formatted = `**${selectedText}**`;
-            } else if (type === 'highlight') {
-                formatted = `==${selectedText}==`;
-            }
+            if (type === 'bold') formatted = `**${selectedText}**`;
+            else if (type === 'highlight') formatted = `==${selectedText}==`;
 
             textarea.value = textarea.value.substring(0, start) + formatted + textarea.value.substring(end);
             textarea.focus();
@@ -437,11 +582,7 @@
 
         function parseFormattedText(text) {
             if (!text) return '';
-            let safe = text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;");
-
+            let safe = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             safe = safe.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>');
             safe = safe.replace(/==([\s\S]*?)==/g, '<mark>$1</mark>');
             return safe;
@@ -562,27 +703,6 @@
             if (nnFolder) {
                 nnFolder.innerHTML = state.folders.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
             }
-        }
-
-        function saveUserDataToFirebase() {
-            try {
-                localStorage.setItem('estudoflow_local_state', JSON.stringify(state));
-                if (userId && db) {
-                    setDoc(doc(db, 'artifacts', appId, 'users', userId, 'estudoflow_data', 'main'), { state, updatedAt: new Date().toISOString() }, { merge: true });
-                }
-            } catch (e) {}
-            renderAll();
-        }
-
-        function loadUserDataFromFirebase() {
-            if (!db || !userId) return;
-            const docRef = doc(db, 'artifacts', appId, 'users', userId, 'estudoflow_data', 'main');
-            unsubscribeData = onSnapshot(docRef, (docSnap) => {
-                if (docSnap.exists() && docSnap.data().state) {
-                    state = { ...defaultState, ...docSnap.data().state };
-                    renderAll();
-                }
-            });
         }
 
         function initTheme() {
