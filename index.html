@@ -47,8 +47,6 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
-        mark { background-color: #fef08a; color: inherit; padding: 0.1em 0.3em; border-radius: 0.25em; }
-        .dark mark { background-color: #854d0e; color: #fef08a; }
     </style>
 </head>
 <body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-200">
@@ -468,33 +466,6 @@
         </main>
     </div>
 
-    <!-- MODAL: Visualizar / Editar Nota Completa -->
-    <div id="view-note-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center shrink-0">
-                <input type="text" id="edit-note-title" class="font-bold text-lg text-slate-800 dark:text-white bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:outline-none w-full mr-4 px-1" placeholder="Título da Nota">
-                <button onclick="closeModal('view-note-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-4">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Conteúdo (Pode editar livremente)</span>
-                    <div class="flex items-center space-x-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
-                        <button type="button" onclick="formatEditNoteText('bold')" title="Negrito" class="px-2.5 py-1 rounded text-xs font-bold bg-white dark:bg-slate-600 shadow-sm text-slate-700 dark:text-slate-200 hover:bg-slate-200"><i class="fa-solid fa-bold"></i></button>
-                        <button type="button" onclick="formatEditNoteText('highlight')" title="Marca-texto (Amarelo)" class="px-2.5 py-1 rounded text-xs font-bold bg-yellow-200 text-yellow-800 hover:bg-yellow-300"><i class="fa-solid fa-highlighter"></i></button>
-                    </div>
-                </div>
-                <textarea id="edit-note-content" rows="10" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm font-medium text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none leading-relaxed"></textarea>
-                <input type="hidden" id="edit-note-id">
-            </div>
-
-            <div class="p-4 border-t border-slate-200 dark:border-slate-700 flex justify-end space-x-3 shrink-0 bg-slate-50 dark:bg-slate-850">
-                <button onclick="closeModal('view-note-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                <button onclick="saveEditedNote()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Guardar Alterações</button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL: Importar PDF Inteligente -->
     <div id="import-pdf-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
@@ -818,13 +789,7 @@
                     <input type="text" id="nn-title" placeholder="Ex: Princípios Constitucionais Expressos" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
                 <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Conteúdo</label>
-                        <div class="flex items-center space-x-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
-                            <button type="button" onclick="formatNoteText('bold')" title="Negrito" class="px-2.5 py-1 rounded text-xs font-bold bg-white dark:bg-slate-600 shadow-sm text-slate-700 dark:text-slate-200"><i class="fa-solid fa-bold"></i></button>
-                            <button type="button" onclick="formatNoteText('highlight')" title="Marca-texto" class="px-2.5 py-1 rounded text-xs font-bold bg-yellow-200 text-yellow-800"><i class="fa-solid fa-highlighter"></i></button>
-                        </div>
-                    </div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Conteúdo</label>
                     <textarea id="nn-content" rows="5" placeholder="Escreva seu resumo aqui..." class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></textarea>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
@@ -832,33 +797,6 @@
                     <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Salvar Nota</button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <!-- MODAL: Visualizar / Editar Nota Completa -->
-    <div id="view-note-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center shrink-0">
-                <input type="text" id="edit-note-title" class="font-bold text-lg text-slate-800 dark:text-white bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:outline-none w-full mr-4 px-1" placeholder="Título da Nota">
-                <button onclick="closeModal('view-note-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-4">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Conteúdo (Pode editar livremente)</span>
-                    <div class="flex items-center space-x-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
-                        <button type="button" onclick="formatEditNoteText('bold')" title="Negrito" class="px-2.5 py-1 rounded text-xs font-bold bg-white dark:bg-slate-600 shadow-sm text-slate-700 dark:text-slate-200 hover:bg-slate-200"><i class="fa-solid fa-bold"></i></button>
-                        <button type="button" onclick="formatEditNoteText('highlight')" title="Marca-texto (Amarelo)" class="px-2.5 py-1 rounded text-xs font-bold bg-yellow-200 text-yellow-800 hover:bg-yellow-300"><i class="fa-solid fa-highlighter"></i></button>
-                    </div>
-                </div>
-                <textarea id="edit-note-content" rows="10" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm font-medium text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none leading-relaxed"></textarea>
-                <input type="hidden" id="edit-note-id">
-            </div>
-
-            <div class="p-4 border-t border-slate-200 dark:border-slate-700 flex justify-end space-x-3 shrink-0 bg-slate-50 dark:bg-slate-850">
-                <button onclick="closeModal('view-note-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                <button onclick="saveEditedNote()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Guardar Alterações</button>
-            </div>
         </div>
     </div>
 
@@ -1131,6 +1069,7 @@
                     textContent.items.forEach(item => {
                         let str = item.str.trim();
                         if (str.length > 0) {
+                            // Limpar lixos comuns de colunas empilhadas no PDF
                             str = str.replace(/^(LETRA|DA LEI|QUESTÕ|ACERTO|REVISÃ|S \(\%\))+/gi, '').trim();
                             if (str.length > 2) {
                                 rawLines.push(str);
@@ -1186,6 +1125,7 @@
                     continue;
                 }
 
+                // Se houver tópicos concatenados na mesma linha por causa de colunas do PDF (ex: "Tópico A Significado de palavras"), separa por frases lógicas ou maiúsculas internas
                 if (line.length > 80 && line.includes('  ')) {
                     const subParts = line.split(/\s{2,}/);
                     subParts.forEach(part => {
@@ -1197,6 +1137,7 @@
                 if (cleanedLines.length > 0) {
                     const lastLine = cleanedLines[cleanedLines.length - 1];
                     const isKnownSub = knownSubjects.some(ks => upper.includes(ks));
+                    // Evita juntar se a linha atual já parece um tópico completo iniciando com maiúscula e tendo tamanho bom
                     if (!isKnownSub && lastLine.length < 35 && !lastLine.endsWith('.') && !/^[A-ZÀ-Ÿ]/.test(line)) {
                         cleanedLines[cleanedLines.length - 1] = lastLine + ' ' + line;
                         continue;
@@ -2246,39 +2187,6 @@
             saveUserDataToFirebase();
         };
 
-        // --- MELHORIAS NAS NOTAS (Abertura em Modal, Edição, Formatação Negrito e Marca-texto) ---
-        window.formatNoteText = function(type) { applyFormatting('nn-content', type); };
-        window.formatEditNoteText = function(type) { applyFormatting('edit-note-content', type); };
-
-        function applyFormatting(elementId, type) {
-            const textarea = document.getElementById(elementId);
-            if (!textarea) return;
-            const start = textarea.selectionStart;
-            const end = textarea.selectionEnd;
-            const selectedText = textarea.value.substring(start, end);
-
-            if (!selectedText) {
-                showToast("Selecione um texto primeiro para formatar.");
-                return;
-            }
-
-            let formatted = selectedText;
-            if (type === 'bold') formatted = `**${selectedText}**`;
-            else if (type === 'highlight') formatted = `==${selectedText}==`;
-
-            textarea.value = textarea.value.substring(0, start) + formatted + textarea.value.substring(end);
-            textarea.focus();
-            textarea.setSelectionRange(start, start + formatted.length);
-        }
-
-        function parseFormattedText(text) {
-            if (!text) return '';
-            let safe = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            safe = safe.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>');
-            safe = safe.replace(/==([\s\S]*?)==/g, '<mark>$1</mark>');
-            return safe;
-        }
-
         function renderNotesView() {
             const foldersContainer = document.getElementById('folders-list-container');
             if (!foldersContainer) return;
@@ -2296,42 +2204,17 @@
             const filteredNotes = state.notes.filter(n => n.folderId === currentFolderId);
 
             notesContainer.innerHTML = filteredNotes.length === 0 ? '<p class="text-xs text-slate-400 italic col-span-2">Nenhuma nota nesta pasta.</p>' : filteredNotes.map(n => `
-                <div onclick="openViewNoteModal('${n.id}')" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm flex flex-col justify-between cursor-pointer hover:border-indigo-500 transition-all group">
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
                     <div>
-                        <h4 class="font-bold text-base mb-2 text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">${n.title}</h4>
-                        <div class="text-xs text-slate-600 dark:text-slate-300 line-clamp-4 whitespace-pre-wrap">${parseFormattedText(n.content)}</div>
+                        <h4 class="font-bold text-base mb-2 text-slate-800 dark:text-slate-100">${n.title}</h4>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 line-clamp-4 whitespace-pre-wrap">${n.content}</p>
                     </div>
-                    <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50">
-                        <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold"><i class="fa-solid fa-pen-to-square mr-1"></i> Ver / Editar</span>
-                        <button onclick="event.stopPropagation(); deleteNote('${n.id}')" class="text-slate-400 hover:text-red-500 text-xs p-1"><i class="fa-solid fa-trash-can"></i></button>
+                    <div class="flex justify-end mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/50">
+                        <button onclick="deleteNote('${n.id}')" class="text-slate-400 hover:text-red-500 text-xs"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 </div>
             `).join('');
         }
-
-        window.openViewNoteModal = function(noteId) {
-            const note = state.notes.find(n => n.id === noteId);
-            if (!note) return;
-            document.getElementById('edit-note-id').value = note.id;
-            document.getElementById('edit-note-title').value = note.title;
-            document.getElementById('edit-note-content').value = note.content;
-            openModal('view-note-modal');
-        };
-
-        window.saveEditedNote = function() {
-            const id = document.getElementById('edit-note-id').value;
-            const newTitle = document.getElementById('edit-note-title').value.trim();
-            const newContent = document.getElementById('edit-note-content').value;
-
-            const note = state.notes.find(n => n.id === id);
-            if (note) {
-                note.title = newTitle || 'Sem Título';
-                note.content = newContent;
-                saveUserDataToFirebase();
-                closeModal('view-note-modal');
-                showToast("Nota atualizada com sucesso!");
-            }
-        };
 
         window.selectFolder = function(folderId) {
             currentFolderId = folderId;
@@ -2341,7 +2224,6 @@
         window.deleteNote = function(id) {
             state.notes = state.notes.filter(n => n.id !== id);
             saveUserDataToFirebase();
-            showToast("Nota apagada.");
         };
 
         function renderArchiveView() {
@@ -2618,4 +2500,4 @@
         }
     </script>
 </body>
-</html>
+                                                </html>
