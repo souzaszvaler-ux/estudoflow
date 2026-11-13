@@ -111,7 +111,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.6</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.7</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -136,6 +136,10 @@
                 <button onclick="switchTab('timer')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50" data-tab="timer">
                     <i class="fa-solid fa-stopwatch w-5 text-center"></i>
                     <span>Cronómetro / Pomodoro</span>
+                </button>
+                <button onclick="switchTab('questoes')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50" data-tab="questoes">
+                    <i class="fa-solid fa-bullseye w-5 text-center"></i>
+                    <span>Gestão de Questões</span>
                 </button>
                 <button onclick="switchTab('erros')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/50" data-tab="erros">
                     <i class="fa-solid fa-triangle-exclamation w-5 text-center"></i>
@@ -401,6 +405,58 @@
                     </div>
                 </div>
 
+                <!-- TAB: GESTÃO DE QUESTÕES POR TÓPICOS -->
+                <div id="tab-questoes" class="tab-content hidden space-y-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-bullseye text-indigo-600"></i> Histórico de Questões por Tópicos & Datas
+                                </h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consulte detalhadamente todas as questões realizadas por assunto, a data de resolução e a taxa de acertos.</p>
+                            </div>
+                            <button onclick="openModal('quick-study-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md">
+                                <i class="fa-solid fa-plus mr-1.5"></i> Registar Novas Questões
+                            </button>
+                        </div>
+
+                        <!-- Resumo rápido -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total de Registos</span>
+                                <h4 id="q-tab-total-regs" class="text-xl font-bold text-slate-800 dark:text-white mt-1">0</h4>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Questões Resolvidas</span>
+                                <h4 id="q-tab-total-quest" class="text-xl font-bold text-slate-800 dark:text-white mt-1">0</h4>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Acurácia Global</span>
+                                <h4 id="q-tab-global-acc" class="text-xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">0%</h4>
+                            </div>
+                        </div>
+
+                        <!-- Tabela de Questões por Tópicos -->
+                        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 dark:bg-slate-700/60 text-slate-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider">
+                                        <th class="p-3.5">Data</th>
+                                        <th class="p-3.5">Disciplina</th>
+                                        <th class="p-3.5">Tópico / Descrição</th>
+                                        <th class="p-3.5 text-center">Feitas</th>
+                                        <th class="p-3.5 text-center">Acertos</th>
+                                        <th class="p-3.5 text-center">Acurácia</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="questions-table-body" class="divide-y divide-slate-200 dark:divide-slate-700 text-sm">
+                                    <!-- Injetado dinamicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- TAB: CADERNO DE ERROS -->
                 <div id="tab-erros" class="tab-content hidden space-y-6">
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
@@ -602,12 +658,12 @@
     <div id="quick-study-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Registar Horas Líquidas Manualmente</h3>
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Registar Estudo & Questões</h3>
                 <button onclick="closeModal('quick-study-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form onsubmit="handleQuickStudySubmit(event)" class="p-6 space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Matéria Estudada</label>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Matéria / Disciplina</label>
                     <select id="qs-subject" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></select>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
@@ -623,20 +679,20 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Questões Feitas</label>
-                        <input type="number" id="qs-q-total" min="0" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        <input type="number" id="qs-q-total" min="0" value="10" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Questões Acertadas</label>
-                        <input type="number" id="qs-q-correct" min="0" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                        <input type="number" id="qs-q-correct" min="0" value="8" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Observações / Tópico</label>
-                    <input type="text" id="qs-notes" placeholder="Ex: Leitura de doutrina e resumos" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Tópico / Observações</label>
+                    <input type="text" id="qs-notes" placeholder="Ex: Atos Administrativos - Espécies" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal('quick-study-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Registar Horas</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Registar Registo</button>
                 </div>
             </form>
         </div>
@@ -649,7 +705,7 @@
                 <i class="fa-solid fa-bullseye"></i>
             </div>
             <h3 class="font-bold text-lg text-center text-slate-800 dark:text-white">Requisito Mínimo: 80% de Acurácia</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 text-center">Para marcar este tópico como <b class="text-emerald-600">Concluído</b>, informe o seu desempenho nas questões deste assunto (pelo menos 80% de acertos).</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 text-center">Para marcar este tópico como <b class="text-emerald-600">Concluído</b>, informe o seu desempenho nas questões deste assunto.</p>
             <input type="hidden" id="ta-subject-id">
             <input type="hidden" id="ta-topic-id">
             
@@ -1155,7 +1211,7 @@
             document.getElementById(`tab-${tabId}`)?.classList.remove('hidden');
             document.querySelector(`[data-tab="${tabId}"]`)?.classList.add('text-indigo-600', 'dark:text-indigo-400', 'bg-indigo-50', 'dark:bg-indigo-950/50');
             
-            const titles = { dashboard: 'Dashboard Geral', edital: 'Edital Verticalizado', ciclo: 'Ciclo Semanal', timer: 'Cronómetro', erros: 'Caderno de Erros', notas: 'Notas e Resumos', revisoes: 'Agenda de Revisões', evolucao: 'Evolução' };
+            const titles = { dashboard: 'Dashboard Geral', edital: 'Edital Verticalizado', ciclo: 'Ciclo Semanal', timer: 'Cronómetro', questoes: 'Gestão de Questões', erros: 'Caderno de Erros', notas: 'Notas e Resumos', revisoes: 'Agenda de Revisões', evolucao: 'Evolução' };
             document.getElementById('current-page-title').innerText = titles[tabId] || 'EstudoFlow';
             
             if (tabId === 'dashboard') setTimeout(() => updateCharts(), 50);
@@ -1171,6 +1227,7 @@
             renderDashboardTodayReviews();
             renderEditalView();
             renderCycleView();
+            renderQuestionsView();
             renderErrorsView();
             renderNotesView();
             renderReviewsView();
@@ -1411,7 +1468,6 @@
             const top = sub?.topics.find(t => t.id === topicId);
             if (top) {
                 top.status = 'concluido';
-                // Registo robusto de questões e horas no array studyLogs
                 state.studyLogs.push({
                     id: crypto.randomUUID(),
                     subjectId: subjectId,
@@ -1442,6 +1498,70 @@
         };
 
         function renderCycleView() {}
+
+        // --- RENDERIZAR TAB DE GESTÃO DE QUESTÕES POR TÓPICOS ---
+        function renderQuestionsView() {
+            const tbody = document.getElementById('questions-table-body');
+            const totalRegsEl = document.getElementById('q-tab-total-regs');
+            const totalQuestEl = document.getElementById('q-tab-total-quest');
+            const globalAccEl = document.getElementById('q-tab-global-acc');
+            if (!tbody) return;
+
+            const logs = state.studyLogs || [];
+            totalRegsEl.innerText = logs.length;
+
+            let totalQ = 0;
+            let totalCorrect = 0;
+
+            logs.forEach(l => {
+                totalQ += (parseInt(l.questions) || 0);
+                totalCorrect += (parseInt(l.correct) || 0);
+            });
+
+            totalQuestEl.innerText = totalQ;
+            const globalAcc = totalQ > 0 ? Math.round((totalCorrect / totalQ) * 100) : 0;
+            globalAccEl.innerText = `${globalAcc}%`;
+
+            if (logs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 italic">Nenhum registo de estudo ou questões efetuado até ao momento.</td></tr>`;
+                return;
+            }
+
+            // Ordenar por data mais recente
+            const sortedLogs = [...logs].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            tbody.innerHTML = sortedLogs.map(l => {
+                const sub = state.subjects.find(s => s.id === l.subjectId);
+                const subName = sub ? sub.name : 'Disciplina Removida';
+                const subColor = sub ? sub.color : '#6366f1';
+                
+                const qDone = parseInt(l.questions) || 0;
+                const qCorr = parseInt(l.correct) || 0;
+                const acc = qDone > 0 ? Math.round((qCorr / qDone) * 100) : 0;
+
+                // Formatar data legível
+                const dObj = new Date(l.date);
+                const dateFormatted = !isNaN(dObj.getTime()) ? `${dObj.getDate().toString().padStart(2, '0')}/${(dObj.getMonth()+1).toString().padStart(2, '0')}/${dObj.getFullYear()} às ${dObj.getHours().toString().padStart(2, '0')}:${dObj.getMinutes().toString().padStart(2, '0')}` : 'Data inválida';
+
+                return `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all">
+                        <td class="p-3.5 text-xs text-slate-500 dark:text-slate-400 font-medium">${dateFormatted}</td>
+                        <td class="p-3.5 font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${subColor}"></span>
+                            <span>${subName}</span>
+                        </td>
+                        <td class="p-3.5 text-slate-700 dark:text-slate-200 text-xs">${l.notes || 'Estudo geral do tópico'}</td>
+                        <td class="p-3.5 text-center font-bold text-slate-800 dark:text-white">${qDone}</td>
+                        <td class="p-3.5 text-center font-bold text-emerald-600">${qCorr}</td>
+                        <td class="p-3.5 text-center">
+                            <span class="text-xs font-bold px-2.5 py-1 rounded-full ${acc >= 80 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400' : (acc >= 60 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-400' : 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-400')}">
+                                ${acc}%
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
 
         window.setTimerMode = function(mode, updateUI = true) {
             timerMode = mode;
@@ -1505,7 +1625,7 @@
             if (secs < 60) return;
             const subjectId = document.getElementById('timer-subject-select').value;
             if (!subjectId) return;
-            state.studyLogs.push({ id: crypto.randomUUID(), subjectId, date: new Date().toISOString(), hours: Math.floor(secs / 3600), minutes: Math.floor((secs % 3600) / 60), questions: 0, correct: 0 });
+            state.studyLogs.push({ id: crypto.randomUUID(), subjectId, date: new Date().toISOString(), hours: Math.floor(secs / 3600), minutes: Math.floor((secs % 3600) / 60), questions: 0, correct: 0, notes: 'Sessão de Cronómetro' });
             resetTimer();
             saveUserDataToFirebase();
             showToast("Sessão guardada!");
@@ -1720,11 +1840,12 @@
                 hours: parseInt(document.getElementById('qs-hours').value) || 0,
                 minutes: parseInt(document.getElementById('qs-minutes').value) || 0,
                 questions: parseInt(document.getElementById('qs-q-total').value) || 0,
-                correct: parseInt(document.getElementById('qs-q-correct').value) || 0
+                correct: parseInt(document.getElementById('qs-q-correct').value) || 0,
+                notes: document.getElementById('qs-notes').value.trim() || 'Estudo e questões avulsas'
             });
             closeModal('quick-study-modal');
             saveUserDataToFirebase();
-            showToast("Registo guardado!");
+            showToast("Registo guardado com sucesso!");
         };
 
         window.handleNewSubjectSubmit = function(e) {
@@ -1795,7 +1916,6 @@
         function updateCharts() {
             if (!hoursChartInstance || !subjectsChartInstance) return;
             
-            // Gerar rótulos com os últimos 7 dias e respetivas datas reais (DD/MM)
             const labels = [];
             const dataHours = [0, 0, 0, 0, 0, 0, 0];
             const dateKeys = [];
