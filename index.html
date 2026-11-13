@@ -400,7 +400,7 @@
                                 <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                                     <i class="fa-solid fa-bullseye text-indigo-600"></i> Histórico de Questões por Tópicos & Datas
                                 </h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consulte detalhadamente todas as questões realizadas por assunto, a data de resolução e a taxa de acertos.</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consulte detalhadamente todas as questões realizadas por assunto, a data de resolução e a taxa de acertos. Pode excluir registos incorretos.</p>
                             </div>
                             <button onclick="openModal('quick-study-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md">
                                 <i class="fa-solid fa-plus mr-1.5"></i> Registar Novas Questões
@@ -434,6 +434,7 @@
                                         <th class="p-3.5 text-center">Feitas</th>
                                         <th class="p-3.5 text-center">Acertos</th>
                                         <th class="p-3.5 text-center">Acurácia</th>
+                                        <th class="p-3.5 text-center">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody id="questions-table-body" class="divide-y divide-slate-200 dark:divide-slate-700 text-sm">
@@ -1436,7 +1437,6 @@
             }
         };
 
-        // --- CORREÇÃO: CONTABILIZAÇÃO COMPLETA AO CONCLUIR TÓPICO ---
         window.verifyAndCompleteTopic = function() {
             const subjectId = document.getElementById('ta-subject-id').value;
             const topicId = document.getElementById('ta-topic-id').value;
@@ -1453,7 +1453,6 @@
             const top = sub?.topics.find(t => t.id === topicId);
             if (top) {
                 top.status = 'concluido';
-                // Registo guardado com sucesso para somar nas horas e questões
                 state.studyLogs.push({
                     id: crypto.randomUUID(),
                     subjectId: subjectId,
@@ -1485,7 +1484,7 @@
 
         function renderCycleView() {}
 
-        // --- RENDERIZAR TAB DE GESTÃO DE QUESTÕES POR TÓPICOS ---
+        // --- RENDERIZAR TAB DE GESTÃO DE QUESTÕES COM OPÇÃO DE EXCLUIR ---
         function renderQuestionsView() {
             const tbody = document.getElementById('questions-table-body');
             const totalRegsEl = document.getElementById('q-tab-total-regs');
@@ -1509,7 +1508,7 @@
             globalAccEl.innerText = `${globalAcc}%`;
 
             if (logs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 italic">Nenhum registo de estudo ou questões efetuado até ao momento.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 italic">Nenhum registo de estudo ou questões efetuado até ao momento.</td></tr>`;
                 return;
             }
 
@@ -1542,10 +1541,23 @@
                                 ${acc}%
                             </span>
                         </td>
+                        <td class="p-3.5 text-center">
+                            <button onclick="deleteStudyLog('${l.id}')" title="Excluir Registo" class="text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg bg-slate-100 dark:bg-slate-700/50">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            </button>
+                        </td>
                     </tr>
                 `;
             }).join('');
         }
+
+        window.deleteStudyLog = function(logId) {
+            if (confirm("Tem certeza que deseja excluir este registo de questões/estudo?")) {
+                state.studyLogs = (state.studyLogs || []).filter(l => l.id !== logId);
+                saveUserDataToFirebase();
+                showToast("Registo de questões excluído!");
+            }
+        };
 
         window.setTimerMode = function(mode, updateUI = true) {
             timerMode = mode;
