@@ -240,7 +240,7 @@
                             <div>
                                 <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Questões Resolvidas</p>
                                 <h3 id="stat-total-questions" class="text-2xl font-bold mt-1 text-slate-800 dark:text-white">0</h3>
-                                <span class="text-xs text-sky-600 dark:text-sky-400 font-medium mt-1 inline-block" id="stat-questions-accuracy">Acurácia: 0%</span>
+                                <span class="text-xs text-sky-600 dark:text-sky-400 font-medium mt-1 inline-block" id="stat-questions-accuracy">Aproveitamento: 0%</span>
                             </div>
                             <div class="w-12 h-12 bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 rounded-xl flex items-center justify-center text-xl">
                                 <i class="fa-solid fa-bullseye"></i>
@@ -400,7 +400,7 @@
                                 <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                                     <i class="fa-solid fa-bullseye text-indigo-600"></i> Histórico de Questões por Tópicos & Datas
                                 </h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consulte detalhadamente todas as questões realizadas por assunto, a data de resolução e a taxa de acertos. Pode excluir registos incorretos.</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consulte detalhadamente todas as questões realizadas por assunto, a data de resolução e a taxa de aproveitamento. Pode excluir registos incorretos.</p>
                             </div>
                             <button onclick="openModal('quick-study-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md">
                                 <i class="fa-solid fa-plus mr-1.5"></i> Registar Novas Questões
@@ -418,7 +418,7 @@
                                 <h4 id="q-tab-total-quest" class="text-xl font-bold text-slate-800 dark:text-white mt-1">0</h4>
                             </div>
                             <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Acurácia Global</span>
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Aproveitamento Global</span>
                                 <h4 id="q-tab-global-acc" class="text-xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">0%</h4>
                             </div>
                         </div>
@@ -433,7 +433,7 @@
                                         <th class="p-3.5">Tópico / Descrição</th>
                                         <th class="p-3.5 text-center">Feitas</th>
                                         <th class="p-3.5 text-center">Acertos</th>
-                                        <th class="p-3.5 text-center">Acurácia</th>
+                                        <th class="p-3.5 text-center">Aproveitamento</th>
                                         <th class="p-3.5 text-center">Ações</th>
                                     </tr>
                                 </thead>
@@ -451,15 +451,31 @@
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                             <div>
                                 <h3 class="text-lg font-bold text-slate-800 dark:text-white">Caderno de Erros & Questões</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Revise o que errou em simulados e questões de concursos.</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Organize seus erros em pastas personalizadas, edite e revise o que errou em simulados e concursos.</p>
                             </div>
-                            <button onclick="openModal('new-error-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
-                                <i class="fa-solid fa-plus mr-1.5"></i> Novo Registo de Erro
-                            </button>
+                            <div class="flex items-center space-x-3">
+                                <button onclick="openModal('new-error-folder-modal')" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                                    <i class="fa-solid fa-folder-plus mr-1.5"></i> Nova Pasta
+                                </button>
+                                <button onclick="openModal('new-error-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                                    <i class="fa-solid fa-plus mr-1.5"></i> Novo Registo de Erro
+                                </button>
+                            </div>
                         </div>
 
-                        <div id="errors-list-container" class="space-y-4">
-                            <!-- Injetado dinamicamente -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div class="space-y-2">
+                                <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Pastas de Erros</h4>
+                                <div id="error-folders-list-container" class="space-y-1">
+                                    <!-- Injetado dinamicamente -->
+                                </div>
+                            </div>
+                            <div class="md:col-span-3 space-y-4">
+                                <h4 id="current-error-folder-title" class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Erros da Pasta</h4>
+                                <div id="errors-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <!-- Injetado dinamicamente -->
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -505,7 +521,7 @@
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
                                 <h3 class="text-lg font-bold text-slate-800 dark:text-white">Agenda de Revisões (Repetição Espaçada)</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Acompanhe as revisões agendadas das suas notas e tópicos do edital.</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Acompanhe as revisões agendadas das suas notas, erros e tópicos do edital.</p>
                             </div>
                         </div>
                         <div id="reviews-list-container" class="space-y-3">
@@ -577,6 +593,50 @@
                 <div class="flex space-x-3">
                     <button type="button" onclick="closeModal('view-note-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
                     <button type="button" onclick="saveEditedNote()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Guardar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Visualizar / Editar Erro Completo -->
+    <div id="view-error-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center shrink-0">
+                <input type="text" id="edit-error-topic" class="font-bold text-lg text-slate-800 dark:text-white bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:outline-none w-full mr-4 px-1" placeholder="Tópico / Questão">
+                <button onclick="closeModal('view-error-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Motivo do Erro</label>
+                    <input type="text" id="edit-error-reason" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm font-medium text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Ex: Pegadinha da banca / Falta de atenção">
+                </div>
+
+                <div class="flex items-center justify-between flex-wrap gap-3">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Comentários & Justificativa Correta</span>
+                    <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
+                            <button type="button" onclick="formatEditErrorText('bold')" title="Negrito" class="px-2.5 py-1 rounded text-xs font-bold bg-white dark:bg-slate-600 shadow-sm text-slate-700 dark:text-slate-200 hover:bg-slate-200"><i class="fa-solid fa-bold"></i></button>
+                            <button type="button" onclick="formatEditErrorText('highlight')" title="Marca-texto (Amarelo)" class="px-2.5 py-1 rounded text-xs font-bold bg-yellow-200 text-yellow-800 hover:bg-yellow-300"><i class="fa-solid fa-highlighter"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="edit-error-comment" rows="6" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm font-medium text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none leading-relaxed"></textarea>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Próxima Data de Revisão</label>
+                    <input type="date" id="edit-error-review-date" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <input type="hidden" id="edit-error-id">
+            </div>
+
+            <div class="p-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center shrink-0 bg-slate-50 dark:bg-slate-850">
+                <button type="button" onclick="deleteErrorFromModal()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/60 dark:text-red-400 transition-all">
+                    <i class="fa-solid fa-trash-can mr-1.5"></i> Apagar Erro
+                </button>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="closeModal('view-error-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                    <button type="button" onclick="saveEditedError()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Guardar Alterações</button>
                 </div>
             </div>
         </div>
@@ -692,7 +752,7 @@
             <div class="w-14 h-14 bg-amber-50 dark:bg-amber-950/50 text-amber-600 rounded-full flex items-center justify-center text-2xl mx-auto">
                 <i class="fa-solid fa-bullseye"></i>
             </div>
-            <h3 class="font-bold text-lg text-center text-slate-800 dark:text-white">Requisito Mínimo: 80% de Acurácia</h3>
+            <h3 class="font-bold text-lg text-center text-slate-800 dark:text-white">Requisito Mínimo: 80% de Aproveitamento</h3>
             <p class="text-xs text-slate-500 dark:text-slate-400 text-center">Para marcar este tópico como <b class="text-emerald-600">Concluído</b>, informe o seu desempenho nas questões deste assunto.</p>
             <input type="hidden" id="ta-subject-id">
             <input type="hidden" id="ta-topic-id">
@@ -778,7 +838,7 @@
         </div>
     </div>
 
-    <!-- MODAL: New Folder -->
+    <!-- MODAL: New Folder (Notas) -->
     <div id="new-folder-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
@@ -792,6 +852,26 @@
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal('new-folder-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Criar Pasta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: New Error Folder (Caderno de Erros) -->
+    <div id="new-error-folder-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Nova Pasta de Erros</h3>
+                <button onclick="closeModal('new-error-folder-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleNewErrorFolderSubmit(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Nome da Pasta</label>
+                    <input type="text" id="nefo-name" placeholder="Ex: Erros de Raciocínio Lógico" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('new-error-folder-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
                     <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Criar Pasta</button>
                 </div>
             </form>
@@ -831,6 +911,48 @@
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal('new-note-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
                     <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Salvar Nota</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: New Error -->
+    <div id="new-error-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Novo Registo de Erro</h3>
+                <button onclick="closeModal('new-error-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleNewErrorSubmit(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Pasta</label>
+                    <select id="ne-folder" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Tópico / Questão</label>
+                    <input type="text" id="ne-topic" placeholder="Ex: Atos Administrativos - Anulação e Revogação" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Motivo do Erro</label>
+                    <input type="text" id="ne-reason" placeholder="Ex: Confundi conceitos de anulação e revogação" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Comentários & Justificativa Correta</label>
+                        <div class="flex items-center space-x-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
+                            <button type="button" onclick="formatErrorText('bold')" title="Negrito" class="px-2.5 py-1 rounded text-xs font-bold bg-white dark:bg-slate-600 shadow-sm text-slate-700 dark:text-slate-200"><i class="fa-solid fa-bold"></i></button>
+                            <button type="button" onclick="formatErrorText('highlight')" title="Marca-texto" class="px-2.5 py-1 rounded text-xs font-bold bg-yellow-200 text-yellow-800"><i class="fa-solid fa-highlighter"></i></button>
+                        </div>
+                    </div>
+                    <textarea id="ne-comment" rows="4" placeholder="Explique a resposta correta e por que errou..." class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Agendar Revisão (Opcional)</label>
+                    <input type="date" id="ne-review-date" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('new-error-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Salvar Erro</button>
                 </div>
             </form>
         </div>
@@ -934,6 +1056,9 @@
         const defaultState = {
             subjects: [],
             studyLogs: [],
+            errorFolders: [
+                { id: 'efold-1', name: 'Geral' }
+            ],
             errors: [],
             folders: [
                 { id: 'fold-1', name: 'Geral' }
@@ -963,6 +1088,8 @@
                     ...defaultState,
                     ...parsed,
                     notes: Array.isArray(parsed.notes) ? parsed.notes : defaultState.notes,
+                    errors: Array.isArray(parsed.errors) ? parsed.errors : defaultState.errors,
+                    errorFolders: Array.isArray(parsed.errorFolders) ? parsed.errorFolders : defaultState.errorFolders,
                     studyLogs: Array.isArray(parsed.studyLogs) ? parsed.studyLogs : defaultState.studyLogs
                 };
             } catch (e) {
@@ -974,6 +1101,7 @@
         let hoursChartInstance = null;
         let subjectsChartInstance = null;
         let currentFolderId = 'fold-1';
+        let currentErrorFolderId = 'efold-1';
 
         let timerInterval = null;
         let timerMode = 'pomodoro'; 
@@ -1229,7 +1357,10 @@
                 if (el) el.innerHTML = state.subjects.length === 0 ? '<option value="">Nenhuma disciplina</option>' : state.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
             });
             const nnFolder = document.getElementById('nn-folder');
-            if (nnFolder) nnFolder.innerHTML = state.folders.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
+            if (nnFolder) nnFolder.innerHTML = (state.folders || []).map(f => `<option value="${f.id}">${f.name}</option>`).join('');
+
+            const neFolder = document.getElementById('ne-folder');
+            if (neFolder) neFolder.innerHTML = (state.errorFolders || []).map(f => `<option value="${f.id}">${f.name}</option>`).join('');
         }
 
         function renderDashboardStats() {
@@ -1247,10 +1378,11 @@
             document.getElementById('stat-edital-count').innerText = `${doneTopics} de ${totalTopics} tópicos`;
             
             document.getElementById('stat-total-questions').innerText = totalQ;
-            document.getElementById('stat-questions-accuracy').innerText = `Acurácia: ${totalQ > 0 ? Math.round((correctQ / totalQ) * 100) : 0}%`;
+            document.getElementById('stat-questions-accuracy').innerText = `Aproveitamento: ${totalQ > 0 ? Math.round((correctQ / totalQ) * 100) : 0}%`;
 
             const todayStr = new Date().toISOString().split('T')[0];
             let pendingRevCount = (state.notes || []).filter(n => n.reviewDate && n.reviewDate <= todayStr).length;
+            pendingRevCount += (state.errors || []).filter(e => e.reviewDate && e.reviewDate <= todayStr).length;
             state.subjects.forEach(s => {
                 s.topics.forEach(t => {
                     if (t.reviewDate && t.reviewDate <= todayStr) pendingRevCount++;
@@ -1270,7 +1402,13 @@
 
             (state.notes || []).forEach(n => {
                 if (n.reviewDate && n.reviewDate <= todayStr) {
-                    todayItems.push({ id: n.id, type: 'note', title: n.title, desc: n.content, reviewDate: n.reviewDate });
+                    todayItems.push({ id: n.id, type: 'note', title: `[Nota] ${n.title}`, desc: n.content, reviewDate: n.reviewDate });
+                }
+            });
+
+            (state.errors || []).forEach(e => {
+                if (e.reviewDate && e.reviewDate <= todayStr) {
+                    todayItems.push({ id: e.id, type: 'error', title: `[Erro] ${e.topic}`, desc: e.comment, reviewDate: e.reviewDate });
                 }
             });
 
@@ -1309,6 +1447,9 @@
             if (type === 'note') {
                 const note = state.notes.find(n => n.id === id);
                 if (note) note.reviewDate = null;
+            } else if (type === 'error') {
+                const err = state.errors.find(e => e.id === id);
+                if (err) err.reviewDate = null;
             } else if (type === 'edital') {
                 const sub = state.subjects.find(s => s.id === subjectId);
                 const top = sub?.topics.find(t => t.id === topicId);
@@ -1446,7 +1587,7 @@
             const studyMinutes = parseInt(document.getElementById('ta-minutes').value) || 0;
             
             if (totalQ > 0 && (correctQ / totalQ) < 0.8) {
-                alert("Acurácia inferior a 80%. Resolva mais questões para atingir o requisito mínimo.");
+                alert("Aproveitamento inferior a 80%. Resolva mais questões para atingir o requisito mínimo.");
                 return;
             }
             const sub = state.subjects.find(s => s.id === subjectId);
@@ -1484,7 +1625,6 @@
 
         function renderCycleView() {}
 
-        // --- RENDERIZAR TAB DE GESTÃO DE QUESTÕES COM OPÇÃO DE EXCLUIR ---
         function renderQuestionsView() {
             const tbody = document.getElementById('questions-table-body');
             const totalRegsEl = document.getElementById('q-tab-total-regs');
@@ -1627,20 +1767,89 @@
             showToast("Sessão guardada!");
         };
 
+        // --- RENDERIZAR CADERNO DE ERROS (EDITÁVEL E COM PASTAS) ---
         function renderErrorsView() {
-            const container = document.getElementById('errors-list-container');
-            if (!container) return;
-            container.innerHTML = state.errors.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhum erro.</p>' : state.errors.map(err => `
-                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <h4 class="font-bold text-sm">${err.topic}</h4>
-                    <p class="text-xs text-red-500">${err.reason}</p>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">${err.comment}</p>
+            const foldersContainer = document.getElementById('error-folders-list-container');
+            if (!foldersContainer) return;
+
+            foldersContainer.innerHTML = (state.errorFolders || []).map(f => `
+                <button onclick="selectErrorFolder('${f.id}')" class="w-full text-left px-4 py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-between ${currentErrorFolderId === f.id ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 font-bold' : 'text-slate-600 dark:text-slate-400'}">
+                    <span><i class="fa-solid fa-folder mr-2"></i> ${f.name}</span>
+                </button>
+            `).join('');
+
+            const errorsContainer = document.getElementById('errors-list-container');
+            const filteredErrors = (state.errors || []).filter(e => e.folderId === currentErrorFolderId);
+
+            errorsContainer.innerHTML = filteredErrors.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhum registo de erro nesta pasta.</p>' : filteredErrors.map(err => `
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm flex flex-col justify-between hover:border-indigo-500 transition-all">
+                    <div onclick="openViewErrorModal('${err.id}')" class="cursor-pointer flex-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-bold text-base text-slate-800 dark:text-white">${err.topic}</h4>
+                        </div>
+                        <p class="text-xs text-red-500 dark:text-red-400 font-semibold mb-2"><i class="fa-solid fa-circle-exclamation mr-1"></i> ${err.reason}</p>
+                        <div class="text-xs text-slate-600 dark:text-slate-300 line-clamp-3">${parseFormattedText(err.comment)}</div>
+                    </div>
+                    <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-100 dark:border-slate-700">
+                        <span onclick="openViewErrorModal('${err.id}')" class="text-[10px] text-indigo-600 cursor-pointer font-semibold"><i class="fa-solid fa-pen-to-square mr-1"></i> Ver / Editar</span>
+                        <div class="flex items-center space-x-2">
+                            ${err.reviewDate ? `<span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold"><i class="fa-solid fa-calendar mr-1"></i>${err.reviewDate}</span>` : ''}
+                            <button onclick="deleteError('${err.id}')" title="Apagar Erro" class="text-slate-400 hover:text-red-500 transition-colors p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                        </div>
+                    </div>
                 </div>
             `).join('');
         }
 
+        window.selectErrorFolder = function(id) { currentErrorFolderId = id; renderErrorsView(); };
+
+        window.openViewErrorModal = function(errorId) {
+            const err = state.errors.find(e => e.id === errorId);
+            if (!err) return;
+            document.getElementById('edit-error-id').value = err.id;
+            document.getElementById('edit-error-topic').value = err.topic;
+            document.getElementById('edit-error-reason').value = err.reason;
+            document.getElementById('edit-error-comment').value = err.comment;
+            document.getElementById('edit-error-review-date').value = err.reviewDate || '';
+            openModal('view-error-modal');
+        };
+
+        window.saveEditedError = function() {
+            const id = document.getElementById('edit-error-id').value;
+            const err = state.errors.find(e => e.id === id);
+            if (err) {
+                err.topic = document.getElementById('edit-error-topic').value.trim() || 'Sem Tópico';
+                err.reason = document.getElementById('edit-error-reason').value;
+                err.comment = document.getElementById('edit-error-comment').value;
+                err.reviewDate = document.getElementById('edit-error-review-date').value;
+                saveUserDataToFirebase();
+                closeModal('view-error-modal');
+                showToast("Registo de erro atualizado com sucesso!");
+            }
+        };
+
+        window.deleteError = function(errorId) {
+            if (confirm("Tem certeza que deseja apagar este registo de erro?")) {
+                state.errors = state.errors.filter(e => e.id !== errorId);
+                saveUserDataToFirebase();
+                showToast("Erro apagado com sucesso!");
+            }
+        };
+
+        window.deleteErrorFromModal = function() {
+            const id = document.getElementById('edit-error-id').value;
+            if (id && confirm("Tem certeza que deseja apagar este registo de erro?")) {
+                state.errors = state.errors.filter(e => e.id !== id);
+                closeModal('view-error-modal');
+                saveUserDataToFirebase();
+                showToast("Erro apagado com sucesso!");
+            }
+        };
+
         window.formatNoteText = function(type) { applyFormatting('nn-content', type); };
         window.formatEditNoteText = function(type) { applyFormatting('edit-note-content', type); };
+        window.formatErrorText = function(type) { applyFormatting('ne-comment', type); };
+        window.formatEditErrorText = function(type) { applyFormatting('edit-error-comment', type); };
 
         function applyFormatting(elementId, type) {
             const textarea = document.getElementById(elementId);
@@ -1667,14 +1876,14 @@
             const foldersContainer = document.getElementById('folders-list-container');
             if (!foldersContainer) return;
 
-            foldersContainer.innerHTML = state.folders.map(f => `
+            foldersContainer.innerHTML = (state.folders || []).map(f => `
                 <button onclick="selectFolder('${f.id}')" class="w-full text-left px-4 py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-between ${currentFolderId === f.id ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 font-bold' : 'text-slate-600 dark:text-slate-400'}">
                     <span><i class="fa-solid fa-folder mr-2"></i> ${f.name}</span>
                 </button>
             `).join('');
 
             const notesContainer = document.getElementById('notes-list-container');
-            const filteredNotes = state.notes.filter(n => n.folderId === currentFolderId);
+            const filteredNotes = (state.notes || []).filter(n => n.folderId === currentFolderId);
 
             notesContainer.innerHTML = filteredNotes.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhuma nota nesta pasta.</p>' : filteredNotes.map(n => `
                 <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm flex flex-col justify-between hover:border-indigo-500 transition-all">
@@ -1745,7 +1954,13 @@
 
             (state.notes || []).forEach(n => {
                 if (n.reviewDate) {
-                    allReviews.push({ id: n.id, type: 'note', title: n.title, desc: n.content, reviewDate: n.reviewDate });
+                    allReviews.push({ id: n.id, type: 'note', title: `[Nota] ${n.title}`, desc: n.content, reviewDate: n.reviewDate });
+                }
+            });
+
+            (state.errors || []).forEach(e => {
+                if (e.reviewDate) {
+                    allReviews.push({ id: e.id, type: 'error', title: `[Erro] ${e.topic}`, desc: e.comment, reviewDate: e.reviewDate });
                 }
             });
 
@@ -1802,6 +2017,13 @@
                     const currDate = new Date(note.reviewDate || Date.now());
                     currDate.setDate(currDate.getDate() + 3);
                     note.reviewDate = currDate.toISOString().split('T')[0];
+                }
+            } else if (type === 'error') {
+                const err = state.errors.find(e => e.id === id);
+                if (err) {
+                    const currDate = new Date(err.reviewDate || Date.now());
+                    currDate.setDate(currDate.getDate() + 3);
+                    err.reviewDate = currDate.toISOString().split('T')[0];
                 }
             } else if (type === 'edital') {
                 const sub = state.subjects.find(s => s.id === subjectId);
@@ -1866,9 +2088,19 @@
 
         window.handleNewFolderSubmit = function(e) {
             e.preventDefault();
+            if (!state.folders) state.folders = [];
             state.folders.push({ id: crypto.randomUUID(), name: document.getElementById('nfo-name').value });
             closeModal('new-folder-modal');
             saveUserDataToFirebase();
+        };
+
+        window.handleNewErrorFolderSubmit = function(e) {
+            e.preventDefault();
+            if (!state.errorFolders) state.errorFolders = [];
+            state.errorFolders.push({ id: crypto.randomUUID(), name: document.getElementById('nefo-name').value });
+            closeModal('new-error-folder-modal');
+            saveUserDataToFirebase();
+            showToast("Pasta de erros criada!");
         };
 
         window.handleNewNoteSubmit = function(e) {
@@ -1886,6 +2118,26 @@
             document.getElementById('nn-content').value = '';
             saveUserDataToFirebase();
             showToast("Nota criada com sucesso!");
+        };
+
+        window.handleNewErrorSubmit = function(e) {
+            e.preventDefault();
+            if (!state.errors) state.errors = [];
+            state.errors.push({
+                id: crypto.randomUUID(),
+                folderId: document.getElementById('ne-folder').value,
+                topic: document.getElementById('ne-topic').value,
+                reason: document.getElementById('ne-reason').value,
+                comment: document.getElementById('ne-comment').value,
+                reviewDate: document.getElementById('ne-review-date').value || null,
+                date: new Date().toISOString()
+            });
+            closeModal('new-error-modal');
+            document.getElementById('ne-topic').value = '';
+            document.getElementById('ne-reason').value = '';
+            document.getElementById('ne-comment').value = '';
+            saveUserDataToFirebase();
+            showToast("Registo de erro criado com sucesso!");
         };
 
         window.confirmResetEdital = function() {
@@ -1964,7 +2216,7 @@
             } else {
                 document.documentElement.classList.add('dark');
                 localStorage.theme = 'dark';
-                document.getElementById('theme-icon').className = 'fa-solid fa-sun text-sm';
+                document.getElementById('theme-icon').className = 'fa-solid fa-sun text-sun text-sm';
             }
         };
 
