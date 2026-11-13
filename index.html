@@ -110,7 +110,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v7.0</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.9</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -160,15 +160,19 @@
 
             <!-- User Sync Status & Footer -->
             <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-850 space-y-3">
-                <button onclick="recoverPreviousData()" class="w-full flex items-center justify-center space-x-2 bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition-all">
-                    <i class="fa-solid fa-database"></i>
-                    <span>Recuperar Dados Anteriores</span>
+                <button id="install-pwa-btn" onclick="installAppPrompt()" class="w-full hidden items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2.5 rounded-xl text-xs font-semibold shadow-md transition-all">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Instalar Aplicação</span>
+                </button>
+                <button onclick="requestNotificationPermission()" class="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-semibold shadow-md transition-all">
+                    <i class="fa-solid fa-bell"></i>
+                    <span>Ativar Lembretes Diários</span>
                 </button>
 
                 <div class="flex items-center justify-between pt-1">
                     <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                         <span id="sync-indicator" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <span id="sync-text">Sincronizado</span>
+                        <span id="sync-text">Sincronizado Internamente</span>
                     </span>
                     <div class="flex items-center space-x-2">
                         <button onclick="logoutUser()" title="Terminar Sessão" class="text-slate-500 dark:text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
@@ -215,8 +219,9 @@
                             <div>
                                 <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Horas Líquidas</p>
                                 <h3 id="stat-total-hours" class="text-2xl font-bold mt-1 text-slate-800 dark:text-white">0h 00m</h3>
+                                <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-1 inline-block"><i class="fa-solid fa-arrow-trend-up"></i> Apenas registos válidos</span>
                             </div>
-                            <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 rounded-xl flex items-center justify-center text-xl">
+                            <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center text-xl">
                                 <i class="fa-solid fa-clock"></i>
                             </div>
                         </div>
@@ -224,9 +229,9 @@
                             <div>
                                 <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Edital Concluído</p>
                                 <h3 id="stat-edital-progress" class="text-2xl font-bold mt-1 text-slate-800 dark:text-white">0%</h3>
-                                <span class="text-xs text-indigo-600 font-medium mt-1 inline-block" id="stat-edital-count">0 de 0 tópicos</span>
+                                <span class="text-xs text-indigo-600 dark:text-indigo-400 font-medium mt-1 inline-block" id="stat-edital-count">0 de 0 tópicos</span>
                             </div>
-                            <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                            <div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center text-xl">
                                 <i class="fa-solid fa-list-check"></i>
                             </div>
                         </div>
@@ -234,9 +239,9 @@
                             <div>
                                 <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Questões Resolvidas</p>
                                 <h3 id="stat-total-questions" class="text-2xl font-bold mt-1 text-slate-800 dark:text-white">0</h3>
-                                <span class="text-xs text-sky-600 font-medium mt-1 inline-block" id="stat-questions-accuracy">Acurácia: 0%</span>
+                                <span class="text-xs text-sky-600 dark:text-sky-400 font-medium mt-1 inline-block" id="stat-questions-accuracy">Acurácia: 0%</span>
                             </div>
-                            <div class="w-12 h-12 bg-sky-50 dark:bg-sky-950/50 text-sky-600 rounded-xl flex items-center justify-center text-xl">
+                            <div class="w-12 h-12 bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 rounded-xl flex items-center justify-center text-xl">
                                 <i class="fa-solid fa-bullseye"></i>
                             </div>
                         </div>
@@ -244,16 +249,33 @@
                             <div>
                                 <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Revisões Pendentes</p>
                                 <h3 id="stat-pending-reviews" class="text-2xl font-bold mt-1 text-slate-800 dark:text-white">0</h3>
+                                <span class="text-xs text-amber-600 dark:text-amber-400 font-medium mt-1 inline-block">Repetição Espaçada</span>
                             </div>
-                            <div class="w-12 h-12 bg-amber-50 dark:bg-amber-950/50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
+                            <div class="w-12 h-12 bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 rounded-xl flex items-center justify-center text-xl">
                                 <i class="fa-solid fa-calendar-days"></i>
                             </div>
                         </div>
                     </div>
 
+                    <!-- CAIXA DE REVISÕES DO DIA NO DASHBOARD -->
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-base text-slate-800 dark:text-white flex items-center gap-2">
+                                <i class="fa-solid fa-calendar-check text-amber-500"></i> Revisões Agendadas para Hoje
+                            </h3>
+                            <span id="dashboard-today-count" class="text-xs font-semibold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full">0 pendentes</span>
+                        </div>
+                        <div id="dashboard-today-reviews-container" class="space-y-3">
+                            <!-- Injetado dinamicamente -->
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
-                            <h3 class="font-bold text-base mb-4 text-slate-800 dark:text-white">Evolução de Horas Líquidas (por Data)</h3>
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-base text-slate-800 dark:text-white">Evolução de Horas Líquidas (por Data)</h3>
+                                <span class="text-xs text-slate-400">Últimos 7 dias</span>
+                            </div>
                             <div class="flex-1 relative min-h-[250px]">
                                 <canvas id="hoursChart"></canvas>
                             </div>
@@ -271,24 +293,92 @@
                 <div id="tab-edital" class="tab-content hidden space-y-6">
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                            <h3 class="text-lg font-bold text-slate-800 dark:text-white">Edital Verticalizado Ativo</h3>
-                            <button onclick="openModal('new-subject-modal')" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold">Nova Disciplina</button>
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Edital Verticalizado Ativo</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerencie disciplinas, tópicos, pesos e minimize os assuntos conforme necessário.</p>
+                            </div>
+                            <div class="flex items-center space-x-3 flex-wrap gap-2">
+                                <button onclick="openModal('import-pdf-modal')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md shadow-emerald-500/20">
+                                    <i class="fa-solid fa-file-pdf mr-1.5"></i> Importar PDF
+                                </button>
+                                <button onclick="openModal('new-subject-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                                    <i class="fa-solid fa-plus mr-1.5"></i> Nova Disciplina
+                                </button>
+                                <button onclick="openResetEditalModal()" class="bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/60 dark:text-red-400 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                                    <i class="fa-solid fa-rotate-right mr-1.5"></i> Zerar Edital
+                                </button>
+                                <button onclick="openArchiveEditalModal()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 dark:text-emerald-400 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                                    <i class="fa-solid fa-box-archive mr-1.5"></i> Arquivar Concluído
+                                </button>
+                            </div>
                         </div>
-                        <div id="subjects-list-container" class="space-y-4"></div>
+
+                        <div class="mb-6 bg-slate-100 dark:bg-slate-700/50 p-4 rounded-xl">
+                            <div class="flex justify-between text-sm font-semibold mb-2 text-slate-700 dark:text-slate-200">
+                                <span id="edital-progress-text">Progresso Geral: 0%</span>
+                                <span id="edital-topics-count">0 / 0 tópicos concluídos</span>
+                            </div>
+                            <div class="w-full bg-slate-200 dark:bg-slate-600 h-3 rounded-full overflow-hidden">
+                                <div id="edital-progress-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div id="subjects-list-container" class="space-y-4">
+                            <!-- Injetado dinamicamente -->
+                        </div>
                     </div>
                 </div>
 
                 <!-- TAB: CICLO DE ESTUDOS -->
                 <div id="tab-ciclo" class="tab-content hidden space-y-6">
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos</h3>
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Inteligente</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerado por Inteligência de Pesos.</p>
+                            </div>
+                        </div>
+                        <div id="cycle-items-container" class="space-y-4">
+                            <!-- Preenchido dinamicamente -->
+                        </div>
                     </div>
                 </div>
 
-                <!-- TAB: CRONÔMETRO -->
+                <!-- TAB: CRONÔMETRO / POMODORO -->
                 <div id="tab-timer" class="tab-content hidden space-y-6">
                     <div class="max-w-xl mx-auto bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm text-center">
-                        <span id="timer-display" class="text-7xl font-extrabold tracking-tight text-indigo-600 font-mono">25:00</span>
+                        <div class="flex justify-center space-x-2 mb-6 bg-slate-100 dark:bg-slate-700/50 p-1.5 rounded-xl">
+                            <button onclick="setTimerMode('pomodoro')" id="mode-pomodoro-btn" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-white dark:bg-slate-600 shadow-sm text-slate-800 dark:text-white">Pomodoro (25m)</button>
+                            <button onclick="setTimerMode('shortBreak')" id="mode-shortBreak-btn" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-500 dark:text-slate-400">Pausa Curta (5m)</button>
+                            <button onclick="setTimerMode('stopwatch')" id="mode-stopwatch-btn" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-500 dark:text-slate-400">Cronómetro Livre</button>
+                        </div>
+
+                        <!-- Seleção de Matéria -->
+                        <div id="timer-subject-container" class="mb-6 text-left">
+                            <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Matéria para Contabilizar nas Horas Líquidas</label>
+                            <select id="timer-subject-select" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100">
+                                <!-- Preenchido dinamicamente -->
+                            </select>
+                        </div>
+
+                        <div class="my-10">
+                            <span id="timer-display" class="text-7xl font-extrabold tracking-tight text-indigo-600 dark:text-indigo-400 font-mono">25:00</span>
+                        </div>
+
+                        <div class="flex items-center justify-center space-x-4 mb-6">
+                            <button onclick="startTimer()" id="timer-start-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white w-14 h-14 rounded-full flex items-center justify-center text-xl shadow-lg shadow-indigo-500/30 transition-all">
+                                <i class="fa-solid fa-play"></i>
+                            </button>
+                            <button onclick="pauseTimer()" id="timer-pause-btn" class="bg-amber-500 hover:bg-amber-600 text-white w-14 h-14 rounded-full flex items-center justify-center text-xl shadow-lg shadow-amber-500/30 transition-all hidden">
+                                <i class="fa-solid fa-pause"></i>
+                            </button>
+                            <button onclick="resetTimer()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 w-14 h-14 rounded-full flex items-center justify-center text-xl transition-all">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                            <button id="finish-session-btn" onclick="finishTimerSession()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl font-semibold text-sm shadow-lg shadow-emerald-500/30 transition-all">
+                                <i class="fa-solid fa-check mr-2"></i> Concluir Sessão
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -300,16 +390,11 @@
                                 <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                                     <i class="fa-solid fa-bullseye text-indigo-600"></i> Histórico de Questões por Tópicos & Datas
                                 </h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Todos os registos manuais e automáticos de conclusão de tópicos. Pode excluir registos com o botão da lixeira.</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consulte detalhadamente todas as questões realizadas por assunto, data e taxa de acertos. Pode excluir registos incorretos.</p>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <button onclick="recoverPreviousData()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md">
-                                    <i class="fa-solid fa-database mr-1.5"></i> Recuperar Registos Antigos
-                                </button>
-                                <button onclick="openModal('quick-study-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md">
-                                    <i class="fa-solid fa-plus mr-1.5"></i> Registar Novas Questões
-                                </button>
-                            </div>
+                            <button onclick="openModal('quick-study-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md">
+                                <i class="fa-solid fa-plus mr-1.5"></i> Registar Novas Questões
+                            </button>
                         </div>
 
                         <!-- Resumo rápido -->
@@ -324,7 +409,7 @@
                             </div>
                             <div class="bg-slate-50 dark:bg-slate-700/40 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
                                 <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Acurácia Global</span>
-                                <h4 id="q-tab-global-acc" class="text-xl font-bold text-indigo-600 mt-1">0%</h4>
+                                <h4 id="q-tab-global-acc" class="text-xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">0%</h4>
                             </div>
                         </div>
 
@@ -342,56 +427,133 @@
                                         <th class="p-3.5 text-center">Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody id="questions-table-body" class="divide-y divide-slate-200 dark:divide-slate-700 text-sm"></tbody>
+                                <tbody id="questions-table-body" class="divide-y divide-slate-200 dark:divide-slate-700 text-sm">
+                                    <!-- Injetado dinamicamente -->
+                                </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- TAB: ERROS -->
-                <div id="tab-erros" class="tab-content hidden space-y-6"></div>
-                <!-- TAB: NOTAS -->
-                <div id="tab-notas" class="tab-content hidden space-y-6"></div>
-                <!-- TAB: REVISOES -->
-                <div id="tab-revisoes" class="tab-content hidden space-y-6"></div>
-                <!-- TAB: EVOLUCAO -->
-                <div id="tab-evolucao" class="tab-content hidden space-y-6"></div>
+                <!-- TAB: CADERNO DE ERROS -->
+                <div id="tab-erros" class="tab-content hidden space-y-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Caderno de Erros & Questões</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Revise o que errou em simulados.</p>
+                            </div>
+                            <button onclick="openModal('new-error-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                                <i class="fa-solid fa-plus mr-1.5"></i> Novo Registo de Erro
+                            </button>
+                        </div>
+                        <div id="errors-list-container" class="space-y-4"></div>
+                    </div>
+                </div>
+
+                <!-- TAB: NOTAS EM PASTAS -->
+                <div id="tab-notas" class="tab-content hidden space-y-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Notas e Resumos por Pastas</h3>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <button onclick="openModal('new-folder-modal')" class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-sm font-semibold">Nova Pasta</button>
+                                <button onclick="openModal('new-note-modal')" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold">Nova Nota</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div class="space-y-2">
+                                <div id="folders-list-container" class="space-y-1"></div>
+                            </div>
+                            <div class="md:col-span-3 space-y-4">
+                                <div id="notes-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: AGENDA DE REVISÕES -->
+                <div id="tab-revisoes" class="tab-content hidden space-y-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Agenda de Revisões</h3>
+                        <div id="reviews-list-container" class="space-y-3"></div>
+                    </div>
+                </div>
+
+                <!-- TAB: EVOLUÇÃO -->
+                <div id="tab-evolucao" class="tab-content hidden space-y-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-1">Evolução Geral</h3>
+                    </div>
+                </div>
 
             </div>
         </main>
     </div>
 
-    <!-- MODAL: Quick Study -->
+    <!-- MODAL: Importar PDF Inteligente -->
+    <div id="import-pdf-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-file-pdf text-red-500"></i> Importador Inteligente de Edital em PDF
+                </h3>
+                <button onclick="closeModal('import-pdf-modal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1">
+                <input type="file" id="pdf-file-input" accept="application/pdf" onchange="processPDFFile(event)" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-3 text-sm font-medium cursor-pointer">
+                <div id="pdf-loading-status" class="hidden text-center py-6 space-y-2">
+                    <i class="fa-solid fa-spinner fa-spin text-3xl text-indigo-600"></i>
+                    <p class="text-sm font-semibold">A ler e extrair disciplinas e tópicos do PDF...</p>
+                </div>
+                <div id="pdf-preview-container" class="hidden space-y-4">
+                    <h4 class="font-bold text-sm uppercase tracking-wider">Disciplinas & Tópicos Detetados:</h4>
+                    <div id="pdf-detected-list" class="space-y-3 max-h-[40vh] overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+            <div class="p-6 border-t flex justify-end space-x-3 shrink-0 bg-slate-50 dark:bg-slate-850">
+                <button type="button" onclick="closeModal('import-pdf-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-200 dark:bg-slate-700">Cancelar</button>
+                <button id="confirm-pdf-import-btn" type="button" onclick="confirmPDFImport()" class="hidden px-5 py-2 rounded-xl text-sm font-semibold bg-emerald-600 text-white shadow-md">Adicionar ao Edital</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Quick Study Session -->
     <div id="quick-study-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border p-6">
-            <h3 class="font-bold text-lg mb-4">Registar Estudo & Questões</h3>
-            <form onsubmit="handleQuickStudySubmit(event)" class="space-y-4">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border overflow-hidden">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="font-bold text-lg">Registar Estudo & Questões</h3>
+                <button onclick="closeModal('quick-study-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="handleQuickStudySubmit(event)" class="p-6 space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Matéria</label>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Matéria</label>
                     <select id="qs-subject" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required></select>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Horas</label>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Horas</label>
                         <input type="number" id="qs-hours" min="0" value="1" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Minutos</label>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Minutos</label>
                         <input type="number" id="qs-minutes" min="0" max="59" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Questões Feitas</label>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Questões Feitas</label>
                         <input type="number" id="qs-q-total" min="0" value="10" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Acertos</label>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Acertos</label>
                         <input type="number" id="qs-q-correct" min="0" value="8" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Tópico / Observações</label>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Tópico / Observações</label>
                     <input type="text" id="qs-notes" placeholder="Ex: Atos Administrativos" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
@@ -421,7 +583,7 @@
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="text-[10px] text-slate-400">Horas</label>
+                    <label class="text-[10px] text-slate-400">Horas (Estudo do Tópico)</label>
                     <input type="number" id="ta-hours" min="0" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-lg px-3 py-1.5 text-sm">
                 </div>
                 <div>
@@ -436,10 +598,57 @@
         </div>
     </div>
 
+    <!-- MODAL: New Subject -->
+    <div id="new-subject-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border p-6">
+            <h3 class="font-bold text-lg mb-4">Nova Disciplina</h3>
+            <form onsubmit="handleNewSubjectSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nome</label>
+                    <input type="text" id="ns-name" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Peso</label>
+                    <input type="number" id="ns-weight" min="1" max="10" value="1" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Cor</label>
+                    <input type="color" id="ns-color" value="#6366f1" class="w-full h-11 bg-slate-100 dark:bg-slate-700 border rounded-xl px-2 py-1">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('new-subject-modal')" class="px-4 py-2 rounded-xl text-sm bg-slate-200 dark:bg-slate-700">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm bg-indigo-600 text-white font-semibold">Adicionar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: New Topics -->
+    <div id="new-topic-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-xl border p-6">
+            <h3 class="font-bold text-lg mb-4">Adicionar Tópicos</h3>
+            <form onsubmit="handleNewTopicSubmit(event)" class="space-y-4">
+                <input type="hidden" id="nt-subject-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Tópicos (Um por linha)</label>
+                    <textarea id="nt-titles" rows="5" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('new-topic-modal')" class="px-4 py-2 rounded-xl text-sm bg-slate-200 dark:bg-slate-700">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm bg-indigo-600 text-white font-semibold">Adicionar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
 
         const appId = 'estudoflow-pro-default';
         const firebaseConfig = {
@@ -454,55 +663,27 @@
         let app, db, auth, userId = null;
         let unsubscribeData = null;
         let isSignUpMode = false;
+        let detectedPDFSubjects = [];
 
         const defaultState = {
             subjects: [],
             studyLogs: [],
             errors: [],
             folders: [{ id: 'fold-1', name: 'Geral' }],
-            notes: []
+            notes: [],
+            minimizedSubjects: {}
         };
 
-        // Função robusta de varredura e recuperação de dados anteriores em todas as chaves do navegador
         function loadStateSafely() {
             try {
-                let mergedLogs = [];
-                let mergedSubjects = [];
-                let mergedNotes = [];
-
-                // Percorrer todas as chaves do localStorage para encontrar históricos antigos
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key && (key.includes('estudoflow') || key.includes('study') || key.includes('state'))) {
-                        try {
-                            const val = JSON.parse(localStorage.getItem(key));
-                            if (val) {
-                                if (Array.isArray(val.studyLogs)) mergedLogs.push(...val.studyLogs);
-                                if (Array.isArray(val.subjects) && val.subjects.length > mergedSubjects.length) mergedSubjects = val.subjects;
-                                if (Array.isArray(val.notes)) mergedNotes.push(...val.notes);
-                            }
-                        } catch (e) {}
-                    }
-                }
-
-                // Tentar carregar a chave padrão atual
-                let primary = localStorage.getItem('estudoflow_local_state') || localStorage.getItem('estudoflow_backup_emergency');
-                let parsedPrimary = primary ? JSON.parse(primary) : defaultState;
-
-                // Combinar logs únicos sem duplicados por ID
-                const uniqueLogsMap = new Map();
-                [...(parsedPrimary.studyLogs || []), ...mergedLogs].forEach(l => {
-                    if (l && (l.id || l.date)) {
-                        uniqueLogsMap.set(l.id || `${l.date}_${l.subjectId}`, l);
-                    }
-                });
-
+                let savedLocal = localStorage.getItem('estudoflow_local_state') || localStorage.getItem('estudoflow_backup_emergency');
+                if (!savedLocal) return JSON.parse(JSON.stringify(defaultState));
+                const parsed = JSON.parse(savedLocal);
                 return {
                     ...defaultState,
-                    ...parsedPrimary,
-                    subjects: parsedPrimary.subjects?.length > 0 ? parsedPrimary.subjects : mergedSubjects,
-                    studyLogs: Array.from(uniqueLogsMap.values()),
-                    notes: parsedPrimary.notes?.length > 0 ? parsedPrimary.notes : mergedNotes
+                    ...parsed,
+                    notes: Array.isArray(parsed.notes) ? parsed.notes : defaultState.notes,
+                    studyLogs: Array.isArray(parsed.studyLogs) ? parsed.studyLogs : defaultState.studyLogs
                 };
             } catch (e) {
                 return JSON.parse(JSON.stringify(defaultState));
@@ -512,6 +693,7 @@
         let state = loadStateSafely();
         let hoursChartInstance = null;
         let subjectsChartInstance = null;
+        let currentFolderId = 'fold-1';
 
         window.addEventListener('DOMContentLoaded', async () => {
             initTheme();
@@ -528,7 +710,7 @@
                         userId = user.uid;
                         document.getElementById('user-uid-box').innerText = `ID: ${user.email || userId}`;
                         document.getElementById('sync-indicator').className = 'w-2 h-2 rounded-full bg-emerald-500';
-                        document.getElementById('sync-text').innerText = 'Sincronizado';
+                        document.getElementById('sync-text').innerText = 'Sincronizado Internamente';
                         document.getElementById('auth-screen').classList.add('hidden');
                         loadUserDataFromFirebase();
                     } else {
@@ -538,13 +720,6 @@
                 });
             } catch (e) {}
         });
-
-        window.recoverPreviousData = function() {
-            state = loadStateSafely();
-            saveUserDataToFirebase();
-            renderAll();
-            showToast(`Recuperação concluída! ${state.studyLogs.length} registos encontrados.`);
-        };
 
         window.toggleAuthMode = function() {
             isSignUpMode = !isSignUpMode;
@@ -577,18 +752,7 @@
             if (unsubscribeData) unsubscribeData();
             unsubscribeData = onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists() && docSnap.data().state) {
-                    const remoteState = docSnap.data().state;
-                    // Unir local com remoto para não perder nada
-                    const remoteLogs = remoteState.studyLogs || [];
-                    const localLogs = state.studyLogs || [];
-                    const mapLogs = new Map();
-                    [...remoteLogs, ...localLogs].forEach(l => mapLogs.set(l.id || `${l.date}_${l.subjectId}`, l));
-
-                    state = {
-                        ...defaultState,
-                        ...remoteState,
-                        studyLogs: Array.from(mapLogs.values())
-                    };
+                    state = { ...defaultState, ...docSnap.data().state };
                     renderAll();
                 }
             });
@@ -607,8 +771,8 @@
         };
 
         window.manualSync = function() {
-            recoverPreviousData();
-            showToast("Dados sincronizados e varridos com sucesso!");
+            renderAll();
+            showToast("Dados sincronizados!");
         };
 
         window.switchTab = function(tabId) {
@@ -633,6 +797,7 @@
             renderDashboardStats();
             renderEditalView();
             renderQuestionsView();
+            renderErrorsView();
             updateCharts();
         }
 
@@ -662,6 +827,18 @@
         }
 
         function renderEditalView() {
+            let totalTopics = 0, doneTopics = 0;
+            state.subjects.forEach(s => s.topics.forEach(t => { totalTopics++; if (t.status === 'concluido') doneTopics++; }));
+            const pct = totalTopics > 0 ? Math.round((doneTopics / totalTopics) * 100) : 0;
+
+            const progText = document.getElementById('edital-progress-text');
+            const topicsCountEl = document.getElementById('edital-topics-count');
+            const progBar = document.getElementById('edital-progress-bar');
+
+            if (progText) progText.innerText = `Progresso Geral: ${pct}%`;
+            if (topicsCountEl) topicsCountEl.innerText = `${doneTopics} / ${totalTopics} tópicos concluídos`;
+            if (progBar) progBar.style.width = `${pct}%`;
+
             const container = document.getElementById('subjects-list-container');
             if (!container) return;
             if (state.subjects.length === 0) {
@@ -670,15 +847,19 @@
             }
             container.innerHTML = state.subjects.map(sub => `
                 <div class="bg-slate-50 dark:bg-slate-800/45 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
-                    <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <span class="w-4 h-4 rounded-full" style="background-color: ${sub.color}"></span>
                             <h4 class="font-bold text-base text-slate-800 dark:text-slate-100">${sub.name}</h4>
+                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 font-bold">Peso ${sub.weight}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="openNewTopicModal('${sub.id}')" class="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl font-semibold"><i class="fa-solid fa-plus mr-1"></i> Tópicos</button>
                         </div>
                     </div>
-                    <div class="space-y-2">
+                    <div class="space-y-2 mt-4">
                         ${sub.topics.map(t => {
-                            let badgeClass = 'bg-slate-200 text-slate-700';
+                            let badgeClass = 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
                             let statusText = 'Não Iniciado';
                             if (t.status === 'estudando') { badgeClass = 'bg-amber-100 text-amber-700'; statusText = 'Estudando'; }
                             else if (t.status === 'concluido') { badgeClass = 'bg-emerald-100 text-emerald-700'; statusText = 'Concluído'; }
@@ -744,7 +925,7 @@
             showToast("Tópico concluído e questões contabilizadas!");
         };
 
-        // --- GESTÃO DE QUESTÕES & EXCLUSÃO ---
+        // --- GESTÃO DE QUESTÕES & EXCLUSÃO DE REGISTOS ---
         function renderQuestionsView() {
             const tbody = document.getElementById('questions-table-body');
             const totalRegsEl = document.getElementById('q-tab-total-regs');
@@ -766,7 +947,7 @@
             globalAccEl.innerText = `${globalAcc}%`;
 
             if (logs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 italic">Nenhum registo de estudo ou questões encontrado. Clique em "Recuperar Registos Antigos" acima.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 italic">Nenhum registo de estudo ou questões efetuado até ao momento.</td></tr>`;
                 return;
             }
 
@@ -774,7 +955,7 @@
 
             tbody.innerHTML = sortedLogs.map(l => {
                 const sub = state.subjects.find(s => s.id === l.subjectId);
-                const subName = sub ? sub.name : 'Disciplina (Geral/Removida)';
+                const subName = sub ? sub.name : 'Disciplina Removida';
                 const subColor = sub ? sub.color : '#6366f1';
                 
                 const qDone = parseInt(l.questions) || 0;
@@ -817,8 +998,14 @@
             }
         };
 
+        function renderErrorsView() {}
+
         window.openModal = function(id) { document.getElementById(id)?.classList.remove('hidden'); };
         window.closeModal = function(id) { document.getElementById(id)?.classList.add('hidden'); };
+        window.openNewTopicModal = function(subId) {
+            document.getElementById('nt-subject-id').value = subId;
+            openModal('new-topic-modal');
+        };
 
         window.handleQuickStudySubmit = function(e) {
             e.preventDefault();
@@ -842,11 +1029,20 @@
             state.subjects.push({
                 id: crypto.randomUUID(),
                 name: document.getElementById('ns-name').value,
-                weight: 1,
-                color: '#6366f1',
+                weight: parseInt(document.getElementById('ns-weight').value) || 1,
+                color: document.getElementById('ns-color').value,
                 topics: []
             });
             closeModal('new-subject-modal');
+            saveUserDataToFirebase();
+        };
+
+        window.handleNewTopicSubmit = function(e) {
+            e.preventDefault();
+            const sub = state.subjects.find(s => s.id === document.getElementById('nt-subject-id').value);
+            const raw = document.getElementById('nt-titles').value;
+            raw.split('\n').forEach(t => { if(t.trim()) sub.topics.push({ id: crypto.randomUUID(), title: t.trim(), status: 'nao_iniciado', reviewDate: null }); });
+            closeModal('new-topic-modal');
             saveUserDataToFirebase();
         };
 
@@ -869,7 +1065,8 @@
                 d.setDate(d.getDate() - i);
                 const dateString = d.toISOString().split('T')[0];
                 dateKeys.push(dateString);
-                labels.push(`${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`);
+                const dayMonth = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+                labels.push(dayMonth);
             }
 
             state.studyLogs?.forEach(l => {
