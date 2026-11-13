@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EstudoFlow PRO</title>
     
+    <!-- PWA Manifest & Meta Tags -->
     <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -110,7 +111,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.9</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.7</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -304,10 +305,10 @@
                                 <button onclick="openModal('new-subject-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
                                     <i class="fa-solid fa-plus mr-1.5"></i> Nova Disciplina
                                 </button>
-                                <button onclick="openResetEditalModal()" class="bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/60 dark:text-red-400 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                                <button onclick="openModal('reset-edital-modal')" class="bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/60 dark:text-red-400 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
                                     <i class="fa-solid fa-rotate-right mr-1.5"></i> Zerar Edital
                                 </button>
-                                <button onclick="openArchiveEditalModal()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 dark:text-emerald-400 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                                <button onclick="openModal('archive-edital-modal')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 dark:text-emerald-400 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
                                     <i class="fa-solid fa-box-archive mr-1.5"></i> Arquivar Concluído
                                 </button>
                             </div>
@@ -334,8 +335,8 @@
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
-                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Inteligente</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerado por Inteligência de Pesos.</p>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Ciclo de Estudos Inteligente (Imutável)</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Gerado por Inteligência de Pesos. Este ciclo não muda ao concluir tópicos no edital.</p>
                             </div>
                         </div>
                         <div id="cycle-items-container" class="space-y-4">
@@ -361,6 +362,11 @@
                             </select>
                         </div>
 
+                        <div id="break-notice" class="hidden mb-6 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-700 dark:text-amber-300 font-semibold flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-mug-hot text-base"></i>
+                            <span>Hora do descanso! O tempo da pausa não contabiliza nas horas de estudo.</span>
+                        </div>
+
                         <div class="my-10">
                             <span id="timer-display" class="text-7xl font-extrabold tracking-tight text-indigo-600 dark:text-indigo-400 font-mono">25:00</span>
                         </div>
@@ -379,6 +385,10 @@
                                 <i class="fa-solid fa-check mr-2"></i> Concluir Sessão
                             </button>
                         </div>
+
+                        <button onclick="testAlarmSound()" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline flex items-center justify-center gap-1.5 mx-auto">
+                            <i class="fa-solid fa-volume-high"></i> Testar Som do Alarme
+                        </button>
                     </div>
                 </div>
 
@@ -390,7 +400,7 @@
                                 <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                                     <i class="fa-solid fa-bullseye text-indigo-600"></i> Histórico de Questões por Tópicos & Datas
                                 </h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consulte detalhadamente todas as questões realizadas por assunto, data e taxa de acertos. Pode excluir registos incorretos.</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consulte detalhadamente todas as questões realizadas por assunto, a data de resolução e a taxa de acertos.</p>
                             </div>
                             <button onclick="openModal('quick-study-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md">
                                 <i class="fa-solid fa-plus mr-1.5"></i> Registar Novas Questões
@@ -424,7 +434,6 @@
                                         <th class="p-3.5 text-center">Feitas</th>
                                         <th class="p-3.5 text-center">Acertos</th>
                                         <th class="p-3.5 text-center">Acurácia</th>
-                                        <th class="p-3.5 text-center">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody id="questions-table-body" class="divide-y divide-slate-200 dark:divide-slate-700 text-sm">
@@ -441,13 +450,16 @@
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                             <div>
                                 <h3 class="text-lg font-bold text-slate-800 dark:text-white">Caderno de Erros & Questões</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Revise o que errou em simulados.</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Revise o que errou em simulados e questões de concursos.</p>
                             </div>
                             <button onclick="openModal('new-error-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
                                 <i class="fa-solid fa-plus mr-1.5"></i> Novo Registo de Erro
                             </button>
                         </div>
-                        <div id="errors-list-container" class="space-y-4"></div>
+
+                        <div id="errors-list-container" class="space-y-4">
+                            <!-- Injetado dinamicamente -->
+                        </div>
                     </div>
                 </div>
 
@@ -457,18 +469,30 @@
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                             <div>
                                 <h3 class="text-lg font-bold text-slate-800 dark:text-white">Notas e Resumos por Pastas</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Organize seu material de revisão e apontamentos.</p>
                             </div>
                             <div class="flex items-center space-x-3">
-                                <button onclick="openModal('new-folder-modal')" class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-sm font-semibold">Nova Pasta</button>
-                                <button onclick="openModal('new-note-modal')" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold">Nova Nota</button>
+                                <button onclick="openModal('new-folder-modal')" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                                    <i class="fa-solid fa-folder-plus mr-1.5"></i> Nova Pasta
+                                </button>
+                                <button onclick="openModal('new-note-modal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all">
+                                    <i class="fa-solid fa-file-pen mr-1.5"></i> Nova Nota
+                                </button>
                             </div>
                         </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <div class="space-y-2">
-                                <div id="folders-list-container" class="space-y-1"></div>
+                                <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Pastas</h4>
+                                <div id="folders-list-container" class="space-y-1">
+                                    <!-- Injetado dinamicamente -->
+                                </div>
                             </div>
                             <div class="md:col-span-3 space-y-4">
-                                <div id="notes-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                                <h4 id="current-folder-title" class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Notas da Pasta</h4>
+                                <div id="notes-list-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <!-- Injetado dinamicamente -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -477,20 +501,104 @@
                 <!-- TAB: AGENDA DE REVISÕES -->
                 <div id="tab-revisoes" class="tab-content hidden space-y-6">
                     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Agenda de Revisões</h3>
-                        <div id="reviews-list-container" class="space-y-3"></div>
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Agenda de Revisões (Repetição Espaçada)</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Acompanhe as revisões agendadas das suas notas e tópicos do edital.</p>
+                            </div>
+                        </div>
+                        <div id="reviews-list-container" class="space-y-3">
+                            <!-- Injetado dinamicamente -->
+                        </div>
                     </div>
                 </div>
 
-                <!-- TAB: EVOLUÇÃO -->
+                <!-- TAB: EVOLUÇÃO & ARQUIVO -->
                 <div id="tab-evolucao" class="tab-content hidden space-y-6">
-                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-1">Evolução Geral</h3>
+                    <div class="space-y-6">
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-1">Ciclos Semanais Concluídos</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Métricas e histórico de ciclos anteriores finalizados.</p>
+                            <div id="archived-cycles-container" class="space-y-3">
+                                <!-- Preenchido dinamicamente -->
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 class="text-lg font-bold text-slate-800 dark:text-white">Editais Anteriores Arquivados</h3>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consulte o desempenho e conclusão de editais passados.</p>
+                                </div>
+                            </div>
+                            <div id="archived-edital-container" class="space-y-4">
+                                <!-- Injetado dinamicamente -->
+                            </div>
+                        </div>
                     </div>
                 </div>
 
             </div>
         </main>
+    </div>
+
+    <!-- MODAL: Visualizar / Editar Nota Completa -->
+    <div id="view-note-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center shrink-0">
+                <input type="text" id="edit-note-title" class="font-bold text-lg text-slate-800 dark:text-white bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:outline-none w-full mr-4 px-1" placeholder="Título da Nota">
+                <button onclick="closeModal('view-note-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-4">
+                <div class="flex items-center justify-between flex-wrap gap-3">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Conteúdo (Pode editar livremente)</span>
+                    <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
+                            <button type="button" onclick="formatEditNoteText('bold')" title="Negrito" class="px-2.5 py-1 rounded text-xs font-bold bg-white dark:bg-slate-600 shadow-sm text-slate-700 dark:text-slate-200 hover:bg-slate-200"><i class="fa-solid fa-bold"></i></button>
+                            <button type="button" onclick="formatEditNoteText('highlight')" title="Marca-texto (Amarelo)" class="px-2.5 py-1 rounded text-xs font-bold bg-yellow-200 text-yellow-800 hover:bg-yellow-300"><i class="fa-solid fa-highlighter"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="edit-note-content" rows="8" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm font-medium text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none leading-relaxed"></textarea>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Próxima Data de Revisão</label>
+                    <input type="date" id="edit-note-review-date" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <input type="hidden" id="edit-note-id">
+            </div>
+
+            <div class="p-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center shrink-0 bg-slate-50 dark:bg-slate-850">
+                <button type="button" onclick="deleteNoteFromModal()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/60 dark:text-red-400 transition-all">
+                    <i class="fa-solid fa-trash-can mr-1.5"></i> Apagar Nota
+                </button>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="closeModal('view-note-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                    <button type="button" onclick="saveEditedNote()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Guardar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Agendar Revisão para Tópico do Edital -->
+    <div id="edital-review-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden p-6 space-y-4">
+            <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 rounded-full flex items-center justify-center text-xl mx-auto">
+                <i class="fa-solid fa-calendar-plus"></i>
+            </div>
+            <h3 class="font-bold text-base text-center text-slate-800 dark:text-white">Agendar Revisão do Tópico</h3>
+            <input type="hidden" id="er-subject-id">
+            <input type="hidden" id="er-topic-id">
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Data da Revisão</label>
+                <input type="date" id="er-date-input" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100">
+            </div>
+            <div class="flex space-x-3 pt-2">
+                <button onclick="closeModal('edital-review-modal')" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                <button onclick="saveEditalReviewDate()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Agendar</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL: Importar PDF Inteligente -->
@@ -500,65 +608,78 @@
                 <h3 class="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
                     <i class="fa-solid fa-file-pdf text-red-500"></i> Importador Inteligente de Edital em PDF
                 </h3>
-                <button onclick="closeModal('import-pdf-modal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button onclick="closeModal('import-pdf-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
+            
             <div class="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1">
-                <input type="file" id="pdf-file-input" accept="application/pdf" onchange="processPDFFile(event)" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-3 text-sm font-medium cursor-pointer">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Selecione o ficheiro PDF do Edital</label>
+                    <input type="file" id="pdf-file-input" accept="application/pdf" onchange="processPDFFile(event)" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-100 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer">
+                </div>
+
                 <div id="pdf-loading-status" class="hidden text-center py-6 space-y-2">
                     <i class="fa-solid fa-spinner fa-spin text-3xl text-indigo-600"></i>
-                    <p class="text-sm font-semibold">A ler e extrair disciplinas e tópicos do PDF...</p>
+                    <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">A ler e extrair disciplinas e tópicos do PDF...</p>
                 </div>
+
                 <div id="pdf-preview-container" class="hidden space-y-4">
-                    <h4 class="font-bold text-sm uppercase tracking-wider">Disciplinas & Tópicos Detetados:</h4>
-                    <div id="pdf-detected-list" class="space-y-3 max-h-[40vh] overflow-y-auto pr-1"></div>
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white uppercase tracking-wider">Disciplinas & Tópicos Detetados:</h4>
+                        <span id="pdf-detected-count" class="text-xs bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold px-2.5 py-1 rounded-full">0 matérias</span>
+                    </div>
+
+                    <div id="pdf-detected-list" class="space-y-3 max-h-[40vh] overflow-y-auto pr-1">
+                        <!-- Injetado dinamicamente -->
+                    </div>
                 </div>
             </div>
-            <div class="p-6 border-t flex justify-end space-x-3 shrink-0 bg-slate-50 dark:bg-slate-850">
-                <button type="button" onclick="closeModal('import-pdf-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-200 dark:bg-slate-700">Cancelar</button>
-                <button id="confirm-pdf-import-btn" type="button" onclick="confirmPDFImport()" class="hidden px-5 py-2 rounded-xl text-sm font-semibold bg-emerald-600 text-white shadow-md">Adicionar ao Edital</button>
+
+            <div class="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end space-x-3 shrink-0 bg-slate-50 dark:bg-slate-850">
+                <button type="button" onclick="closeModal('import-pdf-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                <button id="confirm-pdf-import-btn" type="button" onclick="confirmPDFImport()" class="hidden px-5 py-2 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md">Adicionar ao Edital Ativo</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL: Quick Study Session -->
     <div id="quick-study-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border overflow-hidden">
-            <div class="p-6 border-b flex justify-between items-center">
-                <h3 class="font-bold text-lg">Registar Estudo & Questões</h3>
-                <button onclick="closeModal('quick-study-modal')"><i class="fa-solid fa-xmark"></i></button>
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Registar Estudo & Questões</h3>
+                <button onclick="closeModal('quick-study-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <form onsubmit="handleQuickStudySubmit(event)" class="p-6 space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Matéria</label>
-                    <select id="qs-subject" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required></select>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Matéria / Disciplina</label>
+                    <select id="qs-subject" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></select>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Horas</label>
-                        <input type="number" id="qs-hours" min="0" value="1" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Horas Estudo</label>
+                        <input type="number" id="qs-hours" min="0" max="23" value="1" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Minutos</label>
-                        <input type="number" id="qs-minutes" min="0" max="59" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Minutos Estudo</label>
+                        <input type="number" id="qs-minutes" min="0" max="59" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Questões Feitas</label>
-                        <input type="number" id="qs-q-total" min="0" value="10" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Questões Feitas</label>
+                        <input type="number" id="qs-q-total" min="0" value="10" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Acertos</label>
-                        <input type="number" id="qs-q-correct" min="0" value="8" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Questões Acertadas</label>
+                        <input type="number" id="qs-q-correct" min="0" value="8" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Tópico / Observações</label>
-                    <input type="text" id="qs-notes" placeholder="Ex: Atos Administrativos" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Tópico / Observações</label>
+                    <input type="text" id="qs-notes" placeholder="Ex: Atos Administrativos - Espécies" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closeModal('quick-study-modal')" class="px-4 py-2 rounded-xl text-sm bg-slate-200 dark:bg-slate-700">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm bg-indigo-600 text-white font-semibold">Registar</button>
+                    <button type="button" onclick="closeModal('quick-study-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Registar Registo</button>
                 </div>
             </form>
         </div>
@@ -566,58 +687,70 @@
 
     <!-- MODAL: Topic Accuracy -->
     <div id="topic-accuracy-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border p-6 space-y-4">
-            <h3 class="font-bold text-lg text-center">Requisito Mínimo: 80% de Acurácia</h3>
-            <p class="text-xs text-slate-500 text-center">Informe o seu desempenho para concluir o tópico.</p>
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden p-6 space-y-4">
+            <div class="w-14 h-14 bg-amber-50 dark:bg-amber-950/50 text-amber-600 rounded-full flex items-center justify-center text-2xl mx-auto">
+                <i class="fa-solid fa-bullseye"></i>
+            </div>
+            <h3 class="font-bold text-lg text-center text-slate-800 dark:text-white">Requisito Mínimo: 80% de Acurácia</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 text-center">Para marcar este tópico como <b class="text-emerald-600">Concluído</b>, informe o seu desempenho nas questões deste assunto.</p>
             <input type="hidden" id="ta-subject-id">
             <input type="hidden" id="ta-topic-id">
+            
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Questões Feitas</label>
-                    <input type="number" id="ta-total" min="1" value="10" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2 text-sm" required>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Questões Feitas</label>
+                    <input type="number" id="ta-total" min="1" value="10" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Acertos</label>
-                    <input type="number" id="ta-correct" min="0" value="8" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2 text-sm" required>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Acertos</label>
+                    <input type="number" id="ta-correct" min="0" value="8" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="text-[10px] text-slate-400">Horas (Estudo do Tópico)</label>
-                    <input type="number" id="ta-hours" min="0" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-lg px-3 py-1.5 text-sm">
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-400">Minutos</label>
-                    <input type="number" id="ta-minutes" min="0" max="59" value="0" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-lg px-3 py-1.5 text-sm">
+
+            <div class="bg-indigo-50/50 dark:bg-indigo-950/30 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/50 space-y-2">
+                <label class="block text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Tempo Estudado Neste Tópico (Opcional)</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] text-slate-400">Horas</label>
+                        <input type="number" id="ta-hours" min="0" max="23" value="0" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-400">Minutos</label>
+                        <input type="number" id="ta-minutes" min="0" max="59" value="0" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100">
+                    </div>
                 </div>
             </div>
+
             <div class="flex space-x-3 pt-2">
-                <button type="button" onclick="closeModal('topic-accuracy-modal')" class="flex-1 py-2.5 rounded-xl text-sm bg-slate-200 dark:bg-slate-700">Cancelar</button>
-                <button type="button" onclick="verifyAndCompleteTopic()" class="flex-1 py-2.5 rounded-xl text-sm bg-indigo-600 text-white font-semibold">Verificar & Concluir</button>
+                <button type="button" onclick="closeModal('topic-accuracy-modal')" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                <button type="button" onclick="verifyAndCompleteTopic()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Verificar & Concluir</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL: New Subject -->
     <div id="new-subject-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border p-6">
-            <h3 class="font-bold text-lg mb-4">Nova Disciplina</h3>
-            <form onsubmit="handleNewSubjectSubmit(event)" class="space-y-4">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Nova Disciplina</h3>
+                <button onclick="closeModal('new-subject-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleNewSubjectSubmit(event)" class="p-6 space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Nome</label>
-                    <input type="text" id="ns-name" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Nome da Disciplina</label>
+                    <input type="text" id="ns-name" placeholder="Ex: Direito Constitucional" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Peso</label>
-                    <input type="number" id="ns-weight" min="1" max="10" value="1" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Peso na Prova (Relevância)</label>
+                    <input type="number" id="ns-weight" min="1" max="10" step="1" value="1" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Cor</label>
-                    <input type="color" id="ns-color" value="#6366f1" class="w-full h-11 bg-slate-100 dark:bg-slate-700 border rounded-xl px-2 py-1">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Cor de Identificação</label>
+                    <input type="color" id="ns-color" value="#6366f1" class="w-full h-11 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-2 py-1 cursor-pointer">
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closeModal('new-subject-modal')" class="px-4 py-2 rounded-xl text-sm bg-slate-200 dark:bg-slate-700">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm bg-indigo-600 text-white font-semibold">Adicionar</button>
+                    <button type="button" onclick="closeModal('new-subject-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Adicionar</button>
                 </div>
             </form>
         </div>
@@ -625,19 +758,113 @@
 
     <!-- MODAL: New Topics -->
     <div id="new-topic-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-xl border p-6">
-            <h3 class="font-bold text-lg mb-4">Adicionar Tópicos</h3>
-            <form onsubmit="handleNewTopicSubmit(event)" class="space-y-4">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Adicionar Tópicos ao Edital</h3>
+                <button onclick="closeModal('new-topic-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleNewTopicSubmit(event)" class="p-6 space-y-4">
                 <input type="hidden" id="nt-subject-id">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Tópicos (Um por linha)</label>
-                    <textarea id="nt-titles" rows="5" class="w-full bg-slate-100 dark:bg-slate-700 border rounded-xl px-4 py-2.5 text-sm" required></textarea>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Tópicos (Um por linha)</label>
+                    <textarea id="nt-titles" rows="5" placeholder="Poderes Administrativos&#10;Atos Administrativos&#10;Improbidade Administrativa" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></textarea>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closeModal('new-topic-modal')" class="px-4 py-2 rounded-xl text-sm bg-slate-200 dark:bg-slate-700">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm bg-indigo-600 text-white font-semibold">Adicionar</button>
+                    <button type="button" onclick="closeModal('new-topic-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Adicionar Tópicos</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL: New Folder -->
+    <div id="new-folder-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Nova Pasta de Notas</h3>
+                <button onclick="closeModal('new-folder-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleNewFolderSubmit(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Nome da Pasta</label>
+                    <input type="text" id="nfo-name" placeholder="Ex: Resumos de Direito Penal" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('new-folder-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Criar Pasta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: New Note -->
+    <div id="new-note-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Nova Nota / Resumo</h3>
+                <button onclick="closeModal('new-note-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleNewNoteSubmit(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Pasta</label>
+                    <select id="nn-folder" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Título da Nota</label>
+                    <input type="text" id="nn-title" placeholder="Ex: Princípios Constitucionais Expressos" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Conteúdo</label>
+                        <div class="flex items-center space-x-1 bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
+                            <button type="button" onclick="formatNoteText('bold')" title="Negrito" class="px-2.5 py-1 rounded text-xs font-bold bg-white dark:bg-slate-600 shadow-sm text-slate-700 dark:text-slate-200"><i class="fa-solid fa-bold"></i></button>
+                            <button type="button" onclick="formatNoteText('highlight')" title="Marca-texto" class="px-2.5 py-1 rounded text-xs font-bold bg-yellow-200 text-yellow-800"><i class="fa-solid fa-highlighter"></i></button>
+                        </div>
+                    </div>
+                    <textarea id="nn-content" rows="5" placeholder="Escreva seu resumo aqui..." class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Agendar Revisão (Opcional)</label>
+                    <input type="date" id="nn-review-date" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('new-note-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Salvar Nota</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Reset Edital -->
+    <div id="reset-edital-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden text-center p-6 space-y-4">
+            <div class="w-14 h-14 bg-red-50 dark:bg-red-950/50 text-red-600 rounded-full flex items-center justify-center text-2xl mx-auto">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="font-bold text-lg text-slate-800 dark:text-white">Zerar Edital Ativo?</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Esta ação irá apagar todas as disciplinas, tópicos e métricas. Deseja prosseguir?</p>
+            <div class="flex space-x-3 pt-2">
+                <button onclick="closeModal('reset-edital-modal')" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                <button onclick="confirmResetEdital()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-700 text-white shadow-md">Sim, Zerar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Archive Edital -->
+    <div id="archive-edital-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden p-6 space-y-4">
+            <div class="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto">
+                <i class="fa-solid fa-box-archive"></i>
+            </div>
+            <h3 class="font-bold text-lg text-center text-slate-800 dark:text-white">Arquivar Edital Atual</h3>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Nome do Concurso / Concluído</label>
+                <input type="text" id="archive-name-input" placeholder="Ex: Concurso TRT 2026" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
+            </div>
+            <div class="flex space-x-3 pt-2">
+                <button onclick="closeModal('archive-edital-modal')" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                <button onclick="confirmArchiveEdital()" class="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md">Arquivar</button>
+            </div>
         </div>
     </div>
 
@@ -651,6 +878,7 @@
         }
 
         const appId = 'estudoflow-pro-default';
+        
         const firebaseConfig = {
             apiKey: "AIzaSyBCM2cfdMsNCLUltoly066qglhZnMRI86I", 
             authDomain: "estudoflow-fef07.firebaseapp.com",
@@ -663,14 +891,65 @@
         let app, db, auth, userId = null;
         let unsubscribeData = null;
         let isSignUpMode = false;
+        let deferredPrompt = null;
         let detectedPDFSubjects = [];
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        window.testAlarmSound = function() {
+            playPomodoroAlarm();
+            showToast("Sinal sonoro ativado!");
+        };
+
+        function playPomodoroAlarm() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, now);
+                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 1.2);
+            } catch (e) {}
+
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("EstudoFlow PRO - Alarme 🔔", {
+                    body: "O seu tempo de estudo/pomodoro terminou!",
+                    icon: "icon.png"
+                });
+            }
+        }
 
         const defaultState = {
             subjects: [],
             studyLogs: [],
             errors: [],
-            folders: [{ id: 'fold-1', name: 'Geral' }],
+            folders: [
+                { id: 'fold-1', name: 'Geral' }
+            ],
             notes: [],
+            weeklyAvailability: {
+                seg: { hours: 4, count: 2 },
+                ter: { hours: 4, count: 2 },
+                qua: { hours: 4, count: 2 },
+                qui: { hours: 4, count: 2 },
+                sex: { hours: 4, count: 2 },
+                sab: { hours: 6, count: 3 },
+                dom: { hours: 2, count: 1 }
+            },
+            archives: [],
+            archivedCycles: [],
+            frozenCycleHtml: null,
             minimizedSubjects: {}
         };
 
@@ -695,11 +974,27 @@
         let subjectsChartInstance = null;
         let currentFolderId = 'fold-1';
 
+        let timerInterval = null;
+        let timerMode = 'pomodoro'; 
+        let timerRunning = false;
+        let timerStartTime = null;
+        let timerTargetDuration = 25 * 60; 
+        let timerElapsedTimeWhenPaused = 0;
+
         window.addEventListener('DOMContentLoaded', async () => {
             initTheme();
             initCharts();
+            setupPWA();
+            setupDailyNotifications();
+            restoreTimerState();
             renderAll();
 
+            const unlockAudio = () => {
+                getAudioContext();
+                window.removeEventListener('click', unlockAudio);
+            };
+            window.addEventListener('click', unlockAudio);
+            
             try {
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
@@ -720,6 +1015,130 @@
                 });
             } catch (e) {}
         });
+
+        window.processPDFFile = async function(e) {
+            const file = e.target.files[0];
+            if (!file || file.type !== 'application/pdf') return;
+
+            document.getElementById('pdf-loading-status').classList.remove('hidden');
+            document.getElementById('pdf-preview-container').classList.add('hidden');
+            document.getElementById('confirm-pdf-import-btn').classList.add('hidden');
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let rawLines = [];
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    textContent.items.forEach(item => {
+                        let str = item.str.trim();
+                        if (str.length > 2) rawLines.push(str);
+                    });
+                }
+
+                detectedPDFSubjects = parseEditalTextIntelligently(rawLines);
+                document.getElementById('pdf-loading-status').classList.add('hidden');
+                document.getElementById('pdf-preview-container').classList.remove('hidden');
+                document.getElementById('confirm-pdf-import-btn').classList.remove('hidden');
+                renderPDFPreviewList();
+            } catch (err) {
+                document.getElementById('pdf-loading-status').classList.add('hidden');
+                alert("Erro ao ler o ficheiro PDF.");
+            }
+        };
+
+        function parseEditalTextIntelligently(lines) {
+            const result = [];
+            const palette = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#ef4444', '#14b8a6'];
+            let currentSubject = null;
+
+            lines.forEach(line => {
+                if (line.length < 40 && (line.toUpperCase() === line)) {
+                    if (currentSubject && currentSubject.topics.length > 0) result.push(currentSubject);
+                    currentSubject = { id: crypto.randomUUID(), name: line, weight: 1, color: palette[result.length % palette.length], topics: [] };
+                } else {
+                    if (!currentSubject) currentSubject = { id: crypto.randomUUID(), name: 'Disciplina Geral', weight: 1, color: palette[0], topics: [] };
+                    currentSubject.topics.push({ id: crypto.randomUUID(), title: line, status: 'nao_iniciado', reviewDate: null });
+                }
+            });
+            if (currentSubject && currentSubject.topics.length > 0) result.push(currentSubject);
+            return result;
+        }
+
+        function renderPDFPreviewList() {
+            const listEl = document.getElementById('pdf-detected-list');
+            document.getElementById('pdf-detected-count').innerText = `${detectedPDFSubjects.length} matéria(s)`;
+            listEl.innerHTML = detectedPDFSubjects.map((sub, idx) => `
+                <div class="bg-slate-50 dark:bg-slate-700/40 p-3 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
+                    <input type="text" value="${sub.name}" onchange="detectedPDFSubjects[${idx}].name = this.value" class="font-bold text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2.5 py-1 w-full text-slate-800 dark:text-slate-100">
+                    <p class="text-xs text-slate-500">${sub.topics.length} tópico(s) identificado(s)</p>
+                </div>
+            `).join('');
+        }
+
+        window.confirmPDFImport = function() {
+            detectedPDFSubjects.forEach(newSub => state.subjects.push(newSub));
+            closeModal('import-pdf-modal');
+            saveUserDataToFirebase();
+            showToast("Disciplinas importadas com sucesso!");
+        };
+
+        function saveTimerState() {
+            localStorage.setItem('estudoflow_timer_persistent', JSON.stringify({ timerMode, timerRunning, timerStartTime, timerTargetDuration, timerElapsedTimeWhenPaused }));
+        }
+
+        function restoreTimerState() {
+            const saved = localStorage.getItem('estudoflow_timer_persistent');
+            if (!saved) return;
+            try {
+                const ts = JSON.parse(saved);
+                timerMode = ts.timerMode || 'pomodoro';
+                timerRunning = ts.timerRunning || false;
+                timerStartTime = ts.timerStartTime || null;
+                timerTargetDuration = ts.timerTargetDuration || (25 * 60);
+                timerElapsedTimeWhenPaused = ts.timerElapsedTimeWhenPaused || 0;
+                setTimerMode(timerMode, false);
+                if (timerRunning && timerStartTime) startTimer(false);
+                else updateTimerDisplay();
+            } catch (e) {}
+        }
+
+        function setupPWA() {
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+            }
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                document.getElementById('install-pwa-btn')?.classList.remove('hidden');
+            });
+        }
+
+        window.installAppPrompt = async function() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt = null;
+            }
+        };
+
+        window.requestNotificationPermission = async function() {
+            if ("Notification" in window) await Notification.requestPermission();
+        };
+
+        function setupDailyNotifications() {
+            if (Notification.permission === "granted") {
+                const last = localStorage.getItem('estudoflow_last_notif');
+                const today = new Date().toDateString();
+                if (last !== today) {
+                    setTimeout(() => {
+                        new Notification("EstudoFlow PRO 🔔", { body: "A sua meta diária de estudos está à sua espera!" });
+                        localStorage.setItem('estudoflow_last_notif', today);
+                    }, 5000);
+                }
+            }
+        }
 
         window.toggleAuthMode = function() {
             isSignUpMode = !isSignUpMode;
@@ -759,10 +1178,7 @@
         }
 
         window.saveUserDataToFirebase = async function() {
-            try { 
-                localStorage.setItem('estudoflow_local_state', JSON.stringify(state)); 
-                localStorage.setItem('estudoflow_backup_emergency', JSON.stringify(state));
-            } catch (e) {}
+            try { localStorage.setItem('estudoflow_local_state', JSON.stringify(state)); } catch (e) {}
             renderAll();
             if (!db || !userId) return;
             try {
@@ -795,17 +1211,24 @@
         function renderAll() {
             populateSelects();
             renderDashboardStats();
+            renderDashboardTodayReviews();
             renderEditalView();
+            renderCycleView();
             renderQuestionsView();
             renderErrorsView();
+            renderNotesView();
+            renderReviewsView();
+            renderArchiveView();
             updateCharts();
         }
 
         function populateSelects() {
-            ['qs-subject', 'timer-subject-select'].forEach(id => {
+            ['qs-subject', 'ne-subject', 'timer-subject-select'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.innerHTML = state.subjects.length === 0 ? '<option value="">Nenhuma disciplina</option>' : state.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
             });
+            const nnFolder = document.getElementById('nn-folder');
+            if (nnFolder) nnFolder.innerHTML = state.folders.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
         }
 
         function renderDashboardStats() {
@@ -824,11 +1247,88 @@
             
             document.getElementById('stat-total-questions').innerText = totalQ;
             document.getElementById('stat-questions-accuracy').innerText = `Acurácia: ${totalQ > 0 ? Math.round((correctQ / totalQ) * 100) : 0}%`;
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            let pendingRevCount = (state.notes || []).filter(n => n.reviewDate && n.reviewDate <= todayStr).length;
+            state.subjects.forEach(s => {
+                s.topics.forEach(t => {
+                    if (t.reviewDate && t.reviewDate <= todayStr) pendingRevCount++;
+                });
+            });
+            const statPendingEl = document.getElementById('stat-pending-reviews');
+            if (statPendingEl) statPendingEl.innerText = pendingRevCount;
         }
+
+        function renderDashboardTodayReviews() {
+            const container = document.getElementById('dashboard-today-reviews-container');
+            const countEl = document.getElementById('dashboard-today-count');
+            if (!container) return;
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            let todayItems = [];
+
+            (state.notes || []).forEach(n => {
+                if (n.reviewDate && n.reviewDate <= todayStr) {
+                    todayItems.push({ id: n.id, type: 'note', title: n.title, desc: n.content, reviewDate: n.reviewDate });
+                }
+            });
+
+            (state.subjects || []).forEach(s => {
+                s.topics.forEach(t => {
+                    if (t.reviewDate && t.reviewDate <= todayStr) {
+                        todayItems.push({ id: `${s.id}_${t.id}`, subjectId: s.id, topicId: t.id, type: 'edital', title: `[Edital - ${s.name}]`, desc: t.title, reviewDate: t.reviewDate });
+                    }
+                });
+            });
+
+            if (countEl) countEl.innerText = `${todayItems.length} pendente(s)`;
+
+            if (todayItems.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 italic py-2">Nenhuma revisão pendente para hoje. Excelente trabalho!</p>';
+                return;
+            }
+
+            container.innerHTML = todayItems.map(item => `
+                <div class="bg-slate-50 dark:bg-slate-700/30 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white">${item.title}</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">${item.desc}</p>
+                    </div>
+                    <div class="flex items-center space-x-2 shrink-0 ml-3">
+                        <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-full">${item.reviewDate}</span>
+                        <button onclick="completeDashboardReview('${item.id}', '${item.type}', '${item.subjectId || ''}', '${item.topicId || ''}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all" title="Marcar como Concluída">
+                            <i class="fa-solid fa-check mr-1"></i> Concluir
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.completeDashboardReview = function(id, type, subjectId, topicId) {
+            if (type === 'note') {
+                const note = state.notes.find(n => n.id === id);
+                if (note) note.reviewDate = null;
+            } else if (type === 'edital') {
+                const sub = state.subjects.find(s => s.id === subjectId);
+                const top = sub?.topics.find(t => t.id === topicId);
+                if (top) top.reviewDate = null;
+            }
+            saveUserDataToFirebase();
+            showToast("Revisão concluída com sucesso!");
+        };
+
+        window.toggleMinimizeSubject = function(subjectId) {
+            if (!state.minimizedSubjects) state.minimizedSubjects = {};
+            state.minimizedSubjects[subjectId] = !state.minimizedSubjects[subjectId];
+            saveUserDataToFirebase();
+        };
 
         function renderEditalView() {
             let totalTopics = 0, doneTopics = 0;
-            state.subjects.forEach(s => s.topics.forEach(t => { totalTopics++; if (t.status === 'concluido') doneTopics++; }));
+            state.subjects.forEach(s => s.topics.forEach(t => {
+                totalTopics++;
+                if (t.status === 'concluido') doneTopics++;
+            }));
             const pct = totalTopics > 0 ? Math.round((doneTopics / totalTopics) * 100) : 0;
 
             const progText = document.getElementById('edital-progress-text');
@@ -845,35 +1345,78 @@
                 container.innerHTML = '<p class="text-xs text-slate-400 italic text-center py-6">Nenhuma disciplina cadastrada.</p>';
                 return;
             }
-            container.innerHTML = state.subjects.map(sub => `
-                <div class="bg-slate-50 dark:bg-slate-800/45 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <span class="w-4 h-4 rounded-full" style="background-color: ${sub.color}"></span>
-                            <h4 class="font-bold text-base text-slate-800 dark:text-slate-100">${sub.name}</h4>
-                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 font-bold">Peso ${sub.weight}</span>
+            container.innerHTML = state.subjects.map(sub => {
+                const isMinimized = state.minimizedSubjects && state.minimizedSubjects[sub.id];
+                return `
+                    <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3 cursor-pointer" onclick="toggleMinimizeSubject('${sub.id}')">
+                                <button class="text-slate-400 hover:text-indigo-600">
+                                    <i class="fa-solid ${isMinimized ? 'fa-chevron-right' : 'fa-chevron-down'} text-sm"></i>
+                                </button>
+                                <span class="w-4 h-4 rounded-full" style="background-color: ${sub.color}"></span>
+                                <h4 class="font-bold text-base text-slate-800 dark:text-slate-100">${sub.name}</h4>
+                                <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 font-bold">Peso ${sub.weight}</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="openNewTopicModal('${sub.id}')" class="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl font-semibold"><i class="fa-solid fa-plus mr-1"></i> Tópicos</button>
+                                <button onclick="deleteSubject('${sub.id}')" class="text-slate-400 hover:text-red-500 p-1.5"><i class="fa-solid fa-trash-can text-sm"></i></button>
+                            </div>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <button onclick="openNewTopicModal('${sub.id}')" class="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl font-semibold"><i class="fa-solid fa-plus mr-1"></i> Tópicos</button>
+                        ${!isMinimized ? `
+                        <div class="space-y-2 mt-4">
+                            ${sub.topics.map(t => {
+                                let badgeClass = 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
+                                let statusText = 'Não Iniciado';
+                                if (t.status === 'estudando') {
+                                    badgeClass = 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400';
+                                    statusText = 'Estudando';
+                                } else if (t.status === 'concluido') {
+                                    badgeClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400';
+                                    statusText = 'Concluído';
+                                }
+                                return `
+                                    <div class="flex items-center justify-between bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                                        <div class="flex items-center space-x-2 flex-1">
+                                            <span class="text-sm font-medium ${t.status === 'concluido' ? 'line-through text-slate-400' : ''}">${t.title}</span>
+                                            ${t.reviewDate ? `<span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold"><i class="fa-solid fa-calendar mr-1"></i>${t.reviewDate}</span>` : ''}
+                                        </div>
+                                        <div class="flex items-center space-x-2 shrink-0">
+                                            <button onclick="openEditalReviewModal('${sub.id}', '${t.id}')" title="Agendar Revisão" class="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300"><i class="fa-solid fa-calendar-plus"></i></button>
+                                            <button onclick="requestTopicStatusChange('${sub.id}', '${t.id}')" class="text-xs px-3 py-1.5 rounded-lg font-semibold ${badgeClass}">${statusText}</button>
+                                            <button onclick="deleteTopic('${sub.id}', '${t.id}')" class="text-slate-400 hover:text-red-500 text-xs px-2"><i class="fa-solid fa-xmark"></i></button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
+                        ` : ''}
                     </div>
-                    <div class="space-y-2 mt-4">
-                        ${sub.topics.map(t => {
-                            let badgeClass = 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
-                            let statusText = 'Não Iniciado';
-                            if (t.status === 'estudando') { badgeClass = 'bg-amber-100 text-amber-700'; statusText = 'Estudando'; }
-                            else if (t.status === 'concluido') { badgeClass = 'bg-emerald-100 text-emerald-700'; statusText = 'Concluído'; }
-                            return `
-                                <div class="flex items-center justify-between bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                                    <span class="text-sm font-medium ${t.status === 'concluido' ? 'line-through text-slate-400' : ''}">${t.title}</span>
-                                    <button onclick="requestTopicStatusChange('${sub.id}', '${t.id}')" class="text-xs px-3 py-1.5 rounded-lg font-semibold ${badgeClass}">${statusText}</button>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
+
+        window.openEditalReviewModal = function(subjectId, topicId) {
+            document.getElementById('er-subject-id').value = subjectId;
+            document.getElementById('er-topic-id').value = topicId;
+            document.getElementById('er-date-input').value = new Date().toISOString().split('T')[0];
+            openModal('edital-review-modal');
+        };
+
+        window.saveEditalReviewDate = function() {
+            const subjectId = document.getElementById('er-subject-id').value;
+            const topicId = document.getElementById('er-topic-id').value;
+            const dateVal = document.getElementById('er-date-input').value;
+
+            const sub = state.subjects.find(s => s.id === subjectId);
+            const top = sub?.topics.find(t => t.id === topicId);
+            if (top) {
+                top.reviewDate = dateVal;
+                saveUserDataToFirebase();
+                closeModal('edital-review-modal');
+                showToast("Revisão do tópico agendada com sucesso!");
+            }
+        };
 
         window.requestTopicStatusChange = function(subjectId, topicId) {
             const sub = state.subjects.find(s => s.id === subjectId);
@@ -893,6 +1436,7 @@
             }
         };
 
+        // --- CORREÇÃO: CONTABILIZAÇÃO COMPLETA AO CONCLUIR TÓPICO ---
         window.verifyAndCompleteTopic = function() {
             const subjectId = document.getElementById('ta-subject-id').value;
             const topicId = document.getElementById('ta-topic-id').value;
@@ -909,6 +1453,7 @@
             const top = sub?.topics.find(t => t.id === topicId);
             if (top) {
                 top.status = 'concluido';
+                // Registo guardado com sucesso para somar nas horas e questões
                 state.studyLogs.push({
                     id: crypto.randomUUID(),
                     subjectId: subjectId,
@@ -925,7 +1470,22 @@
             showToast("Tópico concluído e questões contabilizadas!");
         };
 
-        // --- GESTÃO DE QUESTÕES & EXCLUSÃO DE REGISTOS ---
+        window.deleteTopic = function(subjectId, topicId) {
+            const sub = state.subjects.find(s => s.id === subjectId);
+            if (sub) {
+                sub.topics = sub.topics.filter(t => t.id !== topicId);
+                saveUserDataToFirebase();
+            }
+        };
+
+        window.deleteSubject = function(subjectId) {
+            state.subjects = state.subjects.filter(s => s.id !== subjectId);
+            saveUserDataToFirebase();
+        };
+
+        function renderCycleView() {}
+
+        // --- RENDERIZAR TAB DE GESTÃO DE QUESTÕES POR TÓPICOS ---
         function renderQuestionsView() {
             const tbody = document.getElementById('questions-table-body');
             const totalRegsEl = document.getElementById('q-tab-total-regs');
@@ -936,7 +1496,9 @@
             const logs = state.studyLogs || [];
             totalRegsEl.innerText = logs.length;
 
-            let totalQ = 0, totalCorrect = 0;
+            let totalQ = 0;
+            let totalCorrect = 0;
+
             logs.forEach(l => {
                 totalQ += (parseInt(l.questions) || 0);
                 totalCorrect += (parseInt(l.correct) || 0);
@@ -947,7 +1509,7 @@
             globalAccEl.innerText = `${globalAcc}%`;
 
             if (logs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 italic">Nenhum registo de estudo ou questões efetuado até ao momento.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 italic">Nenhum registo de estudo ou questões efetuado até ao momento.</td></tr>`;
                 return;
             }
 
@@ -967,38 +1529,282 @@
 
                 return `
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all">
-                        <td class="p-3.5 text-xs text-slate-500 font-medium">${dateFormatted}</td>
+                        <td class="p-3.5 text-xs text-slate-500 dark:text-slate-400 font-medium">${dateFormatted}</td>
                         <td class="p-3.5 font-bold text-slate-800 dark:text-white flex items-center gap-2">
                             <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${subColor}"></span>
                             <span>${subName}</span>
                         </td>
-                        <td class="p-3.5 text-slate-700 dark:text-slate-200 text-xs">${l.notes || 'Estudo geral'}</td>
+                        <td class="p-3.5 text-slate-700 dark:text-slate-200 text-xs">${l.notes || 'Estudo geral do tópico'}</td>
                         <td class="p-3.5 text-center font-bold text-slate-800 dark:text-white">${qDone}</td>
                         <td class="p-3.5 text-center font-bold text-emerald-600">${qCorr}</td>
                         <td class="p-3.5 text-center">
-                            <span class="text-xs font-bold px-2.5 py-1 rounded-full ${acc >= 80 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                            <span class="text-xs font-bold px-2.5 py-1 rounded-full ${acc >= 80 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400' : (acc >= 60 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-400' : 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-400')}">
                                 ${acc}%
                             </span>
-                        </td>
-                        <td class="p-3.5 text-center">
-                            <button onclick="deleteStudyLog('${l.id}')" title="Excluir Registo" class="text-slate-400 hover:text-red-500 p-1.5 transition-colors">
-                                <i class="fa-solid fa-trash-can text-sm"></i>
-                            </button>
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        window.deleteStudyLog = function(logId) {
-            if (confirm("Tem certeza que deseja excluir este registo de questões/estudo?")) {
-                state.studyLogs = (state.studyLogs || []).filter(l => l.id !== logId);
+        window.setTimerMode = function(mode, updateUI = true) {
+            timerMode = mode;
+            if (updateUI) { pauseTimer(); timerElapsedTimeWhenPaused = 0; }
+            timerTargetDuration = mode === 'pomodoro' ? 25 * 60 : (mode === 'shortBreak' ? 5 * 60 : 0);
+            updateTimerDisplay();
+        };
+
+        function getElapsedSeconds() {
+            if (!timerRunning || !timerStartTime) return timerElapsedTimeWhenPaused;
+            return timerElapsedTimeWhenPaused + Math.floor((Date.now() - timerStartTime) / 1000);
+        }
+
+        window.startTimer = function(isNewStart = true) {
+            getAudioContext();
+            if (timerRunning && isNewStart) return;
+            if (isNewStart) { timerRunning = true; timerStartTime = Date.now(); }
+            document.getElementById('timer-start-btn')?.classList.add('hidden');
+            document.getElementById('timer-pause-btn')?.classList.remove('hidden');
+            saveTimerState();
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const elapsed = getElapsedSeconds();
+                if (timerMode !== 'stopwatch' && timerTargetDuration - elapsed <= 0) {
+                    pauseTimer();
+                    playPomodoroAlarm();
+                    showToast("Sessão Terminada! 🔔");
+                } else {
+                    updateTimerDisplay();
+                }
+            }, 500);
+        };
+
+        window.pauseTimer = function() {
+            if (timerRunning) timerElapsedTimeWhenPaused = getElapsedSeconds();
+            timerRunning = false;
+            timerStartTime = null;
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('timer-start-btn')?.classList.remove('hidden');
+            document.getElementById('timer-pause-btn')?.classList.add('hidden');
+            saveTimerState();
+        };
+
+        window.resetTimer = function() {
+            pauseTimer();
+            timerElapsedTimeWhenPaused = 0;
+            updateTimerDisplay();
+        };
+
+        function updateTimerDisplay() {
+            const display = document.getElementById('timer-display');
+            if (!display) return;
+            const elapsed = getElapsedSeconds();
+            const secs = timerMode === 'stopwatch' ? elapsed : Math.max(0, timerTargetDuration - elapsed);
+            display.innerText = `${Math.floor(secs / 60).toString().padStart(2, '0')}:${(secs % 60).toString().padStart(2, '0')}`;
+        }
+
+        window.finishTimerSession = function() {
+            const secs = getElapsedSeconds();
+            if (secs < 60) return;
+            const subjectId = document.getElementById('timer-subject-select').value;
+            if (!subjectId) return;
+            state.studyLogs.push({ id: crypto.randomUUID(), subjectId, date: new Date().toISOString(), hours: Math.floor(secs / 3600), minutes: Math.floor((secs % 3600) / 60), questions: 0, correct: 0, notes: 'Sessão de Cronómetro' });
+            resetTimer();
+            saveUserDataToFirebase();
+            showToast("Sessão guardada!");
+        };
+
+        function renderErrorsView() {
+            const container = document.getElementById('errors-list-container');
+            if (!container) return;
+            container.innerHTML = state.errors.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhum erro.</p>' : state.errors.map(err => `
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <h4 class="font-bold text-sm">${err.topic}</h4>
+                    <p class="text-xs text-red-500">${err.reason}</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">${err.comment}</p>
+                </div>
+            `).join('');
+        }
+
+        window.formatNoteText = function(type) { applyFormatting('nn-content', type); };
+        window.formatEditNoteText = function(type) { applyFormatting('edit-note-content', type); };
+
+        function applyFormatting(elementId, type) {
+            const textarea = document.getElementById(elementId);
+            if (!textarea) return;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            if (!selectedText) return;
+
+            const formatted = type === 'bold' ? `**${selectedText}**` : `==${selectedText}==`;
+            textarea.value = textarea.value.substring(0, start) + formatted + textarea.value.substring(end);
+            textarea.focus();
+        }
+
+        function parseFormattedText(text) {
+            if (!text) return '';
+            let safe = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            safe = safe.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>');
+            safe = safe.replace(/==([\s\S]*?)==/g, '<mark>$1</mark>');
+            return safe;
+        }
+
+        function renderNotesView() {
+            const foldersContainer = document.getElementById('folders-list-container');
+            if (!foldersContainer) return;
+
+            foldersContainer.innerHTML = state.folders.map(f => `
+                <button onclick="selectFolder('${f.id}')" class="w-full text-left px-4 py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-between ${currentFolderId === f.id ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 font-bold' : 'text-slate-600 dark:text-slate-400'}">
+                    <span><i class="fa-solid fa-folder mr-2"></i> ${f.name}</span>
+                </button>
+            `).join('');
+
+            const notesContainer = document.getElementById('notes-list-container');
+            const filteredNotes = state.notes.filter(n => n.folderId === currentFolderId);
+
+            notesContainer.innerHTML = filteredNotes.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhuma nota nesta pasta.</p>' : filteredNotes.map(n => `
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm flex flex-col justify-between hover:border-indigo-500 transition-all">
+                    <div onclick="openViewNoteModal('${n.id}')" class="cursor-pointer flex-1">
+                        <h4 class="font-bold text-base mb-2 text-slate-800 dark:text-white">${n.title}</h4>
+                        <div class="text-xs text-slate-600 dark:text-slate-300 line-clamp-3">${parseFormattedText(n.content)}</div>
+                    </div>
+                    <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-100 dark:border-slate-700">
+                        <span onclick="openViewNoteModal('${n.id}')" class="text-[10px] text-indigo-600 cursor-pointer font-semibold"><i class="fa-solid fa-pen-to-square mr-1"></i> Ver / Editar</span>
+                        <div class="flex items-center space-x-2">
+                            ${n.reviewDate ? `<span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold"><i class="fa-solid fa-calendar mr-1"></i>${n.reviewDate}</span>` : ''}
+                            <button onclick="deleteNote('${n.id}')" title="Apagar Nota" class="text-slate-400 hover:text-red-500 transition-colors p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.openViewNoteModal = function(noteId) {
+            const note = state.notes.find(n => n.id === noteId);
+            if (!note) return;
+            document.getElementById('edit-note-id').value = note.id;
+            document.getElementById('edit-note-title').value = note.title;
+            document.getElementById('edit-note-content').value = note.content;
+            document.getElementById('edit-note-review-date').value = note.reviewDate || '';
+            openModal('view-note-modal');
+        };
+
+        window.saveEditedNote = function() {
+            const id = document.getElementById('edit-note-id').value;
+            const note = state.notes.find(n => n.id === id);
+            if (note) {
+                note.title = document.getElementById('edit-note-title').value.trim() || 'Sem Título';
+                note.content = document.getElementById('edit-note-content').value;
+                note.reviewDate = document.getElementById('edit-note-review-date').value;
                 saveUserDataToFirebase();
-                showToast("Registo excluído com sucesso!");
+                closeModal('view-note-modal');
+                showToast("Nota atualizada com sucesso!");
             }
         };
 
-        function renderErrorsView() {}
+        window.deleteNote = function(noteId) {
+            if (confirm("Tem certeza que deseja apagar esta nota?")) {
+                state.notes = state.notes.filter(n => n.id !== noteId);
+                saveUserDataToFirebase();
+                showToast("Nota apagada com sucesso!");
+            }
+        };
+
+        window.deleteNoteFromModal = function() {
+            const id = document.getElementById('edit-note-id').value;
+            if (id && confirm("Tem certeza que deseja apagar esta nota?")) {
+                state.notes = state.notes.filter(n => n.id !== id);
+                closeModal('view-note-modal');
+                saveUserDataToFirebase();
+                showToast("Nota apagada com sucesso!");
+            }
+        };
+
+        window.selectFolder = function(id) { currentFolderId = id; renderNotesView(); };
+
+        function renderReviewsView() {
+            const container = document.getElementById('reviews-list-container');
+            if (!container) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            let allReviews = [];
+
+            (state.notes || []).forEach(n => {
+                if (n.reviewDate) {
+                    allReviews.push({ id: n.id, type: 'note', title: n.title, desc: n.content, reviewDate: n.reviewDate });
+                }
+            });
+
+            (state.subjects || []).forEach(s => {
+                s.topics.forEach(t => {
+                    if (t.reviewDate) {
+                        allReviews.push({ id: `${s.id}_${t.id}`, subjectId: s.id, topicId: t.id, type: 'edital', title: `[Edital - ${s.name}]`, desc: t.title, reviewDate: t.reviewDate });
+                    }
+                });
+            });
+
+            if (allReviews.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 italic text-center py-6">Nenhuma revisão agendada.</p>';
+                return;
+            }
+
+            allReviews.sort((a, b) => a.reviewDate.localeCompare(b.reviewDate));
+
+            container.innerHTML = allReviews.map(item => {
+                const isLate = item.reviewDate < today;
+                const isToday = item.reviewDate === today;
+                let badgeClass = 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
+                let statusText = `Revisão para: ${item.reviewDate}`;
+
+                if (isLate) {
+                    badgeClass = 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400';
+                    statusText = `Atrasada (${item.reviewDate})`;
+                } else if (isToday) {
+                    badgeClass = 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400';
+                    statusText = 'Para Hoje!';
+                }
+
+                return `
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm text-slate-800 dark:text-white">${item.title}</h4>
+                            <p class="text-xs text-slate-400 mt-0.5 line-clamp-1">${item.desc}</p>
+                        </div>
+                        <div class="flex items-center space-x-3 shrink-0 ml-4">
+                            <span class="text-xs font-bold px-3 py-1 rounded-full ${badgeClass}">${statusText}</span>
+                            <button onclick="postponeReview('${item.id}', '${item.type}', '${item.subjectId || ''}', '${item.topicId || ''}')" title="Adiar 3 dias" class="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 px-3 py-1.5 rounded-xl font-semibold text-slate-600 dark:text-slate-300">
+                                <i class="fa-solid fa-clock-rotate-left mr-1"></i> Adiar +3d
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.postponeReview = function(id, type, subjectId, topicId) {
+            if (type === 'note') {
+                const note = state.notes.find(n => n.id === id);
+                if (note) {
+                    const currDate = new Date(note.reviewDate || Date.now());
+                    currDate.setDate(currDate.getDate() + 3);
+                    note.reviewDate = currDate.toISOString().split('T')[0];
+                }
+            } else if (type === 'edital') {
+                const sub = state.subjects.find(s => s.id === subjectId);
+                const top = sub?.topics.find(t => t.id === topicId);
+                if (top) {
+                    const currDate = new Date(top.reviewDate || Date.now());
+                    currDate.setDate(currDate.getDate() + 3);
+                    top.reviewDate = currDate.toISOString().split('T')[0];
+                }
+            }
+            saveUserDataToFirebase();
+            showToast("Revisão adiada em 3 dias!");
+        };
+
+        function renderArchiveView() {}
 
         window.openModal = function(id) { document.getElementById(id)?.classList.remove('hidden'); };
         window.closeModal = function(id) { document.getElementById(id)?.classList.add('hidden'); };
@@ -1017,11 +1823,11 @@
                 minutes: parseInt(document.getElementById('qs-minutes').value) || 0,
                 questions: parseInt(document.getElementById('qs-q-total').value) || 0,
                 correct: parseInt(document.getElementById('qs-q-correct').value) || 0,
-                notes: document.getElementById('qs-notes').value.trim() || 'Estudo e questões'
+                notes: document.getElementById('qs-notes').value.trim() || 'Estudo e questões avulsas'
             });
             closeModal('quick-study-modal');
             saveUserDataToFirebase();
-            showToast("Registo guardado!");
+            showToast("Registo guardado com sucesso!");
         };
 
         window.handleNewSubjectSubmit = function(e) {
@@ -1046,6 +1852,41 @@
             saveUserDataToFirebase();
         };
 
+        window.handleNewFolderSubmit = function(e) {
+            e.preventDefault();
+            state.folders.push({ id: crypto.randomUUID(), name: document.getElementById('nfo-name').value });
+            closeModal('new-folder-modal');
+            saveUserDataToFirebase();
+        };
+
+        window.handleNewNoteSubmit = function(e) {
+            e.preventDefault();
+            state.notes.push({
+                id: crypto.randomUUID(),
+                folderId: document.getElementById('nn-folder').value,
+                title: document.getElementById('nn-title').value,
+                content: document.getElementById('nn-content').value,
+                reviewDate: document.getElementById('nn-review-date').value || null,
+                date: new Date().toISOString()
+            });
+            closeModal('new-note-modal');
+            document.getElementById('nn-title').value = '';
+            document.getElementById('nn-content').value = '';
+            saveUserDataToFirebase();
+            showToast("Nota criada com sucesso!");
+        };
+
+        window.confirmResetEdital = function() {
+            state.subjects = [];
+            closeModal('reset-edital-modal');
+            saveUserDataToFirebase();
+        };
+
+        window.confirmArchiveEdital = function() {
+            closeModal('archive-edital-modal');
+            showToast("Edital arquivado!");
+        };
+
         function initCharts() {
             const ctxH = document.getElementById('hoursChart')?.getContext('2d');
             if (ctxH) hoursChartInstance = new Chart(ctxH, { type: 'bar', data: { labels: [], datasets: [{ data: [], backgroundColor: '#6366f1' }] }, options: { responsive: true, maintainAspectRatio: false } });
@@ -1056,6 +1897,7 @@
 
         function updateCharts() {
             if (!hoursChartInstance || !subjectsChartInstance) return;
+            
             const labels = [];
             const dataHours = [0, 0, 0, 0, 0, 0, 0];
             const dateKeys = [];
@@ -1065,8 +1907,11 @@
                 d.setDate(d.getDate() - i);
                 const dateString = d.toISOString().split('T')[0];
                 dateKeys.push(dateString);
+
+                const weekdayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+                const dayName = weekdayNames[d.getDay()];
                 const dayMonth = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
-                labels.push(dayMonth);
+                labels.push(`${dayName} (${dayMonth})`);
             }
 
             state.studyLogs?.forEach(l => {
@@ -1103,9 +1948,11 @@
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
                 localStorage.theme = 'light';
+                document.getElementById('theme-icon').className = 'fa-solid fa-moon text-sm';
             } else {
                 document.documentElement.classList.add('dark');
                 localStorage.theme = 'dark';
+                document.getElementById('theme-icon').className = 'fa-solid fa-sun text-sm';
             }
         };
 
