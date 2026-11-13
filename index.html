@@ -111,7 +111,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.4</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.5</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -513,9 +513,14 @@
                 <input type="hidden" id="edit-note-id">
             </div>
 
-            <div class="p-4 border-t border-slate-200 dark:border-slate-700 flex justify-end space-x-3 shrink-0 bg-slate-50 dark:bg-slate-850">
-                <button onclick="closeModal('view-note-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                <button onclick="saveEditedNote()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Guardar Alterações</button>
+            <div class="p-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center shrink-0 bg-slate-50 dark:bg-slate-850">
+                <button type="button" onclick="deleteNoteFromModal()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/60 dark:text-red-400 transition-all">
+                    <i class="fa-solid fa-trash-can mr-1.5"></i> Apagar Nota
+                </button>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="closeModal('view-note-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
+                    <button type="button" onclick="saveEditedNote()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Guardar Alterações</button>
+                </div>
             </div>
         </div>
     </div>
@@ -580,35 +585,6 @@
         </div>
     </div>
 
-    <!-- MODAL: Edit Subject / Weight -->
-    <div id="edit-subject-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Editar Disciplina & Peso</h3>
-                <button onclick="closeModal('edit-subject-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <form onsubmit="handleEditSubjectSubmit(event)" class="p-6 space-y-4">
-                <input type="hidden" id="es-id">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Nome da Disciplina</label>
-                    <input type="text" id="es-name" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Peso na Prova (Relevância)</label>
-                    <input type="number" id="es-weight" min="1" max="10" step="1" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Cor de Identificação</label>
-                    <input type="color" id="es-color" class="w-full h-11 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-2 py-1 cursor-pointer">
-                </div>
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closeModal('edit-subject-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Salvar Alterações</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- MODAL: Quick Study Session -->
     <div id="quick-study-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -653,60 +629,6 @@
         </div>
     </div>
 
-    <!-- MODAL: Availability -->
-    <div id="availability-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-xl rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Configurar Meta do Ciclo (Horas Planeadas)</h3>
-                <button onclick="closeModal('availability-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <form onsubmit="handleAvailabilitySubmit(event)" class="p-6 space-y-4">
-                <p class="text-xs text-slate-500 dark:text-slate-400">Defina o seu planeamento semanal.</p>
-                <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Segunda-feira</span>
-                        <div><input type="number" step="0.5" min="0" max="24" id="avail-seg-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                        <div><input type="number" min="1" max="5" id="avail-seg-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Terça-feira</span>
-                        <div><input type="number" step="0.5" min="0" max="24" id="avail-ter-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                        <div><input type="number" min="1" max="5" id="avail-ter-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Quarta-feira</span>
-                        <div><input type="number" step="0.5" min="0" max="24" id="avail-qua-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                        <div><input type="number" min="1" max="5" id="avail-qua-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Quinta-feira</span>
-                        <div><input type="number" step="0.5" min="0" max="24" id="avail-qui-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                        <div><input type="number" min="1" max="5" id="avail-qui-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Sexta-feira</span>
-                        <div><input type="number" step="0.5" min="0" max="24" id="avail-sex-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                        <div><input type="number" min="1" max="5" id="avail-sex-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Sábado</span>
-                        <div><input type="number" step="0.5" min="0" max="24" id="avail-sab-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                        <div><input type="number" min="1" max="5" id="avail-sab-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-xl items-center">
-                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Domingo</span>
-                        <div><input type="number" step="0.5" min="0" max="24" id="avail-dom-h" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                        <div><input type="number" min="1" max="5" id="avail-dom-c" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></div>
-                    </div>
-                </div>
-                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-                    <button type="button" onclick="closeModal('availability-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Gerar / Atualizar Ciclo</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- MODAL: Topic Accuracy -->
     <div id="topic-accuracy-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden p-6 space-y-4">
@@ -732,8 +654,14 @@
             <div class="bg-indigo-50/50 dark:bg-indigo-950/30 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/50 space-y-2">
                 <label class="block text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">Tempo Estudado Neste Tópico (Opcional)</label>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><input type="number" id="ta-hours" min="0" max="23" value="0" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100"></div>
-                    <div><input type="number" id="ta-minutes" min="0" max="59" value="0" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100"></div>
+                    <div>
+                        <label class="text-[10px] text-slate-400">Horas</label>
+                        <input type="number" id="ta-hours" min="0" max="23" value="0" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-400">Minutos</label>
+                        <input type="number" id="ta-minutes" min="0" max="59" value="0" class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-800 dark:text-slate-100">
+                    </div>
                 </div>
             </div>
 
@@ -788,38 +716,6 @@
                 <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal('new-topic-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
                     <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Adicionar Tópicos</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: New Error Log -->
-    <div id="new-error-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <h3 class="font-bold text-lg text-slate-800 dark:text-white">Novo Registo no Caderno de Erros</h3>
-                <button onclick="closeModal('new-error-modal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <form onsubmit="handleNewErrorSubmit(event)" class="p-6 space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Disciplina</label>
-                    <select id="ne-subject" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Assunto / Tema da Questão</label>
-                    <input type="text" id="ne-topic" placeholder="Ex: Desapropriação indireta" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Motivo do Erro</label>
-                    <input type="text" id="ne-reason" placeholder="Ex: Confusão com prazo prescricional" class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Comentário / Correção</label>
-                    <textarea id="ne-comment" rows="3" placeholder="Explique a regra correta..." class="w-full bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100" required></textarea>
-                </div>
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closeModal('new-error-modal')" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md">Registar Erro</button>
                 </div>
             </form>
         </div>
@@ -919,7 +815,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         if (window.pdfjsLib) {
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -944,12 +840,8 @@
         let audioCtx = null;
 
         function getAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             return audioCtx;
         }
 
@@ -962,7 +854,6 @@
             try {
                 const ctx = getAudioContext();
                 const now = ctx.currentTime;
-                
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.type = 'sine';
@@ -1298,7 +1189,6 @@
             document.getElementById('stat-total-questions').innerText = totalQ;
             document.getElementById('stat-questions-accuracy').innerText = `Acurácia: ${totalQ > 0 ? Math.round((correctQ / totalQ) * 100) : 0}%`;
 
-            // Contar revisões pendentes (notas + tópicos do edital)
             const todayStr = new Date().toISOString().split('T')[0];
             let pendingRevCount = (state.notes || []).filter(n => n.reviewDate && n.reviewDate <= todayStr).length;
             state.subjects.forEach(s => {
@@ -1317,6 +1207,22 @@
         };
 
         function renderEditalView() {
+            // Atualizar barra de progresso no topo do Edital Verticalizado
+            let totalTopics = 0, doneTopics = 0;
+            state.subjects.forEach(s => s.topics.forEach(t => {
+                totalTopics++;
+                if (t.status === 'concluido') doneTopics++;
+            }));
+            const pct = totalTopics > 0 ? Math.round((doneTopics / totalTopics) * 100) : 0;
+
+            const progText = document.getElementById('edital-progress-text');
+            const topicsCountEl = document.getElementById('edital-topics-count');
+            const progBar = document.getElementById('edital-progress-bar');
+
+            if (progText) progText.innerText = `Progresso Geral: ${pct}%`;
+            if (topicsCountEl) topicsCountEl.innerText = `${doneTopics} / ${totalTopics} tópicos concluídos`;
+            if (progBar) progBar.style.width = `${pct}%`;
+
             const container = document.getElementById('subjects-list-container');
             if (!container) return;
             if (state.subjects.length === 0) {
@@ -1419,16 +1325,34 @@
             const topicId = document.getElementById('ta-topic-id').value;
             const totalQ = parseInt(document.getElementById('ta-total').value) || 0;
             const correctQ = parseInt(document.getElementById('ta-correct').value) || 0;
+            const studyHours = parseInt(document.getElementById('ta-hours').value) || 0;
+            const studyMinutes = parseInt(document.getElementById('ta-minutes').value) || 0;
             
             if (totalQ > 0 && (correctQ / totalQ) < 0.8) {
-                alert("Acurácia inferior a 80%.");
+                alert("Acurácia inferior a 80%. Resolva mais questões para atingir o requisito mínimo.");
                 return;
             }
             const sub = state.subjects.find(s => s.id === subjectId);
             const top = sub?.topics.find(t => t.id === topicId);
-            if (top) top.status = 'concluido';
+            if (top) {
+                top.status = 'concluido';
+                // Registar questões e tempo estudado no histórico para atualizar o Dashboard
+                if (totalQ > 0 || studyHours > 0 || studyMinutes > 0) {
+                    state.studyLogs.push({
+                        id: crypto.randomUUID(),
+                        subjectId: subjectId,
+                        date: new Date().toISOString(),
+                        hours: studyHours,
+                        minutes: studyMinutes,
+                        questions: totalQ,
+                        correct: correctQ,
+                        notes: `Conclusão do tópico: ${top.title}`
+                    });
+                }
+            }
             closeModal('topic-accuracy-modal');
             saveUserDataToFirebase();
+            showToast("Tópico concluído e questões contabilizadas!");
         };
 
         window.deleteTopic = function(subjectId, topicId) {
@@ -1526,7 +1450,7 @@
             `).join('');
         }
 
-        // --- SISTEMA DE NOTAS E FORMATAÇÃO (EDITÁVEL + MARCA-TEXTO + NEGRITO) ---
+        // --- SISTEMA DE NOTAS (EDITÁVEL, EXCLUÍVEL + MARCA-TEXTO + NEGRITO) ---
         window.formatNoteText = function(type) { applyFormatting('nn-content', type); };
         window.formatEditNoteText = function(type) { applyFormatting('edit-note-content', type); };
 
@@ -1565,14 +1489,17 @@
             const filteredNotes = state.notes.filter(n => n.folderId === currentFolderId);
 
             notesContainer.innerHTML = filteredNotes.length === 0 ? '<p class="text-xs text-slate-400 italic">Nenhuma nota nesta pasta.</p>' : filteredNotes.map(n => `
-                <div onclick="openViewNoteModal('${n.id}')" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm flex flex-col justify-between cursor-pointer hover:border-indigo-500 transition-all">
-                    <div>
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm flex flex-col justify-between hover:border-indigo-500 transition-all">
+                    <div onclick="openViewNoteModal('${n.id}')" class="cursor-pointer flex-1">
                         <h4 class="font-bold text-base mb-2 text-slate-800 dark:text-white">${n.title}</h4>
                         <div class="text-xs text-slate-600 dark:text-slate-300 line-clamp-3">${parseFormattedText(n.content)}</div>
                     </div>
                     <div class="flex items-center justify-between mt-4 pt-3 border-t border-slate-100 dark:border-slate-700">
-                        <span class="text-[10px] text-indigo-600"><i class="fa-solid fa-pen-to-square mr-1"></i> Ver / Editar</span>
-                        ${n.reviewDate ? `<span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold"><i class="fa-solid fa-calendar mr-1"></i>${n.reviewDate}</span>` : ''}
+                        <span onclick="openViewNoteModal('${n.id}')" class="text-[10px] text-indigo-600 cursor-pointer font-semibold"><i class="fa-solid fa-pen-to-square mr-1"></i> Ver / Editar</span>
+                        <div class="flex items-center space-x-2">
+                            ${n.reviewDate ? `<span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold"><i class="fa-solid fa-calendar mr-1"></i>${n.reviewDate}</span>` : ''}
+                            <button onclick="deleteNote('${n.id}')" title="Apagar Nota" class="text-slate-400 hover:text-red-500 transition-colors p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -1601,6 +1528,24 @@
             }
         };
 
+        window.deleteNote = function(noteId) {
+            if (confirm("Tem certeza que deseja apagar esta nota?")) {
+                state.notes = state.notes.filter(n => n.id !== noteId);
+                saveUserDataToFirebase();
+                showToast("Nota apagada com sucesso!");
+            }
+        };
+
+        window.deleteNoteFromModal = function() {
+            const id = document.getElementById('edit-note-id').value;
+            if (id && confirm("Tem certeza que deseja apagar esta nota?")) {
+                state.notes = state.notes.filter(n => n.id !== id);
+                closeModal('view-note-modal');
+                saveUserDataToFirebase();
+                showToast("Nota apagada com sucesso!");
+            }
+        };
+
         window.selectFolder = function(id) { currentFolderId = id; renderNotesView(); };
 
         // --- AGENDA DE REVISÕES (NOTAS + EDITAL) ---
@@ -1611,7 +1556,6 @@
             const today = new Date().toISOString().split('T')[0];
             let allReviews = [];
 
-            // Adicionar notas com revisão
             (state.notes || []).forEach(n => {
                 if (n.reviewDate) {
                     allReviews.push({
@@ -1624,7 +1568,6 @@
                 }
             });
 
-            // Adicionar tópicos do edital com revisão
             (state.subjects || []).forEach(s => {
                 s.topics.forEach(t => {
                     if (t.reviewDate) {
