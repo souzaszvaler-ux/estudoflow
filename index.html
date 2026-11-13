@@ -111,7 +111,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-lg tracking-tight">EstudoFlow</h1>
-                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.5</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full">PRO v6.6</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -207,7 +207,7 @@
             </header>
 
             <!-- Scrollable View Area -->
-            <div id="view-container" class="flex-1 overflow-y-auto p-4 sm:p-8 custom-scrollbar">
+            <div id="view-container" class="flex-1 overflow-y-auto p-4 sm:p-8 custom-scrollbar space-y-6">
 
                 <!-- TAB: DASHBOARD -->
                 <div id="tab-dashboard" class="tab-content space-y-6">
@@ -254,11 +254,24 @@
                         </div>
                     </div>
 
+                    <!-- CAIXA DE REVISÕES DO DIA NO DASHBOARD -->
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-base text-slate-800 dark:text-white flex items-center gap-2">
+                                <i class="fa-solid fa-calendar-check text-amber-500"></i> Revisões Agendadas para Hoje
+                            </h3>
+                            <span id="dashboard-today-count" class="text-xs font-semibold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full">0 pendentes</span>
+                        </div>
+                        <div id="dashboard-today-reviews-container" class="space-y-3">
+                            <!-- Injetado dinamicamente -->
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
                             <div class="flex items-center justify-between mb-4">
-                                <h3 class="font-bold text-base text-slate-800 dark:text-white">Evolução de Horas Líquidas</h3>
-                                <span class="text-xs text-slate-400">Tempo real estudado</span>
+                                <h3 class="font-bold text-base text-slate-800 dark:text-white">Evolução de Horas Líquidas (por Data)</h3>
+                                <span class="text-xs text-slate-400">Últimos 7 dias</span>
                             </div>
                             <div class="flex-1 relative min-h-[250px]">
                                 <canvas id="hoursChart"></canvas>
@@ -905,7 +918,8 @@
                 return {
                     ...defaultState,
                     ...parsed,
-                    notes: Array.isArray(parsed.notes) ? parsed.notes : defaultState.notes
+                    notes: Array.isArray(parsed.notes) ? parsed.notes : defaultState.notes,
+                    studyLogs: Array.isArray(parsed.studyLogs) ? parsed.studyLogs : defaultState.studyLogs
                 };
             } catch (e) {
                 return JSON.parse(JSON.stringify(defaultState));
@@ -1154,6 +1168,7 @@
         function renderAll() {
             populateSelects();
             renderDashboardStats();
+            renderDashboardTodayReviews();
             renderEditalView();
             renderCycleView();
             renderErrorsView();
@@ -1200,6 +1215,67 @@
             if (statPendingEl) statPendingEl.innerText = pendingRevCount;
         }
 
+        // --- RENDERIZAR REVISÕES DE HOJE NO DASHBOARD ---
+        function renderDashboardTodayReviews() {
+            const container = document.getElementById('dashboard-today-reviews-container');
+            const countEl = document.getElementById('dashboard-today-count');
+            if (!container) return;
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            let todayItems = [];
+
+            // Notas com revisão <= hoje
+            (state.notes || []).forEach(n => {
+                if (n.reviewDate && n.reviewDate <= todayStr) {
+                    todayItems.push({ id: n.id, type: 'note', title: n.title, desc: n.content, reviewDate: n.reviewDate });
+                }
+            });
+
+            // Tópicos do edital com revisão <= hoje
+            (state.subjects || []).forEach(s => {
+                s.topics.forEach(t => {
+                    if (t.reviewDate && t.reviewDate <= todayStr) {
+                        todayItems.push({ id: `${s.id}_${t.id}`, subjectId: s.id, topicId: t.id, type: 'edital', title: `[Edital - ${s.name}]`, desc: t.title, reviewDate: t.reviewDate });
+                    }
+                });
+            });
+
+            if (countEl) countEl.innerText = `${todayItems.length} pendente(s)`;
+
+            if (todayItems.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 italic py-2">Nenhuma revisão pendente para hoje. Excelente trabalho!</p>';
+                return;
+            }
+
+            container.innerHTML = todayItems.map(item => `
+                <div class="bg-slate-50 dark:bg-slate-700/30 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 flex items-center justify-between">
+                    <div>
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white">${item.title}</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">${item.desc}</p>
+                    </div>
+                    <div class="flex items-center space-x-2 shrink-0 ml-3">
+                        <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-full">${item.reviewDate}</span>
+                        <button onclick="completeDashboardReview('${item.id}', '${item.type}', '${item.subjectId || ''}', '${item.topicId || ''}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all" title="Marcar como Concluída (Remove da Agenda)">
+                            <i class="fa-solid fa-check mr-1"></i> Concluir
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.completeDashboardReview = function(id, type, subjectId, topicId) {
+            if (type === 'note') {
+                const note = state.notes.find(n => n.id === id);
+                if (note) note.reviewDate = null; // Remove a data de revisão para sumir
+            } else if (type === 'edital') {
+                const sub = state.subjects.find(s => s.id === subjectId);
+                const top = sub?.topics.find(t => t.id === topicId);
+                if (top) top.reviewDate = null; // Remove a data de revisão para sumir
+            }
+            saveUserDataToFirebase();
+            showToast("Revisão concluída com sucesso!");
+        };
+
         window.toggleMinimizeSubject = function(subjectId) {
             if (!state.minimizedSubjects) state.minimizedSubjects = {};
             state.minimizedSubjects[subjectId] = !state.minimizedSubjects[subjectId];
@@ -1207,7 +1283,6 @@
         };
 
         function renderEditalView() {
-            // Atualizar barra de progresso no topo do Edital Verticalizado
             let totalTopics = 0, doneTopics = 0;
             state.subjects.forEach(s => s.topics.forEach(t => {
                 totalTopics++;
@@ -1336,19 +1411,17 @@
             const top = sub?.topics.find(t => t.id === topicId);
             if (top) {
                 top.status = 'concluido';
-                // Registar questões e tempo estudado no histórico para atualizar o Dashboard
-                if (totalQ > 0 || studyHours > 0 || studyMinutes > 0) {
-                    state.studyLogs.push({
-                        id: crypto.randomUUID(),
-                        subjectId: subjectId,
-                        date: new Date().toISOString(),
-                        hours: studyHours,
-                        minutes: studyMinutes,
-                        questions: totalQ,
-                        correct: correctQ,
-                        notes: `Conclusão do tópico: ${top.title}`
-                    });
-                }
+                // Registo robusto de questões e horas no array studyLogs
+                state.studyLogs.push({
+                    id: crypto.randomUUID(),
+                    subjectId: subjectId,
+                    date: new Date().toISOString(),
+                    hours: studyHours,
+                    minutes: studyMinutes,
+                    questions: totalQ,
+                    correct: correctQ,
+                    notes: `Conclusão do tópico: ${top.title}`
+                });
             }
             closeModal('topic-accuracy-modal');
             saveUserDataToFirebase();
@@ -1450,7 +1523,7 @@
             `).join('');
         }
 
-        // --- SISTEMA DE NOTAS (EDITÁVEL, EXCLUÍVEL + MARCA-TEXTO + NEGRITO) ---
+        // --- SISTEMA DE NOTAS ---
         window.formatNoteText = function(type) { applyFormatting('nn-content', type); };
         window.formatEditNoteText = function(type) { applyFormatting('edit-note-content', type); };
 
@@ -1548,7 +1621,7 @@
 
         window.selectFolder = function(id) { currentFolderId = id; renderNotesView(); };
 
-        // --- AGENDA DE REVISÕES (NOTAS + EDITAL) ---
+        // --- AGENDA DE REVISÕES ---
         function renderReviewsView() {
             const container = document.getElementById('reviews-list-container');
             if (!container) return;
@@ -1558,34 +1631,20 @@
 
             (state.notes || []).forEach(n => {
                 if (n.reviewDate) {
-                    allReviews.push({
-                        id: n.id,
-                        type: 'note',
-                        title: n.title,
-                        desc: n.content,
-                        reviewDate: n.reviewDate
-                    });
+                    allReviews.push({ id: n.id, type: 'note', title: n.title, desc: n.content, reviewDate: n.reviewDate });
                 }
             });
 
             (state.subjects || []).forEach(s => {
                 s.topics.forEach(t => {
                     if (t.reviewDate) {
-                        allReviews.push({
-                            id: `${s.id}_${t.id}`,
-                            subjectId: s.id,
-                            topicId: t.id,
-                            type: 'edital',
-                            title: `[Edital - ${s.name}]`,
-                            desc: t.title,
-                            reviewDate: t.reviewDate
-                        });
+                        allReviews.push({ id: `${s.id}_${t.id}`, subjectId: s.id, topicId: t.id, type: 'edital', title: `[Edital - ${s.name}]`, desc: t.title, reviewDate: t.reviewDate });
                     }
                 });
             });
 
             if (allReviews.length === 0) {
-                container.innerHTML = '<p class="text-xs text-slate-400 italic text-center py-6">Nenhuma revisão agendada. Defina uma data de revisão nas suas notas ou diretamente nos tópicos do edital.</p>';
+                container.innerHTML = '<p class="text-xs text-slate-400 italic text-center py-6">Nenhuma revisão agendada.</p>';
                 return;
             }
 
@@ -1727,7 +1786,7 @@
 
         function initCharts() {
             const ctxH = document.getElementById('hoursChart')?.getContext('2d');
-            if (ctxH) hoursChartInstance = new Chart(ctxH, { type: 'bar', data: { labels: ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'], datasets: [{ data: [0,0,0,0,0,0,0], backgroundColor: '#6366f1' }] }, options: { responsive: true, maintainAspectRatio: false } });
+            if (ctxH) hoursChartInstance = new Chart(ctxH, { type: 'bar', data: { labels: [], datasets: [{ data: [], backgroundColor: '#6366f1' }] }, options: { responsive: true, maintainAspectRatio: false } });
             
             const ctxS = document.getElementById('subjectsChart')?.getContext('2d');
             if (ctxS) subjectsChartInstance = new Chart(ctxS, { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] }, options: { responsive: true, maintainAspectRatio: false } });
@@ -1735,12 +1794,35 @@
 
         function updateCharts() {
             if (!hoursChartInstance || !subjectsChartInstance) return;
-            const wHours = [0,0,0,0,0,0,0];
+            
+            // Gerar rótulos com os últimos 7 dias e respetivas datas reais (DD/MM)
+            const labels = [];
+            const dataHours = [0, 0, 0, 0, 0, 0, 0];
+            const dateKeys = [];
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dateString = d.toISOString().split('T')[0];
+                dateKeys.push(dateString);
+
+                const weekdayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+                const dayName = weekdayNames[d.getDay()];
+                const dayMonth = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+                labels.push(`${dayName} (${dayMonth})`);
+            }
+
             state.studyLogs?.forEach(l => {
-                let idx = new Date(l.date).getDay();
-                wHours[idx === 0 ? 6 : idx - 1] += (l.hours || 0) + ((l.minutes || 0) / 60);
+                if (!l.date) return;
+                const logDateStr = l.date.split('T')[0];
+                const index = dateKeys.indexOf(logDateStr);
+                if (index !== -1) {
+                    dataHours[index] += (l.hours || 0) + ((l.minutes || 0) / 60);
+                }
             });
-            hoursChartInstance.data.datasets[0].data = wHours;
+
+            hoursChartInstance.data.labels = labels;
+            hoursChartInstance.data.datasets[0].data = dataHours;
             hoursChartInstance.update();
 
             subjectsChartInstance.data.labels = state.subjects.map(s => s.name);
